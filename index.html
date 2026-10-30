@@ -477,6 +477,11 @@ tbody tr{transition:.12s} tbody tr:hover{background:var(--panel2)}
 .rec-det{margin-top:6px}.rec-det summary{cursor:pointer;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:10px 0}
 @media(max-width:760px){.pr{grid-template-columns:1fr;gap:4px}.aging{grid-template-columns:1fr 1fr}.ag-h{grid-column:1/-1}}
 
+/* ===== Limites e conciliação ===== */
+.lim{display:flex;flex-direction:column;gap:3px;min-width:140px;font-size:11px}.lim-t{height:6px;background:var(--panel2);border:1px solid var(--line);border-radius:4px;overflow:hidden}.lim-f{height:100%;background:var(--acc)}.lim-f.al{background:var(--neg)}
+.conc-h{margin:16px 0 8px;font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);cursor:pointer}
+.stat .v.warn,.v.warn{color:var(--warn)}
+
 /* ---------- Específico deste app ---------- */
 .fonte-chip{font-size:9.5px;font-weight:800;letter-spacing:.6px;padding:2px 7px;border-radius:4px;display:inline-block;vertical-align:middle}
 .fonte-chip.GIRO{background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
@@ -585,18 +590,21 @@ tbody tr{transition:.12s} tbody tr:hover{background:var(--panel2)}
 <div class="overlay" id="ovOper"><div class="modal wide" style="max-width:760px">
   <div class="modal-head"><h3>Nova operação de títulos</h3><button class="modal-x" onclick="closeModal('ovOper')">×</button></div>
   <div class="modal-body">
-    <input type="hidden" id="o_fonte"><div class="fx" id="o_fx"></div>
+    <input type="hidden" id="o_fonte"><input type="hidden" id="o_forca"><div class="fx" id="o_fx"></div>
     <div class="fgrid">
       <div class="field"><label>Data do envio *</label><input type="date" id="o_data" onchange="operGera()"></div>
       <div class="field"><label>Saldo na conta hoje</label><input id="o_saldo" disabled></div>
     </div>
     <div class="fgrid">
-      <div class="selrow"><div class="field"><label>Cliente (quem cede) *</label><select id="o_cli"></select></div><button class="btn btn-sm" onclick="openCli(null,'o_cli')">+</button></div>
-      <div class="selrow" id="o_wrapSac"><div class="field"><label>Sacado (quem paga) *</label><select id="o_sac"></select></div><button class="btn btn-sm" onclick="openSac(null,'o_sac')">+</button></div>
-      <div class="chk" style="align-self:end"><input type="checkbox" id="o_direta" onchange="el('o_wrapSac').style.display=this.checked?'none':'flex'"><label for="o_direta">Operação direta: o próprio cliente paga (sem sacado)</label></div>
+      <div class="selrow"><div class="field"><label>Cliente (quem cede) *</label><select id="o_cli" onchange="operCli()"></select></div><button class="btn btn-sm" onclick="openCli(null,'o_cli')">+</button></div>
+      <div class="selrow" id="o_wrapSac"><div class="field"><label>Sacado (quem paga) *</label><select id="o_sac" onchange="operCalc()"></select></div><button class="btn btn-sm" onclick="openSac(null,'o_sac')">+</button></div>
+      <div class="chk" style="align-self:end"><input type="checkbox" id="o_direta" onchange="el('o_wrapSac').style.display=this.checked?'none':'flex';operCalc()"><label for="o_direta">Operação direta: o próprio cliente paga (sem sacado)</label></div>
       <div class="field"><label>NF / documento</label><input id="o_nf"></div>
       <div class="field"><label>Valor bruto dos títulos *</label><input id="o_bruto" placeholder="0,00" oninput="operCalc();operGera()"></div>
-      <div class="field"><label>Valor enviado ao cliente *</label><input id="o_liq" placeholder="0,00" oninput="operCalc()"></div>
+      <div class="field"><label>Fator % ao mês</label><input id="o_fator" placeholder="Ex.: 5,00" oninput="el('o_liq').dataset.manual='';operCalc()"><div class="hint">Com o fator, o sistema calcula o líquido pelo prazo de cada título.</div></div>
+      <div class="field"><label>Float (dias)</label><input id="o_float" value="2" oninput="el('o_liq').dataset.manual='';operCalc()"><div class="hint">Dias somados ao prazo de cada título (compensação).</div></div>
+      <div class="field"><label>Despesas cobradas do cliente</label><input id="o_desp" placeholder="0,00" oninput="el('o_liq').dataset.manual='';operCalc()"><div class="hint">Tarifa, registro: descontadas do líquido, viram receita.</div></div>
+      <div class="field"><label>Valor enviado ao cliente *</label><input id="o_liq" placeholder="0,00" oninput="this.dataset.manual='1';operCalc()"></div>
       <div class="field"><label>Deságio (receita)</label><input id="o_desagio" disabled></div>
       <div class="field"><label>Nº de títulos *</label><input id="o_n" value="1" oninput="operGera()"></div>
       <div class="field"><label>1º vencimento *</label><input type="date" id="o_v1" onchange="operGera()"></div>
@@ -819,6 +827,11 @@ tbody tr{transition:.12s} tbody tr:hover{background:var(--panel2)}
 </div></div>
 
 <!-- Cliente / Sacado / Conta -->
+<div class="overlay" id="ovConc"><div class="modal wide" style="max-width:900px">
+  <div class="modal-head"><h3 id="conc_title">Conciliação</h3><button class="modal-x" onclick="closeModal('ovConc')">×</button></div>
+  <div class="modal-body" id="conc_body"></div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('ovConc')">Fechar</button><button class="btn btn-gold" id="conc_imp">↑ Importar outro extrato</button></div>
+</div></div>
 <div class="overlay" id="ovCli"><div class="modal">
   <div class="modal-head"><h3 id="cliTitle">Cliente</h3><button class="modal-x" onclick="closeModal('ovCli')">×</button></div>
   <div class="modal-body">
@@ -826,6 +839,8 @@ tbody tr{transition:.12s} tbody tr:hover{background:var(--panel2)}
     <div class="field"><label>Nome *</label><input id="cl_nome"></div>
     <div class="chk"><input type="checkbox" id="cl_juros" checked onchange="el('cl_taxa').disabled=!this.checked"><label for="cl_juros">Paga juros nas antecipações</label></div>
     <div class="field"><label>Taxa de correção % ao mês</label><input id="cl_taxa" placeholder="Ex.: 4,00"><div class="hint">A mesma da planilha de correção. Juros compostos pelos dias que o recurso ficou com o cliente.</div></div>
+    <div class="fgrid"><div class="field"><label>Limite de crédito (R$)</label><input id="cl_limite" placeholder="sem limite"><div class="hint">Títulos abertos + antecipações abertas. Avisa ao lançar acima.</div></div>
+      <div class="field"><label>Fator padrão das operações % a.m.</label><input id="cl_fator" placeholder="Ex.: 5,00"><div class="hint">Preenche a calculadora ao escolher o cliente.</div></div></div>
     <div class="field"><label>Observação</label><input id="cl_obs"></div>
     <div class="erro" id="cl_erro"></div>
   </div>
@@ -851,6 +866,7 @@ tbody tr{transition:.12s} tbody tr:hover{background:var(--panel2)}
   <div class="modal-body">
     <input type="hidden" id="sc_id"><input type="hidden" id="sc_ret">
     <div class="field"><label>Nome *</label><input id="sc_nome"></div>
+    <div class="field"><label>Limite (R$)</label><input id="sc_limite" placeholder="sem limite"><div class="hint">Soma dos títulos abertos contra este sacado. Avisa ao lançar acima.</div></div>
     <div class="field"><label>Observação</label><input id="sc_obs"></div>
     <div class="erro" id="sc_erro"></div>
   </div>
@@ -1004,7 +1020,7 @@ function load(){
   if(typeof MODO_NUVEM!=='undefined'&&MODO_NUVEM){DB=DB&&DB.fontes?DB:null}else{try{DB=JSON.parse(localStorage.getItem(KEY))}catch(e){DB=null}}
   if(!DB||!DB.fontes)DB=seedDB();
   if((DB.movs||[]).some(m=>m.obs==='exemplo')||(DB.contratos||[]).some(c=>c.obs==='Exemplo')){DB=seedDB();try{localStorage.removeItem(KEY)}catch(e){}}
-  ['clientes','sacados','investidores','movs','operacoes','titulos','antecipacoes','captacoes','contratos','emprestimos','fechamentos','historico'].forEach(k=>DB[k]=DB[k]||[]);
+  ['clientes','sacados','investidores','movs','operacoes','titulos','antecipacoes','captacoes','contratos','emprestimos','fechamentos','historico','extratos'].forEach(k=>DB[k]=DB[k]||[]);
   DB.categorias=DB.categorias||seedDB().categorias;
   seedDB().categorias.forEach(c=>{if(!DB.categorias.some(x=>x.chave===c.chave))DB.categorias.splice(DB.categorias.findIndex(x=>x.chave==='transferencia'),0,c)});
   /* recurso gravado antes dos módulos: herda a regra do seed (GIRO: parcelas; LEO: captações); recurso novo sem regra liga os dois */
@@ -1215,6 +1231,65 @@ const sinal=v=>v>0?`<span class="pos">${brl(v)}</span>`:v<0?`<span class="neg">$
 const vazio=t=>`<div class="empty">${t}</div>`;
 
 /* ===== Painel ===== */
+
+/* ===== Extrato bancário (OFX) e conciliação =====
+   O extrato não lança nada sozinho: cada linha procura um lançamento do razão do mesmo recurso com o mesmo valor
+   (entrada positiva, saída negativa) até 3 dias de distância. O que sobra do extrato vira "a lançar"; o que sobra
+   do razão vira "não apareceu no banco". O saldo do banco (LEDGERBAL) é comparado com o saldo calculado na mesma data. */
+function parseOFX(txt){
+  const linhas=[];txt.split(/<STMTTRN>/i).slice(1).forEach(b=>{const g=re=>{const m=b.match(re);return m?m[1].trim():''};
+    const d=g(/<DTPOSTED>([^<\s\[]+)/i),v=g(/<TRNAMT>([^<\s]+)/i),memo=g(/<MEMO>([^<\r\n]*)/i)||g(/<NAME>([^<\r\n]*)/i),fit=g(/<FITID>([^<\r\n]*)/i);
+    if(!d||d.length<8)return;linhas.push({data:d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8),desc:memo||'LANÇAMENTO',valor:r2(parseFloat(String(v).replace(',','.'))||0),fit})});
+  const bal=(txt.match(/<LEDGERBAL>([\s\S]*?)<\/LEDGERBAL>/i)||[])[1]||'';const bv=(bal.match(/<BALAMT>([^<\s]+)/i)||[])[1],bd=(bal.match(/<DTASOF>([^<\s\[]+)/i)||[])[1];
+  return {linhas,saldo:bv&&bd?{valor:r2(parseFloat(String(bv).replace(',','.'))),data:bd.slice(0,4)+'-'+bd.slice(4,6)+'-'+bd.slice(6,8)}:null};
+}
+function importOFX(){const c=fAtual().codigo;const inp=document.createElement('input');inp.type='file';inp.accept='.ofx,.OFX';
+  inp.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const buf=new Uint8Array(r.result);let txt=new TextDecoder('utf-8').decode(buf);
+    if(!/ENCODING:\s*UTF-?8/i.test(txt))txt=new TextDecoder('windows-1252').decode(buf);
+    const P=parseOFX(txt);if(!P.linhas.length)return toast('Não encontrei lançamentos nesse arquivo');conciliarExtrato(c,P.linhas,P.saldo,f.name)};r.readAsArrayBuffer(f)};inp.click()}
+const extLinhas=c=>alive(DB.extratos||[]).filter(e=>e.fonte===c).flatMap(e=>e.linhas);
+const extLinha=id=>(DB.extratos||[]).flatMap(e=>e.linhas).find(l=>l.id===id);
+const concLinhaViva=m=>{const L=m.conc&&extLinha(m.conc.extId);return !!(L&&L.movId===m.id)};
+function conciliarExtrato(c,linhas,saldo,arq){
+  const ja=new Set(extLinhas(c).map(l=>l.fit).filter(Boolean));
+  const novas=linhas.filter(l=>!l.fit||!ja.has(l.fit)).map(l=>({...l,id:uid(),movId:null,ignorado:false}));
+  const livres=movsF(c).filter(m=>(m.entrada||m.saida)&&!concLinhaViva(m));
+  novas.forEach(l=>{const cand=livres.filter(m=>Math.abs(efCaixa(m)-l.valor)<.005&&Math.abs(dias(m.data,l.data))<=3).sort((a,b)=>Math.abs(dias(a.data,l.data))-Math.abs(dias(b.data,l.data)))[0];
+    if(cand){cand.conc={extId:l.id,data:l.data,desc:l.desc};l.movId=cand.id;livres.splice(livres.indexOf(cand),1)}});
+  const ds=novas.map(l=>l.data).sort();
+  (DB.extratos=DB.extratos||[]).push({id:uid(),fonte:c,arquivo:arq||'',importadoEm:new Date().toISOString(),de:ds[0]||null,ate:ds[ds.length-1]||null,linhas:novas,saldo,deletedAt:null});
+  logH(`Extrato ${c}: ${novas.length} linha(s) nova(s), ${novas.filter(l=>l.movId).length} conciliada(s)`);save();render();
+  toast(`${novas.length} linha(s) nova(s) · ${novas.filter(l=>l.movId).length} conciliada(s) · ${linhas.length-novas.length} já importada(s)`);openConc(c);
+}
+function concResumo(c){
+  const L=extLinhas(c),vivo=l=>{const m=l.movId&&DB.movs.find(x=>x.id===l.movId);return m&&!m.deletedAt};
+  const ok=L.filter(vivo),falta=L.filter(l=>!vivo(l)&&!l.ignorado),ign=L.filter(l=>!vivo(l)&&l.ignorado);
+  const ds=L.map(l=>l.data).sort(),de=ds[0],ate=ds[ds.length-1];
+  const sobra=de?movsF(c).filter(m=>(m.entrada||m.saida)&&m.data>=de&&m.data<=ate&&!concLinhaViva(m)):[];
+  const ex=alive(DB.extratos||[]).filter(e=>e.fonte===c&&e.saldo).sort((a,b)=>a.saldo.data.localeCompare(b.saldo.data)).pop();
+  const saldo=ex?{...ex.saldo,calc:saldoAte(c,ex.saldo.data),dif:r2(ex.saldo.valor-saldoAte(c,ex.saldo.data))}:null;
+  return {L,ok,falta,ign,sobra,de,ate,saldo};
+}
+function openConc(c){const R=concResumo(c),f=fonte(c);
+  const lin=(l,acao)=>`<tr><td class="c">${fmtBR(l.data)}</td><td class="desc">${esc(l.desc)}</td><td class="num ${l.valor<0?'neg':'pos'}">${brl(l.valor)}</td><td class="c" style="white-space:nowrap">${acao}</td></tr>`;
+  el('conc_title').textContent=`Conciliação · ${c} · ${f.banco||''}`;
+  el('conc_body').innerHTML=!R.L.length?`<div class="vazio"><b>Nenhum extrato importado neste recurso</b><span>Baixe o OFX do banco (Sicoob ou Inter, extrato da conta) e importe pelo botão do razão.</span><div class="acts"><button class="btn btn-gold btn-sm" onclick="closeModal('ovConc');importOFX()">↑ Importar extrato (OFX)</button></div></div>`
+  :`<div class="stats" style="margin-bottom:14px">
+      <div class="stat"><div class="k">Período do extrato</div><div class="v" style="font-size:16px">${fmtBR(R.de)} a ${fmtBR(R.ate)}</div><div class="sub">${R.L.length} linha(s) importada(s)</div></div>
+      <div class="stat"><div class="k">Conciliadas</div><div class="v pos">${R.ok.length}</div><div class="sub">extrato = razão</div></div>
+      <div class="stat"><div class="k">A lançar</div><div class="v ${R.falta.length?'neg':''}">${R.falta.length}</div><div class="sub">no banco, falta no razão</div></div>
+      <div class="stat"><div class="k">Não apareceu no banco</div><div class="v ${R.sobra.length?'warn':''}">${R.sobra.length}</div><div class="sub">no razão, no período do extrato</div></div>
+      ${R.saldo?`<div class="stat"><div class="k">Saldo do banco em ${fmtBR(R.saldo.data)}</div><div class="v">${brl(R.saldo.valor)}</div><div class="sub ${Math.abs(R.saldo.dif)<.005?'pos':'neg'}">${Math.abs(R.saldo.dif)<.005?'bate com o razão':'razão: '+brl(R.saldo.calc)+' · diferença '+brl(R.saldo.dif)}</div></div>`:''}</div>
+    ${R.falta.length?`<h4 class="conc-h">No banco e falta no razão</h4><table class="tb auto"><tbody>${R.falta.map(l=>lin(l,`<button class="btn btn-sm btn-gold" onclick="lancarDoExtrato('${l.id}')">Lançar</button> <button class="btn btn-sm btn-ghost" title="Não lançar: já está em outro lançamento ou não é deste recurso" onclick="ignorarLinha('${l.id}',true)">Ignorar</button>`)).join('')}</tbody></table>`:''}
+    ${R.sobra.length?`<h4 class="conc-h">No razão e não apareceu no banco</h4><table class="tb auto"><tbody>${R.sobra.map(m=>lin({data:m.data,desc:m.descricao,valor:efCaixa(m)},'<span class="muted">confira data e valor</span>')).join('')}</tbody></table>`:''}
+    ${R.ign.length?`<h4 class="conc-h">Ignoradas</h4><table class="tb auto"><tbody>${R.ign.map(l=>lin(l,`<button class="btn btn-sm btn-ghost" onclick="ignorarLinha('${l.id}',false)">Voltar</button>`)).join('')}</tbody></table>`:''}
+    ${R.ok.length?`<details><summary class="conc-h">Conciliadas (${R.ok.length})</summary><table class="tb auto"><tbody>${R.ok.map(l=>lin(l,'<span class="chip chip-ok">✓</span>')).join('')}</tbody></table></details>`:''}`;
+  el('conc_imp').onclick=()=>{closeModal('ovConc');fonteSel=c;importOFX()};openModalId('ovConc')}
+function lancarDoExtrato(id){const L=extLinha(id);if(!L)return;const e=(DB.extratos||[]).find(x=>x.linhas.includes(L));closeModal('ovConc');fonteSel=e.fonte;
+  openMov();setVal('m_data',L.data);setVal('m_desc',L.desc.toUpperCase());setVal('m_valor',n2(Math.abs(L.valor)));pickSent(L.valor>0?'E':'S');movCalc();window._concLinha=id;
+  setVal('m_obs','Do extrato '+fmtBR(L.data))}
+function ignorarLinha(id,v){const L=extLinha(id);if(!L)return;L.ignorado=v;const e=(DB.extratos||[]).find(x=>x.linhas.includes(L));save();openConc(e.fonte)}
+
 /* ===== Painel: decisão do dia =====
    Responde, nesta ordem: quanto posso operar hoje; o que precisa de mim; em que semana o caixa aperta;
    onde está o dinheiro e quanto devo; quanto a carteira rende contra o que o banco custa; onde estou concentrado;
@@ -1242,6 +1317,7 @@ function pnlPrioridades(D){
   D.comp.filter(o=>o.k.caixa<-.005).forEach(o=>add(3,'Caixa negativo',`${o.c}: saiu dinheiro de onde não havia`,brl(o.k.caixa),'razao',o.c));
   const porCli={};D.vencTit.forEach(t=>{const k=t.fonte+'|'+(t.cliente||'');(porCli[k]=porCli[k]||{n:0,v:0,max:0,f:t.fonte,c:t.cliente}).n++;porCli[k].v=r2(porCli[k].v+t.valor);porCli[k].max=Math.max(porCli[k].max,dias(t.vencimento,D.H))});
   Object.values(porCli).sort((a,b)=>b.v-a.v).forEach(x=>add(3,'Título vencido',`${x.c}: ${x.n} título(s), o mais antigo há ${x.max} dia(s)`,brl(x.v),'titulos',x.f));
+  D.fs.forEach(c=>{const n=concResumo(c).falta.length;if(n)add(2,'Extrato a conciliar',`${c}: ${n} linha(s) do banco sem lançamento no razão`,'','razao',c)});
   D.parcVenc.forEach(l=>add(3,'Parcela do banco vencida',`Bradesco ${l.contrato} · parcela ${l.k} · ${fmtBR(l.venc)}`,brl(l.parcela),'parcelas',l.fonte));
   D.parc.filter(l=>l.venc>=D.H&&l.venc<=addDias(D.H,7)).forEach(l=>add(2,'Parcela em 7 dias',`Bradesco ${l.contrato} · parcela ${l.k} · ${fmtBR(l.venc)}`,brl(l.parcela),'parcelas',l.fonte));
   D.tit.filter(t=>t.vencimento>=D.H&&t.vencimento<=addDias(D.H,3)).forEach(t=>add(2,'Vence em até 3 dias',`${t.cliente||t.sacado} · NF ${t.nf} · ${fmtBR(t.vencimento)}`,brl(t.valor),'titulos',t.fonte));
@@ -1250,6 +1326,8 @@ function pnlPrioridades(D){
   empsVivos().filter(e=>e.saldo>0).forEach(e=>add(1,'Empréstimo entre recursos',`${e.para} deve a ${e.de} desde ${fmtBR(e.data)}`,brl(e.saldo),'razao',e.para));
   const [y,m]=D.H.split('-').map(Number);const ant=`${m===1?y-1:y}-${String(m===1?12:m-1).padStart(2,'0')}`;
   D.fs.forEach(c=>{if(movsMes(c,ant).length&&!(fech(c,ant)&&fech(c,ant).fechado))add(1,'Mês sem fechamento',`${c}: ${mesLabel(ant)} ainda não foi fechado`,'','fechamento',c)});
+  alive(DB.clientes).filter(x=>x.limite&&expCli(x.id)>x.limite+.005).forEach(x=>add(2,'Acima do limite',`Cliente ${x.nome}: ${brl(expCli(x.id))} em uso de ${brl(x.limite)}`,brl(r2(expCli(x.id)-x.limite)),'clientes',''));
+  alive(DB.sacados).filter(x=>x.limite&&expSac(x.id)>x.limite+.005).forEach(x=>add(2,'Acima do limite',`Sacado ${x.nome}: ${brl(expSac(x.id))} em uso de ${brl(x.limite)}`,brl(r2(expSac(x.id)-x.limite)),'sacados',''));
   const conc=pnlConcentracao(D);conc.filter(x=>x.pct>LIMITE_CONC&&x.nome!=='Outros').forEach(x=>add(1,'Concentração alta',`${x.nome} responde por ${Math.round(x.pct*100)}% da carteira`,brl(x.v),'correcao',''));
   return F.sort((a,b)=>b.u-a.u);
 }
@@ -1376,7 +1454,7 @@ function viewRazao(){
   const f=fAtual(),c=f.codigo,ms=movsMes(c,mesSel).sort((a,b)=>a.data.localeCompare(b.data)||(a.seq||0)-(b.seq||0));
   let saldo=saldoAntesMes(c,mesSel),mont=montanteAntesMes(c,mesSel);const ab=saldo,mab=mont;const fechado=mesFechado(c,mesSel);
   const rows=ms.map(m=>{saldo=r2(saldo+efCaixa(m));mont=r2(mont+efMont(m));const semCaixa=!m.entrada&&!m.saida;
-    return `<tr><td class="c">${fmtBR(m.data)}</td><td class="desc"><b>${esc(m.descricao)}${m.origem?` <span class="chip chip-n orig">${m.origem}</span>`:''}</b>${m.clienteId?`<div class="muted">${esc(nomeCli(m.clienteId))}</div>`:''}${m.obs?`<div class="muted">${esc(m.obs)}</div>`:''}</td><td class="c">${chipCat(m.categoria)}${semCaixa?' <span class="chip chip-n">sem caixa</span>':''}</td>
+    return `<tr><td class="c">${fmtBR(m.data)}</td><td class="desc"><b>${esc(m.descricao)}${m.origem?` <span class="chip chip-n orig">${m.origem}</span>`:''}</b>${m.clienteId?`<div class="muted">${esc(nomeCli(m.clienteId))}</div>`:''}${m.obs?`<div class="muted">${esc(m.obs)}</div>`:''}</td><td class="c">${chipCat(m.categoria)}${semCaixa?' <span class="chip chip-n">sem caixa</span>':''}${m.conc&&concLinhaViva(m)?` <span class="chip chip-ok" title="${esc('No extrato: '+fmtBR(m.conc.data)+' · '+(m.conc.desc||''))}">✓ banco</span>`:''}</td>
       <td class="num">${m.entrada?`<span class="pos">${brl(m.entrada)}</span>`:''}</td><td class="num">${m.saida?`<span class="neg">${brl(m.saida)}</span>`:''}</td>
       <td class="num"><b>${brl(saldo)}</b></td><td class="num goldtxt">${brl(mont)}</td>
       <td class="c" style="white-space:nowrap">${fechado?'<span class="chip chip-n">fechado</span>':m.origem?`<button class="iconbtn del" onclick="delMov('${m.id}')" title="Excluir">🗑</button>`:`<button class="iconbtn" onclick="openMov('${m.id}')" title="Editar">✎</button> <button class="iconbtn del" onclick="delMov('${m.id}')" title="Excluir">🗑</button>`}</td></tr>`}).join('');
@@ -1387,7 +1465,8 @@ function viewRazao(){
     <button class="acao" onclick="openAnt()"><b>+ Antecipação</b><span>recurso enviado a cliente, com juros pela correção</span></button>
     ${temModulo(f,'captacoes')?`<button class="acao" onclick="openCap()"><b>+ Captação</b><span>dinheiro de terceiros que entra na conta</span></button>`:''}
     <button class="acao" onclick="openEmp()"><b>⇄ Empréstimo entre recursos</b><span>quando um recurso completa o outro numa operação</span></button>
-  </div><div class="filters"><span class="muted" style="font-size:12px">${logoBanco(f)} ${f.banco?'conta '+esc(f.banco)+' · ':''}${mesLabel(mesSel)}${fechado?' · <b>fechado</b>':''}</span></div>
+  </div><div class="filters"><span class="muted" style="font-size:12px">${logoBanco(f)} ${f.banco?'conta '+esc(f.banco)+' · ':''}${mesLabel(mesSel)}${fechado?' · <b>fechado</b>':''}</span>
+    <span class="right" style="display:flex;gap:6px"><button class="btn btn-sm" onclick="importOFX()">↑ Importar extrato (OFX)</button><button class="btn btn-sm ${concResumo(c).falta.length?'btn-gold':''}" onclick="openConc('${c}')">Conciliação${concResumo(c).falta.length?` · ${concResumo(c).falta.length} a lançar`:''}</button></span></div>
   ${ms.length?`<div class="panel"><div class="tbl-scroll"><table class="razao">
     <colgroup><col style="width:96px"><col><col style="width:176px"><col style="width:118px"><col style="width:118px"><col style="width:140px"><col style="width:140px"><col style="width:72px"></colgroup>
     <thead><tr><th class="c">Data</th><th>Descrição</th><th class="c">Conta</th><th class="num">Entrada</th><th class="num">Saída</th><th class="num">Saldo da conta</th><th class="num">Montante</th><th></th></tr></thead>
@@ -1616,9 +1695,10 @@ function viewClientes(){
   const rows=L.map(x=>{const ab=alive(DB.antecipacoes).filter(a=>a.clienteId===x.id&&a.status!=='quitada'),ts=alive(DB.titulos).filter(t=>t.clienteId===x.id&&!t.pago);
     return `<tr><td><b>${esc(x.nome)}</b>${x.obs?`<div class="muted" style="font-size:11px">${esc(x.obs)}</div>`:''}</td><td>${x.cobraJuros?`<span class="chip chip-ok">${(x.taxaMes*100).toFixed(2).replace('.',',')}% a.m.</span>`:'<span class="chip chip-n">sem juros</span>'}</td>
       <td class="num">${brl(r2(ab.reduce((s,a)=>s+a.principal,0)))}<div class="muted" style="font-size:10.5px">${ab.length} antecipação(ões)</div></td><td class="num">${brl(r2(ts.reduce((s,t)=>s+t.valor,0)))}<div class="muted" style="font-size:10.5px">${ts.length} título(s)</div></td>
+      <td>${barraLim(expCli(x.id),x.limite)}${x.fatorMes?`<div class="muted" style="font-size:10.5px">fator ${pctBR(x.fatorMes)} a.m.</div>`:''}</td>
       <td class="num"><button class="iconbtn" onclick="openCli('${x.id}')">✎</button> <button class="iconbtn del" onclick="delCad('clientes','${x.id}')">🗑</button></td></tr>`}).join('');
   return `<div class="panel"><div class="panel-head"><h2>Clientes<small>taxa de correção para as antecipações</small></h2><button class="btn btn-sm btn-gold" onclick="openCli()">+ Cliente</button></div>
-    <div class="tbl-scroll"><table class="tb auto"><thead><tr><th>Nome</th><th>Juros</th><th class="num">Antecipações abertas</th><th class="num">Títulos abertos</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5">${vazio('Nenhum cliente cadastrado.')}</td></tr>`}</tbody></table></div></div>`;
+    <div class="tbl-scroll"><table class="tb auto"><thead><tr><th>Nome</th><th>Juros</th><th class="num">Antecipações abertas</th><th class="num">Títulos abertos</th><th>Limite em uso</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="6">${vazio('Nenhum cliente cadastrado.')}</td></tr>`}</tbody></table></div></div>`;
 }
 function viewInvestidores(){
   const L=alive(DB.investidores).sort((a,b)=>a.nome.localeCompare(b.nome));
@@ -1635,10 +1715,10 @@ function viewInvestidores(){
 function viewSacados(){
   const L=alive(DB.sacados).sort((a,b)=>a.nome.localeCompare(b.nome));
   const rows=L.map(x=>{const ts=alive(DB.titulos).filter(t=>t.sacadoId===x.id),ab=ts.filter(t=>!t.pago);
-    return `<tr><td><b>${esc(x.nome)}</b>${x.obs?`<div class="muted" style="font-size:11px">${esc(x.obs)}</div>`:''}</td><td class="num">${ts.length}</td><td class="num">${brl(r2(ab.reduce((s,t)=>s+t.valor,0)))}<div class="muted" style="font-size:10.5px">${ab.filter(titVencido).length} vencido(s)</div></td>
+    return `<tr><td><b>${esc(x.nome)}</b>${x.obs?`<div class="muted" style="font-size:11px">${esc(x.obs)}</div>`:''}</td><td class="num">${ts.length}</td><td class="num">${brl(r2(ab.reduce((s,t)=>s+t.valor,0)))}<div class="muted" style="font-size:10.5px">${ab.filter(titVencido).length} vencido(s)</div></td><td>${barraLim(expSac(x.id),x.limite)}</td>
       <td class="num"><button class="iconbtn" onclick="openSac('${x.id}')">✎</button> <button class="iconbtn del" onclick="delCad('sacados','${x.id}')">🗑</button></td></tr>`}).join('');
   return `<div class="panel"><div class="panel-head"><h2>Sacados<small>quem paga os títulos</small></h2><button class="btn btn-sm btn-gold" onclick="openSac()">+ Sacado</button></div>
-    <div class="tbl-scroll"><table class="tb auto"><thead><tr><th>Nome</th><th class="num">Títulos</th><th class="num">Em aberto</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="4">${vazio('Nenhum sacado cadastrado.')}</td></tr>`}</tbody></table></div></div>`;
+    <div class="tbl-scroll"><table class="tb auto"><thead><tr><th>Nome</th><th class="num">Títulos</th><th class="num">Em aberto</th><th>Limite em uso</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5">${vazio('Nenhum sacado cadastrado.')}</td></tr>`}</tbody></table></div></div>`;
 }
 function viewPlano(){
   const grupos=['Receitas','Despesas','Patrimonial'].map(g=>`<div><b style="display:block;padding:10px 0 6px;color:var(--acc);font-size:10px;letter-spacing:1.5px;text-transform:uppercase">${g}</b>
@@ -1703,7 +1783,7 @@ function movCalc(){const x=calcMov(),k=val('m_cat');
   if(k==='transferencia')lin.push(['No destino',`entra ${brl(x.saida)}`]);
   el('m_memo').innerHTML=lin.map(([a,b],i)=>`<div class="l ${i===2?'tot':''}"><span>${a}</span><span>${b}</span></div>`).join('')}
 function openMov(id){
-  limpaErro('m_erro');const m=id?DB.movs.find(x=>x.id===id):null;
+  window._concLinha=null;limpaErro('m_erro');const m=id?DB.movs.find(x=>x.id===id):null;
   el('movTitle').textContent=m?'Editar lançamento':'Lançamento comum';el('m_cli').innerHTML=optCli(m?m.clienteId:'');
   setVal('m_id',m?m.id:'');fixaFonte('m_fonte','m_fx',m?m.fonte:fonteSel);setVal('m_data',m?m.data:dataPadrao());setVal('m_desc',m?m.descricao:'');
   movCat();if(m)setVal('m_cat',m.categoria);movCat();setVal('m_valor',m?n2(m.entrada||m.saida):'');setVal('m_obs',m?m.obs||'':'');
@@ -1717,6 +1797,7 @@ function saveMov(){
   if(id){const m=DB.movs.find(y=>y.id===id);if(!podeLancar(m.fonte,m.data,'m_erro'))return;Object.assign(m,base);
     if(m.parId){const p=DB.movs.find(y=>y.id===m.parId);if(p)Object.assign(p,{data,descricao:desc,entrada:x.saida,saida:0,capital:x.saida,obs:base.obs})}logH(`Editou ${desc}`)}
   else{const m={id:uid(),...base,parId:null,deletedAt:null};DB.movs.push(m);
+    if(window._concLinha){const L=extLinha(window._concLinha);if(L&&Math.abs(efCaixa(m)-L.valor)<.005){L.movId=m.id;m.conc={extId:L.id,data:L.data,desc:L.desc};setTimeout(()=>openConc(m.fonte),60)}window._concLinha=null}
     if(k==='transferencia'){const d=val('m_dest');const p={id:uid(),fonte:d,data,descricao:desc,categoria:'transferencia',clienteId:null,entrada:x.saida,saida:0,resultado:0,capital:x.saida,obs:'Vem de '+f,parId:m.id,deletedAt:null};DB.movs.push(p);m.parId=p.id}
     logH(`Lançou ${desc} em ${f}`)}
   save();closeModal('ovMov');render();toast('Lançamento salvo');
@@ -1731,11 +1812,37 @@ function delMov(id){const m=DB.movs.find(x=>x.id===id);if(!m)return;if(mesFechad
 /* ===== Operação de títulos ===== */
 function openOper(){
   limpaErro('o_erro');fixaFonte('o_fonte','o_fx',fonteSel);setVal('o_saldo',n2(saldoAte(fonteSel,'9999-12-31')));el('o_cli').innerHTML=optCli();el('o_sac').innerHTML=optSac();
-  el('o_direta').checked=false;el('o_wrapSac').style.display='flex';setVal('o_data',dataPadrao());setVal('o_nf','');setVal('o_bruto','');setVal('o_liq','');setVal('o_desagio','');setVal('o_n','1');setVal('o_v1',addDias(dataPadrao(),30));setVal('o_int','30');setVal('o_obs','');
+  el('o_direta').checked=false;el('o_wrapSac').style.display='flex';setVal('o_forca','');setVal('o_fator','');setVal('o_float','2');setVal('o_desp','');el('o_liq').dataset.manual='';setVal('o_data',dataPadrao());setVal('o_nf','');setVal('o_bruto','');setVal('o_liq','');setVal('o_desagio','');setVal('o_n','1');setVal('o_v1',addDias(dataPadrao(),30));setVal('o_int','30');setVal('o_obs','');
   operGera();openModalId('ovOper');
 }
-function operCalc(){const b=parseNum(val('o_bruto')),l=parseNum(val('o_liq'));setVal('o_desagio',b||l?n2(b-l):'');const sd=saldoAte(val('o_fonte'),'9999-12-31');
-  el('o_memo').innerHTML=`<div class="l"><span>Sai da conta hoje</span><span class="neg">${brl(-l)}</span></div><div class="l"><span>Entra na carteira (títulos)</span><span>${brl(b)}</span></div><div class="l tot"><span>Deságio no resultado</span><span class="${b-l>=0?'pos':'neg'}">${brl(r2(b-l))}</span></div>`
+/* Calculadora da operação, no mesmo critério do LiveWork: prazo de cada título = dias corridos até o vencimento
+   (vencimento no fim de semana passa para a segunda) + float; deságio = valor × fator × prazo ÷ 30;
+   líquido = bruto − deságio − despesas; ROA = (deságio + despesas) ÷ bruto × 30 ÷ prazo médio. */
+/* Limite: exposição do cliente = títulos abertos dele + antecipações abertas (principal); do sacado = títulos abertos contra ele. */
+const expCli=id=>r2(alive(DB.titulos).filter(t=>t.clienteId===id&&!t.pago).reduce((s,t)=>s+t.valor,0)+alive(DB.antecipacoes).filter(a=>a.clienteId===id&&a.status!=='quitada').reduce((s,a)=>s+a.principal,0));
+const expSac=id=>r2(alive(DB.titulos).filter(t=>t.sacadoId===id&&!t.pago).reduce((s,t)=>s+t.valor,0));
+function limiteAviso(tipo,id,novo){if(!id)return null;const x=(tipo==='cli'?DB.clientes:DB.sacados).find(y=>y.id===id);if(!x||!x.limite)return null;
+  const usado=tipo==='cli'?expCli(id):expSac(id),depois=r2(usado+(novo||0));return {tipo,nome:x.nome,limite:x.limite,usado,depois,passa:depois>x.limite+.005}}
+const barraLim=(usado,lim)=>lim?`<div class="lim"><div class="lim-t"><div class="lim-f ${usado>lim+.005?'al':''}" style="width:${Math.min(100,Math.round(usado/lim*100))}%"></div></div><span class="${usado>lim+.005?'neg':'muted'}">${Math.round(usado/lim*100)}% de ${brl(lim)}</span></div>`:'<span class="muted">sem limite</span>';
+const diaUtil=d=>{let x=d;while([0,6].includes(dt(x).getDay()))x=addDias(x,1);return x};
+function operCalcFator(){
+  const data=val('o_data'),fat=parseNum(val('o_fator'))/100,fl=parseInt(val('o_float'))||0,desp=r2(parseNum(val('o_desp')));
+  const pv=[...document.querySelectorAll('.o_pv')].map(x=>x.value),pval=[...document.querySelectorAll('.o_pval')].map(x=>r2(parseNum(x.value)));
+  const tot=pval.reduce((s,v)=>s+v,0);if(!data||!tot||pv.some(x=>!x))return null;
+  const prazos=pv.map(v=>Math.max(0,dias(data,diaUtil(v))+fl));const pm=prazos.reduce((s,d,i)=>s+d*pval[i],0)/tot;
+  const desag=r2(pval.reduce((s,v,i)=>s+v*fat*prazos[i]/30,0));
+  return {fat,fl,desp,prazoMedio:Math.round(pm*100)/100,desagio:desag,liquido:r2(tot-desag-desp),bruto:r2(tot)};
+}
+const pctBR=v=>(v*100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';
+function operCli(){const c=cli(val('o_cli'));if(c&&c.fatorMes&&!val('o_fator')){setVal('o_fator',n2(c.fatorMes*100));el('o_liq').dataset.manual=''}operCalc()}
+function operCalc(){const C=operCalcFator();if(C&&C.fat>0&&!el('o_liq').dataset.manual)setVal('o_liq',n2(C.liquido));
+  const b=parseNum(val('o_bruto')),l=parseNum(val('o_liq'));setVal('o_desagio',b||l?n2(b-l):'');const sd=saldoAte(val('o_fonte'),'9999-12-31');
+  const roa=C&&C.prazoMedio>0&&b>0?((b-l)/b)*30/C.prazoMedio:null;
+  const lim=[limiteAviso('cli',val('o_cli'),b),el('o_direta').checked?null:limiteAviso('sac',val('o_sac'),b)].filter(Boolean);
+  el('o_memo').innerHTML=(C&&C.fat>0?`<div class="l"><span>Pelo fator de ${pctBR(C.fat)} a.m. · prazo médio ${String(C.prazoMedio).replace('.',',')} dias (float ${C.fl})</span><span>deságio ${brl(C.desagio)}${C.desp?` + despesas ${brl(C.desp)}`:''}</span></div>`+(el('o_liq').dataset.manual&&Math.abs(l-C.liquido)>.005?`<div class="l" style="color:var(--warn)"><span>O enviado digitado difere do calculado (${brl(C.liquido)})</span><span>${brl(r2(l-C.liquido))}</span></div>`:''):'')
+   +`<div class="l"><span>Sai da conta hoje</span><span class="neg">${brl(-l)}</span></div><div class="l"><span>Entra na carteira (títulos)</span><span>${brl(b)}</span></div><div class="l tot"><span>Deságio no resultado</span><span class="${b-l>=0?'pos':'neg'}">${brl(r2(b-l))}</span></div>`
+   +(roa!=null?`<div class="l"><span>Rentabilidade ao mês (ROA)</span><span><b>${pctBR(roa)}</b></span></div>`:'')
+   +lim.map(x=>`<div class="l" style="color:${x.passa?'var(--neg)':'var(--dim)'}"><span>Limite ${x.tipo==='cli'?'do cliente':'do sacado'} ${esc(x.nome)}: ${brl(x.usado)} em uso de ${brl(x.limite)}</span><span>${x.passa?'passa em '+brl(r2(x.depois-x.limite)):'sobra '+brl(r2(x.limite-x.depois))}</span></div>`).join('')
    +(l>sd+.005?`<div class="l" style="color:var(--warn)"><span>Falta na conta ${brl(r2(l-sd))}</span><span><button class="btn btn-sm" type="button" onclick="closeModal('ovOper');openEmp(${r2(l-sd)})">⇄ Pegar emprestado do outro recurso</button></span></div>`:'')}
 function operGera(){
   const b=r2(parseNum(val('o_bruto'))),n=Math.max(1,parseInt(val('o_n'))||1),v1=val('o_v1'),it=parseInt(val('o_int'))||30;
@@ -1747,11 +1854,14 @@ function saveOper(){
   limpaErro('o_erro');const f=val('o_fonte'),data=val('o_data'),cliId=val('o_cli'),direta=el('o_direta').checked,sacId=direta?null:val('o_sac'),b=r2(parseNum(val('o_bruto'))),l=r2(parseNum(val('o_liq')));
   if(!cliId)return erro('o_erro','Escolha o cliente (use + para cadastrar).');if(!direta&&!sacId)return erro('o_erro','Escolha o sacado, ou marque "operação direta" se o próprio cliente paga.');if(!(b>0&&l>0))return erro('o_erro','Informe o bruto e o enviado.');if(l>b)return erro('o_erro','O enviado não pode passar do bruto.');
   if(!podeLancar(f,data,'o_erro'))return;
+  const passa=[limiteAviso('cli',cliId,b),direta?null:limiteAviso('sac',sacId,b)].filter(x=>x&&x.passa);
+  if(passa.length&&val('o_forca')!=='1'){setVal('o_forca','1');return erro('o_erro',`Passa o limite ${passa.map(x=>(x.tipo==='cli'?'do cliente ':'do sacado ')+x.nome+' em '+brl(r2(x.depois-x.limite))).join(' e ')}. Clique em Rodar operação de novo para confirmar mesmo assim.`)}
   const pv=[...document.querySelectorAll('.o_pv')].map(x=>x.value),pval=[...document.querySelectorAll('.o_pval')].map(x=>r2(parseNum(x.value)));
   if(pv.some(x=>!x))return erro('o_erro','Informe o vencimento de cada título.');
   if(Math.abs(pval.reduce((s,v)=>s+v,0)-b)>.005)return erro('o_erro',`Os títulos somam ${brl(pval.reduce((s,v)=>s+v,0))}, e o bruto é ${brl(b)}.`);
   const nf=val('o_nf').trim(),cn=nomeCli(cliId),sn=direta?cn:nomeSac(sacId);
-  const op={id:uid(),fonte:f,data,clienteId:cliId,sacadoId:sacId,direta,nf,bruto:b,liquido:l,desagio:r2(b-l),movId:null,obs:val('o_obs').trim(),deletedAt:null};
+  const C=operCalcFator();
+  const op={id:uid(),fonte:f,data,clienteId:cliId,sacadoId:sacId,direta,nf,bruto:b,liquido:l,desagio:r2(b-l),fator:C&&C.fat?C.fat:null,floatDias:C?C.fl:null,despesas:C?C.desp:0,prazoMedio:C?C.prazoMedio:null,roa:C&&C.prazoMedio>0?r2(((b-l)/b)*30/C.prazoMedio*10000)/10000:null,movId:null,obs:val('o_obs').trim(),deletedAt:null};
   const m={id:uid(),fonte:f,data,descricao:`OPERAÇÃO ${cn}${nf?' NF '+nf:''}`,categoria:'envio_operacao',clienteId:cliId,entrada:0,saida:l,resultado:r2(b-l),capital:0,obs:direta?`${pv.length} título(s) · operação direta, o cliente paga`:`${pv.length} título(s) de ${sn}`,operacaoId:op.id,origem:'operação',deletedAt:null};
   op.movId=m.id;DB.operacoes.push(op);DB.movs.push(m);
   pv.forEach((v,i)=>DB.titulos.push({id:uid(),fonte:f,operacaoId:op.id,clienteId:cliId,sacadoId:sacId,direta,dataEntrada:data,sacado:sn,cliente:cn,nf,parcela:`${i+1}/${pv.length}`,valor:pval[i],vencimento:v,pago:false,recebimento:null,valorRecebido:0,obs:'',deletedAt:null}));
@@ -1807,6 +1917,8 @@ function saveAnt(){
   if(!cliId)return erro('a_erro','Escolha o cliente (use + para cadastrar).');if(!(v>0))return erro('a_erro','Informe o valor.');
   if(id)return editaAnt(id,{f,data,cliId,v,tx});
   if(!podeLancar(f,data,'a_erro'))return;
+  const lA=limiteAviso('cli',cliId,v);if(lA&&lA.passa&&el('a_valor').dataset.forca!=='1'){el('a_valor').dataset.forca='1';return erro('a_erro',`Passa o limite do cliente ${lA.nome} em ${brl(r2(lA.depois-lA.limite))} (${brl(lA.usado)} em uso de ${brl(lA.limite)}). Clique em Enviar de novo para confirmar mesmo assim.`)}
+  el('a_valor').dataset.forca='';
   const cn=nomeCli(cliId);const a={id:uid(),fonte:f,data,clienteId:cliId,cliente:cn,valor:v,taxaMes:tx,principal:v,jurosRecebidos:0,jurosPendentes:0,dataBase:data,status:'aberta',retornos:[],movId:null,obs:val('a_obs').trim(),deletedAt:null};
   const m={id:uid(),fonte:f,data,descricao:`ANTECIPAÇÃO ${cn}`,categoria:'antecipacao_enviada',clienteId:cliId,entrada:0,saida:v,resultado:0,capital:0,obs:tx?`${(tx*100).toFixed(2).replace('.',',')}% a.m.`:'sem juros',antecipacaoId:a.id,origem:'antecipação',deletedAt:null};
   a.movId=m.id;DB.antecipacoes.push(a);DB.movs.push(m);logH(`Antecipação ${cn} ${brl(v)} em ${f}`);save();closeModal('ovAnt');render();toast('Antecipação enviada');
@@ -1978,9 +2090,9 @@ function saveFonte(){limpaErro('f_erro');const id=val('f_id'),cod=val('f_codigo'
   if(id)Object.assign(DB.fontes.find(x=>x.id===id),base);else DB.fontes.push({id:uid(),codigo:cod,ativa:true,...base});
   logH(`Recurso ${nome}`);save();closeModal('ovFonte');render();toast('Recurso salvo')}
 function openCli(id,ret){limpaErro('cl_erro');const x=id?DB.clientes.find(y=>y.id===id):null;el('cliTitle').textContent=x?'Editar cliente':'Novo cliente';
-  setVal('cl_id',x?x.id:'');setVal('cl_ret',ret||'');setVal('cl_nome',x?x.nome:'');el('cl_juros').checked=x?!!x.cobraJuros:true;el('cl_taxa').disabled=!el('cl_juros').checked;setVal('cl_taxa',x&&x.taxaMes?n2(x.taxaMes*100):'');setVal('cl_obs',x?x.obs||'':'');openModalId('ovCli');setTimeout(()=>el('cl_nome').focus(),60)}
+  setVal('cl_id',x?x.id:'');setVal('cl_ret',ret||'');setVal('cl_nome',x?x.nome:'');el('cl_juros').checked=x?!!x.cobraJuros:true;el('cl_taxa').disabled=!el('cl_juros').checked;setVal('cl_taxa',x&&x.taxaMes?n2(x.taxaMes*100):'');setVal('cl_limite',x&&x.limite?n2(x.limite):'');setVal('cl_fator',x&&x.fatorMes?n2(x.fatorMes*100):'');setVal('cl_obs',x?x.obs||'':'');openModalId('ovCli');setTimeout(()=>el('cl_nome').focus(),60)}
 function saveCli(){limpaErro('cl_erro');const id=val('cl_id'),nome=val('cl_nome').trim();if(!nome)return erro('cl_erro','Informe o nome.');
-  const base={nome,cobraJuros:el('cl_juros').checked,taxaMes:el('cl_juros').checked?parseNum(val('cl_taxa'))/100:0,obs:val('cl_obs').trim()};let x;
+  const base={nome,cobraJuros:el('cl_juros').checked,taxaMes:el('cl_juros').checked?parseNum(val('cl_taxa'))/100:0,limite:r2(parseNum(val('cl_limite')))||null,fatorMes:parseNum(val('cl_fator'))/100||null,obs:val('cl_obs').trim()};let x;
   if(id){x=DB.clientes.find(y=>y.id===id);Object.assign(x,base)}else{x={id:uid(),...base,deletedAt:null};DB.clientes.push(x)}
   logH(`Cliente ${nome}`);save();closeModal('ovCli');const ret=val('cl_ret');
   if(ret&&el(ret)){el(ret).innerHTML=optCli(x.id);if(ret==='a_cli')antCli()}else render();toast('Cliente salvo')}
@@ -1992,9 +2104,9 @@ function saveInv(){limpaErro('iv_erro');const id=val('iv_id'),nome=val('iv_nome'
   if(id){x=DB.investidores.find(y=>y.id===id);Object.assign(x,base);alive(DB.captacoes).filter(k=>k.investidorId===id).forEach(k=>k.investidor=nome)}else{x={id:uid(),...base,deletedAt:null};DB.investidores.push(x)}
   logH(`Investidor ${nome}`);save();closeModal('ovInv');const ret=val('iv_ret');if(ret&&el(ret)){el(ret).innerHTML=optInv(x.id);if(ret==='k_inv')capInv()}else render();toast('Investidor salvo')}
 function openSac(id,ret){limpaErro('sc_erro');const x=id?DB.sacados.find(y=>y.id===id):null;el('sacTitle').textContent=x?'Editar sacado':'Novo sacado';
-  setVal('sc_id',x?x.id:'');setVal('sc_ret',ret||'');setVal('sc_nome',x?x.nome:'');setVal('sc_obs',x?x.obs||'':'');openModalId('ovSac');setTimeout(()=>el('sc_nome').focus(),60)}
+  setVal('sc_id',x?x.id:'');setVal('sc_ret',ret||'');setVal('sc_nome',x?x.nome:'');setVal('sc_limite',x&&x.limite?n2(x.limite):'');setVal('sc_obs',x?x.obs||'':'');openModalId('ovSac');setTimeout(()=>el('sc_nome').focus(),60)}
 function saveSac(){limpaErro('sc_erro');const id=val('sc_id'),nome=val('sc_nome').trim();if(!nome)return erro('sc_erro','Informe o nome.');let x;
-  if(id){x=DB.sacados.find(y=>y.id===id);Object.assign(x,{nome,obs:val('sc_obs').trim()})}else{x={id:uid(),nome,obs:val('sc_obs').trim(),deletedAt:null};DB.sacados.push(x)}
+  const lim=r2(parseNum(val('sc_limite')))||null;if(id){x=DB.sacados.find(y=>y.id===id);Object.assign(x,{nome,limite:lim,obs:val('sc_obs').trim()})}else{x={id:uid(),nome,limite:lim,obs:val('sc_obs').trim(),deletedAt:null};DB.sacados.push(x)}
   logH(`Sacado ${nome}`);save();closeModal('ovSac');const ret=val('sc_ret');if(ret&&el(ret))el(ret).innerHTML=optSac(x.id);else render();toast('Sacado salvo')}
 function openCat(chave){limpaErro('ct_erro');const c=chave?DB.categorias.find(x=>x.chave===chave):null;el('catTitle').textContent=c?'Editar conta':'Nova conta contábil';
   el('ct_fonte').innerHTML='<option value="">os dois recursos</option>'+fontes().map(f=>`<option value="${f.codigo}">só ${f.codigo}</option>`).join('');
