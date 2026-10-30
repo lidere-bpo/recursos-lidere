@@ -1245,7 +1245,8 @@ function pnlPrioridades(D){
   D.parcVenc.forEach(l=>add(3,'Parcela do banco vencida',`Bradesco ${l.contrato} · parcela ${l.k} · ${fmtBR(l.venc)}`,brl(l.parcela),'parcelas',l.fonte));
   D.parc.filter(l=>l.venc>=D.H&&l.venc<=addDias(D.H,7)).forEach(l=>add(2,'Parcela em 7 dias',`Bradesco ${l.contrato} · parcela ${l.k} · ${fmtBR(l.venc)}`,brl(l.parcela),'parcelas',l.fonte));
   D.tit.filter(t=>t.vencimento>=D.H&&t.vencimento<=addDias(D.H,3)).forEach(t=>add(2,'Vence em até 3 dias',`${t.cliente||t.sacado} · NF ${t.nf} · ${fmtBR(t.vencimento)}`,brl(t.valor),'titulos',t.fonte));
-  D.ants.filter(a=>dias(a.data,D.H)>60).sort((a,b)=>b.principal-a.principal).forEach(a=>add(2,'Antecipação parada',`${a.cliente}: sem retorno há ${dias(a.data,D.H)} dia(s)`,brl(a.principal),'correcao',''));
+  const parada={};D.ants.filter(a=>dias(a.data,D.H)>60).forEach(a=>{const x=parada[a.cliente]=parada[a.cliente]||{n:0,v:0,max:0};x.n++;x.v=r2(x.v+a.principal);x.max=Math.max(x.max,dias(a.data,D.H))});
+  Object.entries(parada).sort((a,b)=>b[1].v-a[1].v).forEach(([c,x])=>add(2,'Antecipação parada',`${c}: ${x.n} antecipação(ões) sem retorno, a mais antiga há ${x.max} dia(s)`,brl(x.v),'correcao',''));
   empsVivos().filter(e=>e.saldo>0).forEach(e=>add(1,'Empréstimo entre recursos',`${e.para} deve a ${e.de} desde ${fmtBR(e.data)}`,brl(e.saldo),'razao',e.para));
   const [y,m]=D.H.split('-').map(Number);const ant=`${m===1?y-1:y}-${String(m===1?12:m-1).padStart(2,'0')}`;
   D.fs.forEach(c=>{if(movsMes(c,ant).length&&!(fech(c,ant)&&fech(c,ant).fechado))add(1,'Mês sem fechamento',`${c}: ${mesLabel(ant)} ainda não foi fechado`,'','fechamento',c)});
