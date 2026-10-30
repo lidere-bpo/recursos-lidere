@@ -16,7 +16,7 @@
   --line:rgba(255,255,255,.075); --line-f:rgba(255,255,255,.13);
   --acc:#2ee6c0; --acc-s:#7df5da; --acc-d:#12a88c; --acc-ink:#032019;
   --meta:#f0b448; --meta-s:#ffd489;
-  --pos:#2ee6c0; --neg:#ff7a7a; --warn:#f0b448;
+  --pos:#2ee6c0; --neg:#ff7a7a; --warn:#f0b448; --s1:#12a88c; --s2:#8a7cf2;
   --txt:#e8f1f1; --dim:#93a5a6; --mut:#5f7375;
   --glow:rgba(46,230,192,.30);
 }
@@ -25,7 +25,7 @@
   --line:rgba(25,20,10,.10); --line-f:rgba(25,20,10,.20);
   --acc:#a9761d; --acc-s:#c28f2b; --acc-d:#8a5f14; --acc-ink:#fffaf0;
   --meta:#0f7a5c; --meta-s:#149672;
-  --pos:#1c7d4b; --neg:#c22843; --warn:#9c5313;
+  --pos:#1c7d4b; --neg:#c22843; --warn:#9c5313; --s1:#a9761d; --s2:#3f5bd6;
   --txt:#1c2130; --dim:#565f74; --mut:#838c9e;
   --glow:rgba(169,118,29,.22);
 }
@@ -34,7 +34,7 @@
   --line:rgba(212,168,64,.16); --line-f:rgba(212,168,64,.30);
   --acc:#d4a840; --acc-s:#f2c94c; --acc-d:#a8791f; --acc-ink:#1f1503;
   --meta:#d4a840; --meta-s:#f2c94c;
-  --pos:#3ea06b; --neg:#ef4444; --warn:#d4a840;
+  --pos:#3ea06b; --neg:#ef4444; --warn:#d4a840; --s1:#a8791f; --s2:#8a7cf2;
   --txt:#e9edf4; --dim:#9aa3b2; --mut:#6b7484;
   --glow:rgba(212,168,64,.30);
 }
@@ -458,6 +458,24 @@ tbody tr{transition:.12s} tbody tr:hover{background:var(--panel2)}
 .ac-acts{display:flex;gap:8px;flex-wrap:wrap}
 .ac-rodape{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--mut);line-height:1.6;text-align:center}
 .sync{font-size:11px;font-weight:600;margin-right:8px;transition:.2s}.sync.ok{color:var(--pos)}.sync.ruim{color:var(--neg)}
+
+/* ===== Painel de decisão ===== */
+.dash-hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+.hero{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;cursor:default}.hero[onclick]{cursor:pointer}.hero[onclick]:hover{border-color:var(--line-f)}
+.hero .k{font-size:9.5px;letter-spacing:1.5px;color:var(--mut);text-transform:uppercase;font-weight:800}.hero .v{font-size:26px;font-weight:800;margin-top:8px;letter-spacing:-.8px;font-variant-numeric:tabular-nums;line-height:1.05}.hero .sub{font-size:11.5px;color:var(--dim);margin-top:7px;line-height:1.45}
+.hero.pos .v{color:var(--pos)}.hero.neg .v{color:var(--neg)}.hero.warn .v{color:var(--warn)}
+.prio{display:flex;flex-direction:column;gap:6px;padding-bottom:4px}.pr{display:grid;grid-template-columns:150px 1fr auto auto;gap:12px;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);font-size:12.5px}
+.pr-l{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase}.pr.u3 .pr-l{color:var(--neg)}.pr.u2 .pr-l{color:var(--warn)}.pr.u1 .pr-l{color:var(--dim)}.pr-t{color:var(--txt)}.pr-v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.svgc{width:100%;height:auto;display:block;margin:4px 0 10px}.svgc .g{stroke:var(--line);stroke-width:1}.svgc .z{stroke:var(--line-f);stroke-width:1}.svgc .t{fill:var(--mut);font-size:11px}.svgc .tv{fill:var(--dim);font-weight:700}
+.svgc .s1{fill:var(--s1)}.svgc .s2{fill:var(--s2)}.svgc .sneg{fill:var(--neg)}.svgc .ln{fill:none;stroke:var(--txt);stroke-width:2;stroke-linejoin:round}.svgc .p{fill:var(--txt);stroke:var(--panel);stroke-width:2}.svgc .pneg{fill:var(--neg);stroke:var(--panel);stroke-width:2}
+.legend{display:flex;gap:14px;align-items:center;font-size:11.5px;color:var(--dim);flex-wrap:wrap}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px}.legend i.s1{background:var(--s1)}.legend i.s2{background:var(--s2)}.legend i.ln{height:2px;background:var(--txt);border-radius:1px}
+.fx-tab{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:9px;font-size:12.5px}.fx-r{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:8px;padding:6px 12px;border-bottom:1px solid var(--line)}.fx-r:last-child{border-bottom:0}.fx-h{position:sticky;top:0;background:var(--panel2);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--mut)}.fx-r .num{text-align:right;font-variant-numeric:tabular-nums}.fx-r.neg .num b{color:var(--neg)}
+.comp2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-top:12px}.comp-h{display:flex;gap:8px;align-items:center;font-size:12.5px;margin-bottom:8px}.comp-h b{margin-left:auto}
+.hb{margin:6px 0 8px}.hb-l{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px}.hb-l b{font-variant-numeric:tabular-nums}.hb-t{height:8px;background:var(--panel2);border-radius:4px;overflow:hidden;border:1px solid var(--line)}.hb-f{height:100%;background:var(--acc);border-radius:4px}.hb.al .hb-f{background:var(--warn)}.hb-s{font-size:11px;color:var(--mut);margin-top:3px}.hb.al .hb-s{color:var(--warn);font-weight:600}
+.aging{display:grid;grid-template-columns:110px repeat(5,1fr);gap:8px;align-items:stretch;margin-bottom:10px}.ag-h{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--dim);align-self:center}
+.ag{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}.ag .k{font-size:10px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.8px}.ag .v{font-size:15px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}.ag .sub{font-size:11px;color:var(--mut);margin-top:2px}.ag.al .v{color:var(--neg)}
+.rec-det{margin-top:6px}.rec-det summary{cursor:pointer;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:10px 0}
+@media(max-width:760px){.pr{grid-template-columns:1fr;gap:4px}.aging{grid-template-columns:1fr 1fr}.ag-h{grid-column:1/-1}}
 
 /* ---------- Específico deste app ---------- */
 .fonte-chip{font-size:9.5px;font-weight:800;letter-spacing:.6px;padding:2px 7px;border-radius:4px;display:inline-block;vertical-align:middle}
@@ -1122,7 +1140,7 @@ function navEstado(){try{return JSON.parse(localStorage.getItem('recursos_nav_gr
 function navToggle(g){const st=navEstado();st[g]=!navAberto(g,st);try{localStorage.setItem('recursos_nav_grupos',JSON.stringify(st))}catch(e){}renderNav()}
 function navAberto(g,st){const grp=navDef().find(x=>x.g===g);const ativo=grp&&grp.its.some(([id])=>id===activeTab&&(!grp.fonte||grp.fonte===fonteSel));return st[g]===undefined?true:(st[g]||ativo)}
 const SECAO={
-  painel:['Painel','Resumo dos recursos. Gráficos e prioridades entram depois'],
+  painel:['Painel','O que decidir hoje: caixa, prioridades, fluxo projetado, patrimônio, rentabilidade e carteira'],
   razao:['Razão','Cada entrada e saída, com o saldo da conta e o montante após cada transação'],
   titulos:['Carteira de títulos','O que volta das operações, quando, e o que já passou do prazo'],
   antecip:['Antecipações','Recurso enviado a clientes, com juros pela planilha de correção'],
@@ -1197,7 +1215,133 @@ const sinal=v=>v>0?`<span class="pos">${brl(v)}</span>`:v<0?`<span class="neg">$
 const vazio=t=>`<div class="empty">${t}</div>`;
 
 /* ===== Painel ===== */
+/* ===== Painel: decisão do dia =====
+   Responde, nesta ordem: quanto posso operar hoje; o que precisa de mim; em que semana o caixa aperta;
+   onde está o dinheiro e quanto devo; quanto a carteira rende contra o que o banco custa; onde estou concentrado;
+   quanto está atrasado. Os números pedem ação só quando ficam em vermelho ou âmbar. */
+const SEMANAS_FLUXO=12, LIMITE_CONC=.25;
+function pnlDados(){
+  const H=hoje(),fs=fontes().map(f=>f.codigo);
+  const tit=fs.flatMap(c=>titsF(c).filter(titAberto));
+  const ants=fs.flatMap(c=>antsF(c).filter(a=>a.status!=='quitada'));
+  const parc=fs.flatMap(c=>ctrsF(c).flatMap(k=>resumoContrato(k).cr.linhas.filter(l=>!l.pago).map(l=>({...l,fonte:c,contrato:k.numero}))));
+  const comp=fs.map(c=>({c,f:fonte(c),k:composicao(c),dev:r2(ctrsF(c).reduce((x,k)=>x+resumoContrato(k).saldoDevedor,0))}));
+  const caixa=r2(comp.reduce((x,o)=>x+o.k.caixa,0));
+  const ate=(L,campo,d)=>L.filter(t=>t[campo]>=H&&t[campo]<=d);
+  const d7=addDias(H,7);
+  const ent7=r2(ate(tit,'vencimento',d7).reduce((x,t)=>x+t.valor,0));
+  const vencTit=tit.filter(titVencido),vencTitV=r2(vencTit.reduce((x,t)=>x+t.valor,0));
+  const parcVenc=parc.filter(l=>l.venc<H),parcVencV=r2(parcVenc.reduce((x,l)=>x+l.parcela,0));
+  const sai7=r2(ate(parc,'venc',d7).reduce((x,l)=>x+l.parcela,0)+parcVencV);
+  const capacidade=r2(caixa+ent7-sai7);
+  return {H,fs,tit,ants,parc,comp,caixa,ent7,sai7,vencTit,vencTitV,parcVenc,parcVencV,capacidade,
+    montante:r2(comp.reduce((x,o)=>x+o.k.total,0)),divida:r2(comp.reduce((x,o)=>x+o.dev,0)),capt:r2(comp.reduce((x,o)=>x+o.k.capt,0))};
+}
+function pnlPrioridades(D){
+  const F=[];const add=(u,lbl,txt,meta,tab,f)=>F.push({u,lbl,txt,meta,tab,f});
+  D.comp.filter(o=>o.k.caixa<-.005).forEach(o=>add(3,'Caixa negativo',`${o.c}: saiu dinheiro de onde não havia`,brl(o.k.caixa),'razao',o.c));
+  const porCli={};D.vencTit.forEach(t=>{const k=t.fonte+'|'+(t.cliente||'');(porCli[k]=porCli[k]||{n:0,v:0,max:0,f:t.fonte,c:t.cliente}).n++;porCli[k].v=r2(porCli[k].v+t.valor);porCli[k].max=Math.max(porCli[k].max,dias(t.vencimento,D.H))});
+  Object.values(porCli).sort((a,b)=>b.v-a.v).forEach(x=>add(3,'Título vencido',`${x.c}: ${x.n} título(s), o mais antigo há ${x.max} dia(s)`,brl(x.v),'titulos',x.f));
+  D.parcVenc.forEach(l=>add(3,'Parcela do banco vencida',`Bradesco ${l.contrato} · parcela ${l.k} · ${fmtBR(l.venc)}`,brl(l.parcela),'parcelas',l.fonte));
+  D.parc.filter(l=>l.venc>=D.H&&l.venc<=addDias(D.H,7)).forEach(l=>add(2,'Parcela em 7 dias',`Bradesco ${l.contrato} · parcela ${l.k} · ${fmtBR(l.venc)}`,brl(l.parcela),'parcelas',l.fonte));
+  D.tit.filter(t=>t.vencimento>=D.H&&t.vencimento<=addDias(D.H,3)).forEach(t=>add(2,'Vence em até 3 dias',`${t.cliente||t.sacado} · NF ${t.nf} · ${fmtBR(t.vencimento)}`,brl(t.valor),'titulos',t.fonte));
+  D.ants.filter(a=>dias(a.data,D.H)>60).sort((a,b)=>b.principal-a.principal).forEach(a=>add(2,'Antecipação parada',`${a.cliente}: sem retorno há ${dias(a.data,D.H)} dia(s)`,brl(a.principal),'correcao',''));
+  empsVivos().filter(e=>e.saldo>0).forEach(e=>add(1,'Empréstimo entre recursos',`${e.para} deve a ${e.de} desde ${fmtBR(e.data)}`,brl(e.saldo),'razao',e.para));
+  const [y,m]=D.H.split('-').map(Number);const ant=`${m===1?y-1:y}-${String(m===1?12:m-1).padStart(2,'0')}`;
+  D.fs.forEach(c=>{if(movsMes(c,ant).length&&!(fech(c,ant)&&fech(c,ant).fechado))add(1,'Mês sem fechamento',`${c}: ${mesLabel(ant)} ainda não foi fechado`,'','fechamento',c)});
+  const conc=pnlConcentracao(D);conc.filter(x=>x.pct>LIMITE_CONC&&x.nome!=='Outros').forEach(x=>add(1,'Concentração alta',`${x.nome} responde por ${Math.round(x.pct*100)}% da carteira`,brl(x.v),'correcao',''));
+  return F.sort((a,b)=>b.u-a.u);
+}
+function pnlConcentracao(D){
+  const por={};D.tit.forEach(t=>{const n=t.cliente||t.sacado||'—';por[n]=r2((por[n]||0)+t.valor)});D.ants.forEach(a=>{por[a.cliente]=r2((por[a.cliente]||0)+a.principal)});
+  const tot=Object.values(por).reduce((x,v)=>x+v,0)||1;const L=Object.entries(por).map(([nome,v])=>({nome,v,pct:v/tot})).sort((a,b)=>b.v-a.v);
+  const top=L.slice(0,6),resto=L.slice(6);if(resto.length)top.push({nome:'Outros',v:r2(resto.reduce((x,o)=>x+o.v,0)),pct:resto.reduce((x,o)=>x+o.pct,0)});
+  return top;
+}
+function pnlFluxo(D){
+  const sem=[];let saldo=D.caixa;
+  for(let i=0;i<SEMANAS_FLUXO;i++){const a=addDias(D.H,i*7),b=addDias(D.H,i*7+6);
+    const ent=r2(D.tit.filter(t=>t.vencimento>=a&&t.vencimento<=b).reduce((x,t)=>x+t.valor,0));
+    const sai=r2(D.parc.filter(l=>l.venc>=a&&l.venc<=b||(i===0&&l.venc<D.H)).reduce((x,l)=>x+l.parcela,0));
+    saldo=r2(saldo+ent-sai);sem.push({a,b,lbl:fmtBR(a).slice(0,5),ent,sai,saldo})}
+  return sem;
+}
+function svgFluxo(sem){
+  const W=760,Hh=230,pl=64,pr=10,pt=12,pb=26,iw=W-pl-pr,ih=Hh-pt-pb;
+  const max=Math.max(1,...sem.map(x=>Math.max(x.ent,x.sai,x.saldo))),min=Math.min(0,...sem.map(x=>x.saldo));
+  const y=v=>pt+ih*(max-v)/(max-min||1),bw=iw/sem.length,b=Math.max(4,Math.min(16,bw*.26));
+  const kfmt=v=>Math.abs(v)>=1e6?(v/1e6).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mi':Math.abs(v)>=1e3?Math.round(v/1e3)+' mil':Math.round(v);
+  const grid=[max,(max+min)/2,min].filter((v,i,a)=>a.indexOf(v)===i).map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" class="g"/><text x="${pl-6}" y="${y(v)+3}" class="t" text-anchor="end">${kfmt(v)}</text>`).join('');
+  const zero=`<line x1="${pl}" x2="${W-pr}" y1="${y(0)}" y2="${y(0)}" class="z"/>`;
+  const bars=sem.map((x,i)=>{const cx=pl+bw*i+bw/2;return `<rect class="s1" x="${cx-b-1}" y="${y(x.ent)}" width="${b}" height="${Math.max(0,y(0)-y(x.ent))}" rx="2"><title>Semana de ${fmtBR(x.a)}: entra ${brl(x.ent)}</title></rect><rect class="s2" x="${cx+1}" y="${y(x.sai)}" width="${b}" height="${Math.max(0,y(0)-y(x.sai))}" rx="2"><title>Semana de ${fmtBR(x.a)}: sai ${brl(x.sai)}</title></rect>`}).join('');
+  const pts=sem.map((x,i)=>[pl+bw*i+bw/2,y(x.saldo)]);
+  const line=`<path class="ln" d="${pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ')}"/>`+pts.map((q,i)=>`<circle class="${sem[i].saldo<0?'pneg':'p'}" cx="${q[0]}" cy="${q[1]}" r="4"><title>Saldo projetado em ${fmtBR(sem[i].b)}: ${brl(sem[i].saldo)}</title></circle>`).join('');
+  const lbl=sem.map((x,i)=>i%2?'':`<text x="${pl+bw*i+bw/2}" y="${Hh-8}" class="t" text-anchor="middle">${x.lbl}</text>`).join('');
+  return `<svg class="svgc" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Fluxo projetado por semana">${grid}${zero}${bars}${line}${lbl}</svg>`;
+}
+function svgBarras(serie){
+  const W=760,Hh=170,pl=64,pr=10,pt=12,pb=26,iw=W-pl-pr,ih=Hh-pt-pb;
+  const max=Math.max(1,...serie.map(x=>x.v)),min=Math.min(0,...serie.map(x=>x.v));const y=v=>pt+ih*(max-v)/(max-min||1),bw=iw/serie.length,b=Math.min(34,bw*.55);
+  const kfmt=v=>Math.abs(v)>=1e3?Math.round(v/1e3)+' mil':Math.round(v);
+  return `<svg class="svgc" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Resultado por mês"><line x1="${pl}" x2="${W-pr}" y1="${y(0)}" y2="${y(0)}" class="z"/><text x="${pl-6}" y="${y(max)+3}" class="t" text-anchor="end">${kfmt(max)}</text>${min<0?`<text x="${pl-6}" y="${y(min)+3}" class="t" text-anchor="end">${kfmt(min)}</text>`:''}
+    ${serie.map((x,i)=>{const cx=pl+bw*i+bw/2,top=Math.min(y(0),y(x.v)),h=Math.abs(y(0)-y(x.v));return `<rect class="${x.v<0?'sneg':'s1'}" x="${cx-b/2}" y="${top}" width="${b}" height="${h}" rx="2"><title>${x.lbl}: ${brl(x.v)}</title></rect><text x="${cx}" y="${Hh-8}" class="t" text-anchor="middle">${x.lbl}</text>${x.dest?`<text x="${cx}" y="${top-5}" class="t tv" text-anchor="middle">${kfmt(x.v)}</text>`:''}`}).join('')}</svg>`;
+}
+const hbar=(nome,v,pct,alerta,sub)=>`<div class="hb ${alerta?'al':''}"><div class="hb-l"><span>${esc(nome)}</span><b>${brl(v)}</b></div><div class="hb-t"><div class="hb-f" style="width:${Math.min(100,Math.round(pct*100))}%"></div></div><div class="hb-s">${Math.round(pct*100)}%${sub?' · '+sub:''}</div></div>`;
+function pnlAging(L,campo){
+  const H=hoje(),f=[['A vencer',t=>t[campo]>=H],['1 a 30 dias',t=>{const d=dias(t[campo],H);return d>=1&&d<=30}],['31 a 60',t=>{const d=dias(t[campo],H);return d>30&&d<=60}],['61 a 90',t=>{const d=dias(t[campo],H);return d>60&&d<=90}],['Mais de 90',t=>dias(t[campo],H)>90]];
+  return f.map(([lbl,fn])=>{const X=L.filter(fn);return {lbl,n:X.length,v:r2(X.reduce((x,t)=>x+(t.valor!=null&&campo==='vencimento'?t.valor:t.principal),0))}});
+}
 function viewPainel(){
+  const D=pnlDados(),H=D.H;
+  const hero=(k,v,sub,cls,tab,f)=>`<div class="hero ${cls||''}" ${tab?`onclick="go('${tab}','${f||''}')"`:''}><div class="k">${k}</div><div class="v">${v}</div><div class="sub">${sub}</div></div>`;
+  const topo=`<div class="dash-hero">
+    ${hero('Em conta hoje',brl(D.caixa),D.comp.map(o=>`${o.c} ${brl(o.k.caixa)}`).join(' · '),D.caixa<0?'neg':'','razao',D.fs[0])}
+    ${hero('Entra em 7 dias',brl(D.ent7),D.vencTitV?`+ ${brl(D.vencTitV)} vencidos a cobrar`:'títulos a vencer na semana','','titulos',D.fs[0])}
+    ${hero('Sai em 7 dias',brl(D.sai7),D.parc.length?(D.parcVencV?`inclui ${brl(D.parcVencV)} vencido`:'parcelas do banco na semana'):'sem contratos cadastrados',D.sai7>0?'warn':'','parcelas',D.fs[0])}
+    ${hero('Posso operar hoje',brl(D.capacidade),'conta + entradas − saídas de 7 dias',D.capacidade<0?'neg':'pos')}
+  </div>`;
+  const P=pnlPrioridades(D);
+  const prio=`<div class="panel"><div class="panel-head"><h2>O que precisa de você<small>${P.length?`${P.length} ponto(s), do mais urgente para o menos`:'nada pendente: carteira em dia'}</small></h2></div>
+    ${P.length?`<div class="prio">${P.slice(0,10).map(x=>`<div class="pr u${x.u}"><span class="pr-l">${x.lbl}</span><span class="pr-t">${esc(x.txt)}</span><span class="pr-v">${x.meta}</span>${x.tab?`<button class="btn btn-sm" onclick="go('${x.tab}','${x.f||''}')">Abrir</button>`:''}</div>`).join('')}${P.length>10?`<div class="muted" style="padding:8px 0">+ ${P.length-10} ponto(s)</div>`:''}</div>`:`<div class="muted">Sem títulos vencidos, parcelas na semana ou antecipações paradas.</div>`}</div>`;
+  const sem=pnlFluxo(D),neg=sem.find(x=>x.saldo<0);
+  const fluxo=`<div class="panel"><div class="panel-head"><h2>Fluxo projetado · ${SEMANAS_FLUXO} semanas<small>${neg?`<span class="neg">o caixa fica negativo na semana de ${fmtBR(neg.a)}</span>`:'o caixa não fica negativo no período'}${D.parc.length?'':' · sem contratos cadastrados, as saídas do banco não aparecem'}</small></h2>
+    <span class="legend"><i class="s1"></i>entra (títulos a vencer)<i class="s2"></i>sai (parcelas do banco)<i class="ln"></i>saldo projetado</span></div>${svgFluxo(sem)}
+    <div class="fx-tab"><div class="fx-r fx-h"><span>Semana</span><span class="num">Entra</span><span class="num">Sai</span><span class="num">Saldo projetado</span></div>
+      ${sem.map(x=>`<div class="fx-r ${x.saldo<0?'neg':''}"><span>${fmtBR(x.a)} a ${fmtBR(x.b).slice(0,5)}</span><span class="num">${x.ent?brl(x.ent):'—'}</span><span class="num">${x.sai?brl(x.sai):'—'}</span><span class="num"><b>${brl(x.saldo)}</b></span></div>`).join('')}</div></div>`;
+  const liq=r2(D.montante-D.divida);
+  const patr=`<div class="panel"><div class="panel-head"><h2>Patrimônio e dívida<small>montante é o capital próprio na operação; a dívida com o Bradesco fica fora dele</small></h2></div>
+    <div class="stats">
+      <div class="stat"><div class="k">Montante total</div><div class="v goldtxt">${brl(D.montante)}</div><div class="sub">${D.comp.map(o=>`${o.c} ${brl(o.k.total)}`).join(' · ')}</div></div>
+      <div class="stat"><div class="k">Devendo ao banco</div><div class="v ${D.divida?'neg':''}">${D.divida?brl(D.divida):'—'}</div><div class="sub">${D.divida?'saldo dos contratos':'cadastre os contratos em Parcelas bancárias'}</div></div>
+      <div class="stat"><div class="k">Capital líquido</div><div class="v ${liq<0?'neg':''}">${brl(liq)}</div><div class="sub">montante − dívida</div></div>
+      <div class="stat"><div class="k">Captações</div><div class="v">${D.capt?brl(-D.capt):'—'}</div><div class="sub">de terceiros, já fora do montante</div></div></div>
+    <div class="comp2">${D.comp.map(o=>{const k=o.k,tot=Math.max(1,Math.abs(k.caixa)+k.titulos+k.antec+(k.empRec||0)+(k.invest||0));return `<div><div class="comp-h">${chipF(o.c)} ${esc(o.f.nome)} <b>${brl(k.total)}</b></div>
+      ${hbar('Conta',k.caixa,Math.abs(k.caixa)/tot,k.caixa<0)}${hbar('Títulos a vencer',k.titulos,k.titulos/tot)}${hbar('Antecipações',k.antec,k.antec/tot)}${k.empRec?hbar('A receber do outro recurso',k.empRec,k.empRec/tot):''}${k.invest?hbar('Investimentos',k.invest,k.invest/tot):''}
+      ${k.empPag?`<div class="muted" style="margin-top:6px">menos ${brl(k.empPag)} a devolver ao outro recurso</div>`:''}${k.capt?`<div class="muted">menos ${brl(k.capt)} de captação</div>`:''}</div>`}).join('')}</div></div>`;
+  const antP=D.ants.reduce((x,a)=>x+a.principal,0),txAnt=antP?D.ants.reduce((x,a)=>x+a.principal*(a.taxaMes||0),0)/antP:0;
+  const ops=alive(DB.operacoes).filter(o=>mesDe(o.data)===mesSel),bruto=ops.reduce((x,o)=>x+o.bruto,0),desag=ops.reduce((x,o)=>x+o.desagio,0);
+  const ctrs=D.fs.flatMap(c=>ctrsF(c).map(resumoContrato)),devT=ctrs.reduce((x,r)=>x+r.saldoDevedor,0),custo=devT?ctrs.reduce((x,r)=>x+r.saldoDevedor*(Math.pow(1+r.cr.taxa,1/12)-1),0)/devT:null;
+  const pct=v=>(v*100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';
+  const meses=[];{let [y,m]=mesSel.split('-').map(Number);for(let i=5;i>=0;i--){const d=new Date(y,m-1-i,1);meses.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`)}}
+  const serie=meses.map(mk=>({lbl:MESES[+mk.slice(5)-1].slice(0,3)+'/'+mk.slice(2,4),v:r2(D.fs.reduce((x,c)=>x+movsMes(c,mk).reduce((y,m)=>y+(m.resultado||0),0),0)),dest:mk===mesSel}));
+  const rent=`<div class="panel"><div class="panel-head"><h2>Rentabilidade<small>o que a carteira rende contra o que o banco custa, ao mês</small></h2></div>
+    <div class="stats">
+      <div class="stat"><div class="k">Taxa média das antecipações</div><div class="v">${antP?pct(txAnt):'—'}</div><div class="sub">ponderada pelo principal</div></div>
+      <div class="stat"><div class="k">Deságio médio · ${mesLabel(mesSel)}</div><div class="v">${bruto?pct(desag/bruto):'—'}</div><div class="sub">${ops.length?`${ops.length} operação(ões), ${brl(bruto)} de face`:'sem operação no mês'}</div></div>
+      <div class="stat"><div class="k">Custo do banco</div><div class="v">${custo!=null?pct(custo):'—'}</div><div class="sub">${custo!=null?'taxa dos contratos, ponderada':'cadastre os contratos'}</div></div>
+      <div class="stat"><div class="k">Spread</div><div class="v ${custo!=null&&antP?(txAnt-custo>0?'pos':'neg'):''}">${custo!=null&&antP?pct(txAnt-custo):'—'}</div><div class="sub">antecipações − banco</div></div>
+      <div class="stat"><div class="k">Resultado · ${mesLabel(mesSel)}</div><div class="v ${serie[5].v>=0?'pos':'neg'}">${brl(serie[5].v)}</div><div class="sub">receitas − despesas dos dois recursos</div></div></div>
+    ${svgBarras(serie)}</div>`;
+  const conc=pnlConcentracao(D),concTot=conc.reduce((x,o)=>x+o.v,0);
+  const concH=`<div class="panel"><div class="panel-head"><h2>Concentração da carteira<small>títulos + antecipações por cliente · ${brl(r2(concTot))} na rua · alerta acima de ${Math.round(LIMITE_CONC*100)}%</small></h2></div>${conc.length?conc.map(x=>hbar(x.nome,x.v,x.pct,x.pct>LIMITE_CONC&&x.nome!=='Outros')).join(''):'<div class="muted">Nada na rua.</div>'}</div>`;
+  const agT=pnlAging(D.tit,'vencimento'),agA=pnlAging(D.ants,'data');
+  const aging=`<div class="panel"><div class="panel-head"><h2>Carteira por atraso<small>títulos pelo vencimento; antecipações pela data do envio</small></h2></div>
+    <div class="aging"><div class="ag-h">Títulos</div>${agT.map((x,i)=>`<div class="ag ${i&&x.v?'al':''}"><div class="k">${x.lbl}</div><div class="v">${brl(x.v)}</div><div class="sub">${x.n} título(s)</div></div>`).join('')}</div>
+    <div class="aging"><div class="ag-h">Antecipações</div>${agA.map((x,i)=>`<div class="ag ${i>1&&x.v?'al':''}"><div class="k">${x.lbl}</div><div class="v">${brl(x.v)}</div><div class="sub">${x.n} antecipação(ões)</div></div>`).join('')}</div></div>`;
+  return topo+notifEmprestimos()+prio+fluxo+patr+rent+concH+aging+`<details class="rec-det"><summary>Recursos em detalhe</summary>${painelRecursos()}</details>`;
+}
+
+function painelRecursos(){
   let out='';const tot={caixa:0,montante:0,titulos:0,antec:0,capt:0,banco:0};
   fontes().forEach(f=>{const c=f.codigo,k=composicao(c),ctrs=ctrsF(c).map(resumoContrato),dev=r2(ctrs.reduce((s,r)=>s+r.saldoDevedor,0));
     const venc=titsF(c).filter(titVencido),resMes=r2(movsMes(c,mesSel).reduce((s,m)=>s+(m.resultado||0),0));
@@ -1223,7 +1367,7 @@ function viewPainel(){
     <div class="stat"><div class="k">Captações</div><div class="v">${brl(-tot.capt)}</div><div class="sub">de terceiros</div></div>
     <div class="stat"><div class="k">Montante total</div><div class="v goldtxt">${brl(r2(tot.montante))}</div><div class="sub">capital próprio</div></div>
     <div class="stat"><div class="k">Devendo ao banco</div><div class="v neg">${brl(tot.banco)}</div><div class="sub">saldo dos contratos</div></div></div>`;
-  return notas+out+total+`<div class="later">Painel em evolução: prioridades, gráficos e indicadores entram depois que a operação estiver rodando.</div>`;
+  return out+total;
 }
 
 /* ===== Razão ===== */
