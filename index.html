@@ -482,6 +482,20 @@ tbody tr{transition:.12s} tbody tr:hover{background:var(--panel2)}
 .conc-h{margin:16px 0 8px;font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);cursor:pointer}
 .stat .v.warn,.v.warn{color:var(--warn)}
 
+/* ===== Agenda de vencimentos e ficha do cliente ===== */
+.ag-wrap{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:14px;align-items:start}
+.ag-cal{padding:14px 16px!important}.ag-sem,.ag-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.ag-sem div{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--mut);text-align:center;padding-bottom:6px}
+.ag-c{min-height:78px;border:1px solid var(--line);border-radius:9px;padding:6px 8px;background:var(--panel2);cursor:pointer;display:flex;flex-direction:column;gap:2px;font-size:11.5px;font-variant-numeric:tabular-nums}
+.ag-c:hover{border-color:var(--line-f)}.ag-c.vaz{background:transparent;border:0;cursor:default}.ag-c.fds{opacity:.7}.ag-c.hoje{border-color:var(--acc)}.ag-c.sel{box-shadow:inset 0 0 0 2px var(--acc)}
+.ag-d{font-weight:800;color:var(--dim);display:flex;align-items:center;gap:5px}.ag-e{color:var(--pos);font-weight:700}.ag-s{color:var(--neg);font-weight:700}.ag-ok{color:var(--mut)}
+.ag-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--neg)}
+.ag-lado{padding:14px 16px!important;max-height:640px;overflow:auto}.ag-t{margin:0 0 10px;font-size:13px}
+.ag-i{border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin-bottom:8px;background:var(--panel2);font-size:12.5px}.ag-i.ok{opacity:.6}.ag-i.venc{border-color:color-mix(in srgb,var(--neg) 45%,transparent)}
+.ag-i-h{display:flex;gap:6px;align-items:center}.ag-i-h span:last-child{margin-left:auto;font-weight:700;white-space:nowrap}.ag-i .muted{margin-top:3px;font-size:11.5px}.ag-i-a{margin-top:7px}
+.kv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0 18px}
+a.lnk{color:inherit;text-decoration:none}a.lnk:hover b{color:var(--acc);text-decoration:underline}
+@media(max-width:900px){.ag-wrap{grid-template-columns:1fr}.ag-c{min-height:60px;font-size:10.5px}}
+
 /* ---------- Específico deste app ---------- */
 .fonte-chip{font-size:9.5px;font-weight:800;letter-spacing:.6px;padding:2px 7px;border-radius:4px;display:inline-block;vertical-align:middle}
 .fonte-chip.GIRO{background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
@@ -1014,6 +1028,7 @@ function fonteFx(c){const f=fonte(c);if(!f)return '';return `${logoBanco(f,true)
 function fixaFonte(selId,fxId,c){setVal(selId,c);el(fxId).innerHTML=fonteFx(c)}
 
 /* ===== Estado ===== */
+let agDia=null, fichaCli=null;
 let DB, activeTab='painel', fonteSel='GIRO', mesSel=null, curSent='E', ctrSel=null, titTab='abertos', antTab='abertas', cfgTab='aparencia', crCli=null;
 function seedDB(){return JSON.parse(JSON.stringify(SEED))}
 function load(){
@@ -1141,13 +1156,14 @@ const IC={
  lixeira:'<path d="M3.5 6h17M8.5 6V3.6h7V6M6.4 6v14.4h11.2V6"/>',
  config:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',
  privac:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
+ agenda:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
  sair:'<path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/>'
 };
 const svgIc=k=>'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(IC[k]||'')+'</svg>';
 const ITENS_FONTE=[['razao','Razão'],['titulos','Carteira de títulos'],['antecip','Antecipações'],['parcelas','Parcelas bancárias'],['captacoes','Captações'],['fechamento','Fechamento']];
 const TABS_FONTE=ITENS_FONTE.map(x=>x[0]);
 function navDef(){return [
-  {g:'Visão geral',its:[['painel','Painel']]},
+  {g:'Visão geral',its:[['painel','Painel'],['agenda','Agenda de vencimentos']]},
   ...fontes().map(f=>({g:f.nome,fonte:f.codigo,its:ITENS_FONTE.filter(([id])=>temModulo(f,id))})),
   {g:'Clientes',its:[['correcao','Correção geral'],['clientes','Clientes'],['sacados','Sacados'],['investidores','Investidores']]},
   {g:'Sistema',its:[['config','Configurações']]}]}
@@ -1163,6 +1179,8 @@ const SECAO={
   parcelas:['Parcelas bancárias','Contratos do Bradesco: juros é despesa, principal reduz a dívida'],
   captacoes:['Captações','Dinheiro de terceiros dentro do recurso'],
   fechamento:['Fechamento do mês','Saldo calculado contra o extrato e o resultado do mês'],
+  agenda:['Agenda de vencimentos','O que entra e o que sai em cada dia do mês: títulos dos clientes e parcelas do banco, nos dois recursos'],
+  ficha:['Ficha do cliente','Tudo do cliente num lugar: exposição, limite, operações, antecipações e como ele paga'],
   correcao:['Correção geral','Quanto cada cliente deve hoje, somando o giro e o Leonardo; a baixa rateia entre os dois'],
   clientes:['Clientes','Quem cede títulos e recebe antecipações, com a taxa de correção'],
   sacados:['Sacados','Quem paga os títulos'],
@@ -1222,7 +1240,7 @@ function render(){
   el('topFonte').style.display=TABS_FONTE.includes(activeTab)?'inline-flex':'none';el('topNovo').style.display=TABS_FONTE.includes(activeTab)?'inline-flex':'none';
   renderNav();renderFoot();
   const V={painel:viewPainel,razao:viewRazao,titulos:viewTitulos,antecip:viewAntecip,parcelas:viewParcelas,captacoes:viewCaptacoes,fechamento:viewFechamento,
-    correcao:viewCorrecao,clientes:viewClientes,sacados:viewSacados,investidores:viewInvestidores,config:viewConfig};
+    correcao:viewCorrecao,agenda:viewAgenda,ficha:viewFicha,clientes:viewClientes,sacados:viewSacados,investidores:viewInvestidores,config:viewConfig};
   el('views').innerHTML=(V[activeTab]||viewPainel)();
 }
 const chipF=c=>`<span class="fonte-chip ${/^[A-Z0-9]+$/.test(c||'')?esc(c):'X'}">${esc(c||'—')}</span>`;
@@ -1290,6 +1308,100 @@ function lancarDoExtrato(id){const L=extLinha(id);if(!L)return;const e=(DB.extra
   setVal('m_obs','Do extrato '+fmtBR(L.data))}
 function ignorarLinha(id,v){const L=extLinha(id);if(!L)return;L.ignorado=v;const e=(DB.extratos||[]).find(x=>x.linhas.includes(L));save();openConc(e.fonte)}
 
+
+/* ===== Agenda de vencimentos =====
+   Um calendário do mês com o que entra (títulos a receber, dos dois recursos) e o que sai (parcelas do Bradesco).
+   Clicar no dia abre a lista ao lado, com o botão de receber ou pagar. */
+function agEventos(mk){
+  const ev=[];const H=hoje();
+  fontes().forEach(f=>{const c=f.codigo;
+    titsF(c).filter(t=>t.vencimento&&mesDe(t.vencimento)===mk).forEach(t=>ev.push({dia:t.vencimento,tipo:'tit',fonte:c,valor:t.valor,ok:!!t.pago,venc:!t.pago&&t.vencimento<H,
+      txt:`${t.cliente||nomeCli(t.clienteId)}${t.direta?'':' · '+(t.sacado||nomeSac(t.sacadoId))}`,sub:`NF ${t.nf||'—'}${t.parcela?' · '+t.parcela:''}${t.pago?' · '+(t.perda?'baixado por perda':'recebido em '+fmtBR(t.recebimento)):''}`,id:t.id,cli:t.clienteId}));
+    ctrsF(c).forEach(k=>resumoContrato(k).cr.linhas.filter(l=>mesDe(l.venc)===mk).forEach(l=>ev.push({dia:l.venc,tipo:'parc',fonte:c,valor:l.parcela,ok:!!l.pago,venc:!l.pago&&l.venc<H,
+      txt:`Bradesco ${k.numero}`,sub:`parcela ${l.k} de ${k.nParcelas} · juros ${brl(l.juros)} · principal ${brl(l.amort)}${l.pago?' · paga em '+fmtBR(l.dataPgto):''}`,cid:k.id,k:l.k})))});
+  return ev.sort((a,b)=>a.dia.localeCompare(b.dia)||a.tipo.localeCompare(b.tipo));
+}
+function viewAgenda(){
+  const mk=mesSel,[y,m]=mk.split('-').map(Number),H=hoje(),ev=agEventos(mk);
+  const primeiro=new Date(y,m-1,1),nDias=new Date(y,m,0).getDate(),ini=primeiro.getDay();
+  if(!agDia||mesDe(agDia)!==mk)agDia=mesDe(H)===mk?H:null;
+  const porDia={};ev.forEach(e=>(porDia[e.dia]=porDia[e.dia]||[]).push(e));
+  const soma=(L,t,f)=>r2(L.filter(e=>e.tipo===t&&(f?f(e):true)).reduce((s,e)=>s+e.valor,0));
+  const aberto=e=>!e.ok;
+  let cel='';for(let i=0;i<ini;i++)cel+='<div class="ag-c vaz"></div>';
+  for(let d=1;d<=nDias;d++){const iso=`${mk}-${String(d).padStart(2,'0')}`,L=porDia[iso]||[],e=soma(L,'tit',aberto),sa=soma(L,'parc',aberto),dow=dt(iso).getDay(),venc=L.some(x=>x.venc);
+    cel+=`<div class="ag-c ${iso===H?'hoje':''} ${iso===agDia?'sel':''} ${dow===0||dow===6?'fds':''}" onclick="agDia='${iso}';render()"><div class="ag-d">${d}${venc?'<span class="ag-dot" title="tem vencido"></span>':''}</div>
+      ${e?`<div class="ag-e">+ ${brlK(e)}</div>`:''}${sa?`<div class="ag-s">− ${brlK(sa)}</div>`:''}${L.length&&!e&&!sa?`<div class="ag-ok">✓ ${L.length}</div>`:''}</div>`}
+  const lista=L=>L.length?L.map(e=>`<div class="ag-i ${e.ok?'ok':''} ${e.venc?'venc':''}"><div class="ag-i-h">${chipF(e.fonte)} <b>${esc(e.txt)}</b><span class="${e.tipo==='tit'?'pos':'neg'}">${e.tipo==='tit'?'+':'−'} ${brl(e.valor)}</span></div>
+      <div class="muted">${fmtBR(e.dia)} · ${esc(e.sub)}${e.venc?' · <b class="neg">vencido</b>':''}</div>
+      ${e.ok?'':e.tipo==='tit'?`<div class="ag-i-a"><button class="btn btn-sm btn-gold" onclick="fonteSel='${e.fonte}';openRec('${e.id}')">Receber</button>${e.cli?` <button class="btn btn-sm" onclick="abrirFicha('${e.cli}')">Ficha do cliente</button>`:''}</div>`:`<div class="ag-i-a"><button class="btn btn-sm btn-gold" onclick="fonteSel='${e.fonte}';openParc('${e.cid}',${e.k})">Pagar</button></div>`}</div>`).join(''):'<div class="muted">Nada neste dia.</div>';
+  const prox=[];for(let i=0;i<7;i++){const d=addDias(H,i);if(mesDe(d)!==mk)continue;(porDia[d]||[]).filter(aberto).forEach(e=>prox.push(e))}
+  const lado=agDia?`<h3 class="ag-t">${fmtBR(agDia)} · ${['domingo','segunda','terça','quarta','quinta','sexta','sábado'][dt(agDia).getDay()]}</h3>${lista(porDia[agDia]||[])}`
+    :`<h3 class="ag-t">Próximos 7 dias</h3>${lista(prox)}`;
+  const vencT=titsF===undefined?0:r2(fontes().reduce((s,f)=>s+titsF(f.codigo).filter(titVencido).reduce((q,t)=>q+t.valor,0),0));
+  return `<div class="stats" style="margin-bottom:14px">
+      <div class="stat"><div class="k">A receber em ${mesLabel(mk)}</div><div class="v pos">${brl(soma(ev,'tit',aberto))}</div><div class="sub">${ev.filter(e=>e.tipo==='tit'&&!e.ok).length} título(s) em aberto</div></div>
+      <div class="stat"><div class="k">Recebido no mês</div><div class="v">${brl(soma(ev,'tit',e=>e.ok))}</div><div class="sub">${ev.filter(e=>e.tipo==='tit'&&e.ok).length} título(s)</div></div>
+      <div class="stat"><div class="k">Parcelas do banco no mês</div><div class="v ${soma(ev,'parc',aberto)?'neg':''}">${brl(soma(ev,'parc',aberto))}</div><div class="sub">${ctrsF===undefined?'':fontes().some(f=>ctrsF(f.codigo).length)?'a pagar':'sem contratos cadastrados'}</div></div>
+      <div class="stat"><div class="k">Vencido, todos os meses</div><div class="v ${vencT?'neg':''}">${brl(vencT)}</div><div class="sub">títulos em atraso a cobrar</div></div></div>
+    <div class="ag-wrap"><div class="panel ag-cal"><div class="ag-sem">${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(x=>`<div>${x}</div>`).join('')}</div><div class="ag-grid">${cel}</div>
+      <div class="legend" style="padding:10px 0 0"><span><b class="pos">+</b> entra (títulos a receber)</span><span><b class="neg">−</b> sai (parcelas do banco)</span><span><span class="ag-dot"></span> tem vencido</span><span>✓ dia já quitado</span></div></div>
+      <div class="panel ag-lado">${lado}</div></div>`;
+}
+const brlK=v=>Math.abs(v)>=1e6?(v/1e6).toLocaleString('pt-BR',{maximumFractionDigits:2})+' mi':Math.abs(v)>=1e3?(v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil':n2(v);
+
+/* ===== Ficha do cliente =====
+   Exposição (títulos + antecipações) contra o limite, o que rende (operações: fator, prazo, ROA) e como paga
+   (atraso médio dos títulos recebidos, % em dia, perdas). */
+function abrirFicha(id){fichaCli=id;go('ficha','')}
+function fichaDados(id){
+  const H=hoje(),T=alive(DB.titulos).filter(t=>t.clienteId===id),ab=T.filter(t=>!t.pago),rec=T.filter(t=>t.pago&&!t.perda&&t.recebimento),perdas=T.filter(t=>t.perda);
+  const A=alive(DB.antecipacoes).filter(a=>a.clienteId===id),Aab=A.filter(a=>a.status!=='quitada');
+  const O=alive(DB.operacoes).filter(o=>o.clienteId===id).sort((a,b)=>b.data.localeCompare(a.data));
+  const atr=t=>dias(t.vencimento,t.recebimento),pesoRec=rec.reduce((s,t)=>s+t.valor,0);
+  const atrMedio=pesoRec?rec.reduce((s,t)=>s+Math.max(0,atr(t))*t.valor,0)/pesoRec:null;
+  const emDia=rec.length?rec.filter(t=>atr(t)<=0).length/rec.length:null;
+  const bruto=O.reduce((s,o)=>s+o.bruto,0),comFator=O.filter(o=>o.fator);
+  const fatorMed=comFator.length?comFator.reduce((s,o)=>s+o.fator*o.bruto,0)/comFator.reduce((s,o)=>s+o.bruto,0):null;
+  const prazoMed=O.filter(o=>o.prazoMedio).length?O.filter(o=>o.prazoMedio).reduce((s,o)=>s+o.prazoMedio*o.bruto,0)/O.filter(o=>o.prazoMedio).reduce((s,o)=>s+o.bruto,0):null;
+  const R=crResumo(id,H);
+  return {T,ab,rec,perdas,A,Aab,O,atrMedio,emDia,bruto,desagio:O.reduce((s,o)=>s+o.desagio,0),fatorMed,prazoMed,R,
+    titAb:r2(ab.reduce((s,t)=>s+t.valor,0)),titVenc:r2(ab.filter(titVencido).reduce((s,t)=>s+t.valor,0)),maxAtraso:ab.filter(titVencido).reduce((m,t)=>Math.max(m,dias(t.vencimento,H)),0),
+    exp:expCli(id),movs:alive(DB.movs).filter(m=>m.clienteId===id).sort((a,b)=>b.data.localeCompare(a.data))};
+}
+function viewFicha(){
+  const L=alive(DB.clientes).sort((a,b)=>a.nome.localeCompare(b.nome));if(!L.length)return vazio('Nenhum cliente cadastrado.');
+  if(!fichaCli||!L.find(c=>c.id===fichaCli))fichaCli=L[0].id;const c=cli(fichaCli),D=fichaDados(fichaCli),H=hoje();
+  const sel=`<div class="filters"><select onchange="fichaCli=this.value;render()">${L.map(x=>`<option value="${x.id}" ${x.id===fichaCli?'selected':''}>${esc(x.nome)}</option>`).join('')}</select>
+    <span class="right" style="display:flex;gap:6px"><button class="btn btn-sm" onclick="openCli('${c.id}')">✎ Editar cadastro</button>${D.A.length?`<button class="btn btn-sm" onclick="crCli='${c.id}';go('correcao','')">Correção geral</button>`:''}</span></div>`;
+  const pct=v=>v==null?'—':pctBR(v);
+  const topo=`<div class="stats" style="margin-bottom:14px">
+    <div class="stat"><div class="k">Exposição total</div><div class="v">${brl(D.exp)}</div><div class="sub">títulos + antecipações em aberto</div></div>
+    <div class="stat"><div class="k">Limite</div><div class="v ${c.limite&&D.exp>c.limite?'neg':''}">${c.limite?brl(c.limite):'—'}</div><div class="sub">${barraLim(D.exp,c.limite)}</div></div>
+    <div class="stat"><div class="k">Títulos em aberto</div><div class="v">${brl(D.titAb)}</div><div class="sub">${D.titVenc?`<span class="neg">${brl(D.titVenc)} vencido · há até ${D.maxAtraso} dia(s)</span>`:`${D.ab.length} título(s), nenhum vencido`}</div></div>
+    <div class="stat"><div class="k">Antecipações · deve hoje</div><div class="v">${brl(D.R.geral.total)}</div><div class="sub">${D.Aab.length} aberta(s) · principal ${brl(D.R.geral.principal)}</div></div>
+    <div class="stat"><div class="k">Como paga</div><div class="v ${D.atrMedio>5?'neg':D.atrMedio!=null?'pos':''}">${D.atrMedio==null?'—':Math.round(D.atrMedio)+' dia(s)'}</div><div class="sub">${D.rec.length?`atraso médio · ${pct(D.emDia)} em dia em ${D.rec.length} título(s)`:'sem título recebido ainda'}${D.perdas.length?` · <span class="neg">${D.perdas.length} perda(s)</span>`:''}</div></div></div>`;
+  const cad=`<div class="panel"><div class="panel-head"><h2>Cadastro</h2></div><div class="kv-grid">
+    <div class="kv"><span>Correção das antecipações</span><b>${c.cobraJuros?pctBR(c.taxaMes)+' a.m.':'sem juros'}</b></div>
+    <div class="kv"><span>Fator padrão das operações</span><b>${c.fatorMes?pctBR(c.fatorMes)+' a.m.':'—'}</b></div>
+    <div class="kv"><span>Operações</span><b>${D.O.length} · ${brl(D.bruto)} de face</b></div>
+    <div class="kv"><span>Deságio recebido</span><b>${brl(r2(D.desagio))}</b></div>
+    <div class="kv"><span>Fator médio · prazo médio</span><b>${pct(D.fatorMed)} · ${D.prazoMed?String(Math.round(D.prazoMed*10)/10).replace('.',',')+' dias':'—'}</b></div>
+    ${c.obs?`<div class="kv"><span>Observação</span><b>${esc(c.obs)}</b></div>`:''}</div></div>`;
+  const tt=D.T.slice().sort((a,b)=>(a.pago-b.pago)||(a.vencimento||'').localeCompare(b.vencimento||''));
+  const tit=`<div class="panel"><div class="panel-head"><h2>Títulos<small>${D.ab.length} em aberto · ${D.rec.length} recebido(s)</small></h2></div>${tt.length?`<div class="tbl-scroll"><table class="tb auto"><thead><tr><th>Recurso</th><th>Sacado</th><th>NF</th><th class="c">Vencimento</th><th class="num">Valor</th><th class="c">Situação</th><th></th></tr></thead><tbody>
+    ${tt.slice(0,40).map(t=>`<tr><td>${chipF(t.fonte)}</td><td>${esc(t.direta?'operação direta':(t.sacado||nomeSac(t.sacadoId)))}</td><td>${esc((t.nf||'')+(t.parcela?' '+t.parcela:''))}</td><td class="c">${fmtBR(t.vencimento)}</td><td class="num">${brl(t.valor)}</td>
+      <td class="c">${t.perda?'<span class="chip chip-bad">perda</span>':t.pago?`<span class="chip chip-ok">recebido ${fmtBR(t.recebimento)}${dias(t.vencimento,t.recebimento)>0?' · '+dias(t.vencimento,t.recebimento)+'d atraso':''}</span>`:titVencido(t)?`<span class="chip chip-bad">vencido há ${dias(t.vencimento,H)}d</span>`:'<span class="chip chip-n">a vencer</span>'}</td>
+      <td class="c">${t.pago?'':`<button class="btn btn-sm btn-gold" onclick="fonteSel='${t.fonte}';openRec('${t.id}')">Receber</button>`}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted">Nenhum título.</div>'}</div>`;
+  const ops=D.O.length?`<div class="panel"><div class="panel-head"><h2>Operações<small>o que cada operação rendeu</small></h2></div><div class="tbl-scroll"><table class="tb auto"><thead><tr><th class="c">Data</th><th>Recurso</th><th>NF</th><th class="num">Face</th><th class="num">Enviado</th><th class="num">Deságio</th><th class="num">Fator</th><th class="num">Prazo</th><th class="num">ROA</th></tr></thead><tbody>
+    ${D.O.slice(0,30).map(o=>`<tr><td class="c">${fmtBR(o.data)}</td><td>${chipF(o.fonte)}</td><td>${esc(o.nf||'')}</td><td class="num">${brl(o.bruto)}</td><td class="num">${brl(o.liquido)}</td><td class="num pos">${brl(o.desagio)}</td><td class="num">${o.fator?pctBR(o.fator):'—'}</td><td class="num">${o.prazoMedio?String(o.prazoMedio).replace('.',',')+'d':'—'}</td><td class="num">${o.roa?pctBR(o.roa):'—'}</td></tr>`).join('')}</tbody></table></div></div>`:'';
+  const ants=D.A.length?`<div class="panel"><div class="panel-head"><h2>Antecipações<small>${D.Aab.length} aberta(s); a baixa é pela Correção geral</small></h2></div><div class="tbl-scroll"><table class="tb auto"><thead><tr><th class="c">Envio</th><th>Recurso</th><th class="num">Enviado</th><th class="num">Principal aberto</th><th class="num">Juros até hoje</th><th class="c">Situação</th></tr></thead><tbody>
+    ${D.A.slice().sort((a,b)=>b.data.localeCompare(a.data)).map(a=>`<tr><td class="c">${fmtBR(a.data)}</td><td>${chipF(a.fonte)}</td><td class="num">${brl(a.valor)}</td><td class="num">${brl(a.principal)}</td><td class="num">${a.status==='quitada'?'—':brl(jurosRef(a,H))}</td><td class="c">${a.status==='quitada'?'<span class="chip chip-ok">quitada</span>':'<span class="chip chip-warn">aberta</span>'}</td></tr>`).join('')}</tbody></table></div></div>`:'';
+  const mv=D.movs.length?`<div class="panel"><div class="panel-head"><h2>Movimentos<small>últimos lançamentos com este cliente, nos dois recursos</small></h2></div><div class="tbl-scroll"><table class="tb auto"><thead><tr><th class="c">Data</th><th>Recurso</th><th>Descrição</th><th class="num">Entrada</th><th class="num">Saída</th><th class="num">Resultado</th></tr></thead><tbody>
+    ${D.movs.slice(0,20).map(m=>`<tr><td class="c">${fmtBR(m.data)}</td><td>${chipF(m.fonte)}</td><td>${esc(m.descricao)}</td><td class="num pos">${m.entrada?brl(m.entrada):''}</td><td class="num neg">${m.saida?brl(m.saida):''}</td><td class="num">${m.resultado?brl(m.resultado):''}</td></tr>`).join('')}</tbody></table></div></div>`:'';
+  return sel+topo+cad+tit+ops+ants+mv;
+}
+
 /* ===== Painel: decisão do dia =====
    Responde, nesta ordem: quanto posso operar hoje; o que precisa de mim; em que semana o caixa aperta;
    onde está o dinheiro e quanto devo; quanto a carteira rende contra o que o banco custa; onde estou concentrado;
@@ -1317,6 +1429,7 @@ function pnlPrioridades(D){
   D.comp.filter(o=>o.k.caixa<-.005).forEach(o=>add(3,'Caixa negativo',`${o.c}: saiu dinheiro de onde não havia`,brl(o.k.caixa),'razao',o.c));
   const porCli={};D.vencTit.forEach(t=>{const k=t.fonte+'|'+(t.cliente||'');(porCli[k]=porCli[k]||{n:0,v:0,max:0,f:t.fonte,c:t.cliente}).n++;porCli[k].v=r2(porCli[k].v+t.valor);porCli[k].max=Math.max(porCli[k].max,dias(t.vencimento,D.H))});
   Object.values(porCli).sort((a,b)=>b.v-a.v).forEach(x=>add(3,'Título vencido',`${x.c}: ${x.n} título(s), o mais antigo há ${x.max} dia(s)`,brl(x.v),'titulos',x.f));
+  F.forEach(x=>{if(x.lbl==='Título vencido'){const cc=alive(DB.clientes).find(k=>x.txt.startsWith(k.nome+':'));if(cc){x.tab='ficha';x.f='';x.cli=cc.id}}});
   D.fs.forEach(c=>{const n=concResumo(c).falta.length;if(n)add(2,'Extrato a conciliar',`${c}: ${n} linha(s) do banco sem lançamento no razão`,'','razao',c)});
   D.parcVenc.forEach(l=>add(3,'Parcela do banco vencida',`Bradesco ${l.contrato} · parcela ${l.k} · ${fmtBR(l.venc)}`,brl(l.parcela),'parcelas',l.fonte));
   D.parc.filter(l=>l.venc>=D.H&&l.venc<=addDias(D.H,7)).forEach(l=>add(2,'Parcela em 7 dias',`Bradesco ${l.contrato} · parcela ${l.k} · ${fmtBR(l.venc)}`,brl(l.parcela),'parcelas',l.fonte));
@@ -1381,7 +1494,7 @@ function viewPainel(){
   </div>`;
   const P=pnlPrioridades(D);
   const prio=`<div class="panel"><div class="panel-head"><h2>O que precisa de você<small>${P.length?`${P.length} ponto(s), do mais urgente para o menos`:'nada pendente: carteira em dia'}</small></h2></div>
-    ${P.length?`<div class="prio">${P.slice(0,10).map(x=>`<div class="pr u${x.u}"><span class="pr-l">${x.lbl}</span><span class="pr-t">${esc(x.txt)}</span><span class="pr-v">${x.meta}</span>${x.tab?`<button class="btn btn-sm" onclick="go('${x.tab}','${x.f||''}')">Abrir</button>`:''}</div>`).join('')}${P.length>10?`<div class="muted" style="padding:8px 0">+ ${P.length-10} ponto(s)</div>`:''}</div>`:`<div class="muted">Sem títulos vencidos, parcelas na semana ou antecipações paradas.</div>`}</div>`;
+    ${P.length?`<div class="prio">${P.slice(0,10).map(x=>`<div class="pr u${x.u}"><span class="pr-l">${x.lbl}</span><span class="pr-t">${esc(x.txt)}</span><span class="pr-v">${x.meta}</span>${x.tab?`<button class="btn btn-sm" onclick="${x.cli?`abrirFicha('${x.cli}')`:`go('${x.tab}','${x.f||''}')`}">Abrir</button>`:''}</div>`).join('')}${P.length>10?`<div class="muted" style="padding:8px 0">+ ${P.length-10} ponto(s)</div>`:''}</div>`:`<div class="muted">Sem títulos vencidos, parcelas na semana ou antecipações paradas.</div>`}</div>`;
   const sem=pnlFluxo(D),neg=sem.find(x=>x.saldo<0);
   const fluxo=`<div class="panel"><div class="panel-head"><h2>Fluxo projetado · ${SEMANAS_FLUXO} semanas<small>${neg?`<span class="neg">o caixa fica negativo na semana de ${fmtBR(neg.a)}</span>`:'o caixa não fica negativo no período'}${D.parc.length?'':' · sem contratos cadastrados, as saídas do banco não aparecem'}</small></h2>
     <span class="legend"><i class="s1"></i>entra (títulos a vencer)<i class="s2"></i>sai (parcelas do banco)<i class="ln"></i>saldo projetado</span></div>${svgFluxo(sem)}
@@ -1693,7 +1806,7 @@ function saveBaixa(){
 function viewClientes(){
   const L=alive(DB.clientes).sort((a,b)=>a.nome.localeCompare(b.nome));
   const rows=L.map(x=>{const ab=alive(DB.antecipacoes).filter(a=>a.clienteId===x.id&&a.status!=='quitada'),ts=alive(DB.titulos).filter(t=>t.clienteId===x.id&&!t.pago);
-    return `<tr><td><b>${esc(x.nome)}</b>${x.obs?`<div class="muted" style="font-size:11px">${esc(x.obs)}</div>`:''}</td><td>${x.cobraJuros?`<span class="chip chip-ok">${(x.taxaMes*100).toFixed(2).replace('.',',')}% a.m.</span>`:'<span class="chip chip-n">sem juros</span>'}</td>
+    return `<tr><td><a href="#" class="lnk" onclick="abrirFicha('${x.id}');return false"><b>${esc(x.nome)}</b></a>${x.obs?`<div class="muted" style="font-size:11px">${esc(x.obs)}</div>`:''}</td><td>${x.cobraJuros?`<span class="chip chip-ok">${(x.taxaMes*100).toFixed(2).replace('.',',')}% a.m.</span>`:'<span class="chip chip-n">sem juros</span>'}</td>
       <td class="num">${brl(r2(ab.reduce((s,a)=>s+a.principal,0)))}<div class="muted" style="font-size:10.5px">${ab.length} antecipação(ões)</div></td><td class="num">${brl(r2(ts.reduce((s,t)=>s+t.valor,0)))}<div class="muted" style="font-size:10.5px">${ts.length} título(s)</div></td>
       <td>${barraLim(expCli(x.id),x.limite)}${x.fatorMes?`<div class="muted" style="font-size:10.5px">fator ${pctBR(x.fatorMes)} a.m.</div>`:''}</td>
       <td class="num"><button class="iconbtn" onclick="openCli('${x.id}')">✎</button> <button class="iconbtn del" onclick="delCad('clientes','${x.id}')">🗑</button></td></tr>`}).join('');
@@ -1787,7 +1900,7 @@ function openMov(id){
   el('movTitle').textContent=m?'Editar lançamento':'Lançamento comum';el('m_cli').innerHTML=optCli(m?m.clienteId:'');
   setVal('m_id',m?m.id:'');fixaFonte('m_fonte','m_fx',m?m.fonte:fonteSel);setVal('m_data',m?m.data:dataPadrao());setVal('m_desc',m?m.descricao:'');
   movCat();if(m)setVal('m_cat',m.categoria);movCat();setVal('m_valor',m?n2(m.entrada||m.saida):'');setVal('m_obs',m?m.obs||'':'');
-  curSent=m?(m.entrada?'E':'S'):curSent;pickSent(curSent);openModalId('ovMov');setTimeout(()=>el('m_desc').focus(),60);
+  curSent=m?(m.entrada?'E':'S'):curSent;pickSent(curSent);openModalId('ovMov');setTimeout(()=>{const e=el('m_desc');if(e&&!(e.closest('.overlay')||document.body).contains(document.activeElement))e.focus()},60);
 }
 function saveMov(){
   limpaErro('m_erro');const id=val('m_id'),f=val('m_fonte'),data=val('m_data'),desc=val('m_desc').trim(),k=val('m_cat'),x=calcMov();
@@ -2090,7 +2203,7 @@ function saveFonte(){limpaErro('f_erro');const id=val('f_id'),cod=val('f_codigo'
   if(id)Object.assign(DB.fontes.find(x=>x.id===id),base);else DB.fontes.push({id:uid(),codigo:cod,ativa:true,...base});
   logH(`Recurso ${nome}`);save();closeModal('ovFonte');render();toast('Recurso salvo')}
 function openCli(id,ret){limpaErro('cl_erro');const x=id?DB.clientes.find(y=>y.id===id):null;el('cliTitle').textContent=x?'Editar cliente':'Novo cliente';
-  setVal('cl_id',x?x.id:'');setVal('cl_ret',ret||'');setVal('cl_nome',x?x.nome:'');el('cl_juros').checked=x?!!x.cobraJuros:true;el('cl_taxa').disabled=!el('cl_juros').checked;setVal('cl_taxa',x&&x.taxaMes?n2(x.taxaMes*100):'');setVal('cl_limite',x&&x.limite?n2(x.limite):'');setVal('cl_fator',x&&x.fatorMes?n2(x.fatorMes*100):'');setVal('cl_obs',x?x.obs||'':'');openModalId('ovCli');setTimeout(()=>el('cl_nome').focus(),60)}
+  setVal('cl_id',x?x.id:'');setVal('cl_ret',ret||'');setVal('cl_nome',x?x.nome:'');el('cl_juros').checked=x?!!x.cobraJuros:true;el('cl_taxa').disabled=!el('cl_juros').checked;setVal('cl_taxa',x&&x.taxaMes?n2(x.taxaMes*100):'');setVal('cl_limite',x&&x.limite?n2(x.limite):'');setVal('cl_fator',x&&x.fatorMes?n2(x.fatorMes*100):'');setVal('cl_obs',x?x.obs||'':'');openModalId('ovCli');setTimeout(()=>{const e=el('cl_nome');if(e&&!(e.closest('.overlay')||document.body).contains(document.activeElement))e.focus()},60)}
 function saveCli(){limpaErro('cl_erro');const id=val('cl_id'),nome=val('cl_nome').trim();if(!nome)return erro('cl_erro','Informe o nome.');
   const base={nome,cobraJuros:el('cl_juros').checked,taxaMes:el('cl_juros').checked?parseNum(val('cl_taxa'))/100:0,limite:r2(parseNum(val('cl_limite')))||null,fatorMes:parseNum(val('cl_fator'))/100||null,obs:val('cl_obs').trim()};let x;
   if(id){x=DB.clientes.find(y=>y.id===id);Object.assign(x,base)}else{x={id:uid(),...base,deletedAt:null};DB.clientes.push(x)}
@@ -2098,13 +2211,13 @@ function saveCli(){limpaErro('cl_erro');const id=val('cl_id'),nome=val('cl_nome'
   if(ret&&el(ret)){el(ret).innerHTML=optCli(x.id);if(ret==='a_cli')antCli()}else render();toast('Cliente salvo')}
 function openInv(id,ret){limpaErro('iv_erro');const x=id?DB.investidores.find(y=>y.id===id):null;el('invTitle').textContent=x?'Editar investidor':'Novo investidor';
   setVal('iv_id',x?x.id:'');setVal('iv_ret',ret||'');setVal('iv_nome',x?x.nome:'');setVal('iv_taxa',x&&x.taxaMes?n2(x.taxaMes*100):'');setVal('iv_vinculo',x?x.vinculo||'':'');setVal('iv_contato',x?x.contato||'':'');setVal('iv_obs',x?x.obs||'':'');
-  openModalId('ovInv');setTimeout(()=>el('iv_nome').focus(),60)}
+  openModalId('ovInv');setTimeout(()=>{const e=el('iv_nome');if(e&&!(e.closest('.overlay')||document.body).contains(document.activeElement))e.focus()},60)}
 function saveInv(){limpaErro('iv_erro');const id=val('iv_id'),nome=val('iv_nome').trim();if(!nome)return erro('iv_erro','Informe o nome.');
   const base={nome,taxaMes:parseNum(val('iv_taxa'))/100,vinculo:val('iv_vinculo').trim(),contato:val('iv_contato').trim(),obs:val('iv_obs').trim()};let x;
   if(id){x=DB.investidores.find(y=>y.id===id);Object.assign(x,base);alive(DB.captacoes).filter(k=>k.investidorId===id).forEach(k=>k.investidor=nome)}else{x={id:uid(),...base,deletedAt:null};DB.investidores.push(x)}
   logH(`Investidor ${nome}`);save();closeModal('ovInv');const ret=val('iv_ret');if(ret&&el(ret)){el(ret).innerHTML=optInv(x.id);if(ret==='k_inv')capInv()}else render();toast('Investidor salvo')}
 function openSac(id,ret){limpaErro('sc_erro');const x=id?DB.sacados.find(y=>y.id===id):null;el('sacTitle').textContent=x?'Editar sacado':'Novo sacado';
-  setVal('sc_id',x?x.id:'');setVal('sc_ret',ret||'');setVal('sc_nome',x?x.nome:'');setVal('sc_limite',x&&x.limite?n2(x.limite):'');setVal('sc_obs',x?x.obs||'':'');openModalId('ovSac');setTimeout(()=>el('sc_nome').focus(),60)}
+  setVal('sc_id',x?x.id:'');setVal('sc_ret',ret||'');setVal('sc_nome',x?x.nome:'');setVal('sc_limite',x&&x.limite?n2(x.limite):'');setVal('sc_obs',x?x.obs||'':'');openModalId('ovSac');setTimeout(()=>{const e=el('sc_nome');if(e&&!(e.closest('.overlay')||document.body).contains(document.activeElement))e.focus()},60)}
 function saveSac(){limpaErro('sc_erro');const id=val('sc_id'),nome=val('sc_nome').trim();if(!nome)return erro('sc_erro','Informe o nome.');let x;
   const lim=r2(parseNum(val('sc_limite')))||null;if(id){x=DB.sacados.find(y=>y.id===id);Object.assign(x,{nome,limite:lim,obs:val('sc_obs').trim()})}else{x={id:uid(),nome,limite:lim,obs:val('sc_obs').trim(),deletedAt:null};DB.sacados.push(x)}
   logH(`Sacado ${nome}`);save();closeModal('ovSac');const ret=val('sc_ret');if(ret&&el(ret))el(ret).innerHTML=optSac(x.id);else render();toast('Sacado salvo')}
