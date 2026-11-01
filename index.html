@@ -496,6 +496,24 @@ tbody tr{transition:.12s} tbody tr:hover{background:var(--panel2)}
 a.lnk{color:inherit;text-decoration:none}a.lnk:hover b{color:var(--acc);text-decoration:underline}
 @media(max-width:900px){.ag-wrap{grid-template-columns:1fr}.ag-c{min-height:60px;font-size:10.5px}}
 
+/* ===== Módulos de gestão ===== */
+.sim-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:start}.sim-wrap .panel{padding-bottom:14px}
+.acts-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}.acts-row input{min-width:200px}
+.sim-linha{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line);font-size:12.5px}.sim-linha.neg b{color:var(--neg)}
+.sim-tab td .muted{font-size:10.5px}.sim-tab tr.sel td{background:color-mix(in srgb,var(--acc) 10%,transparent)}
+.kb.kb5{grid-template-columns:repeat(5,minmax(200px,1fr));overflow-x:auto}.op-card{cursor:default;font-size:12px}.op-card .muted{margin-top:3px;font-size:11.5px}
+.op-c-h{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.op-c-a{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;align-items:center}.op-c-a .iconbtn{margin-left:auto}.warn{color:var(--warn)}
+.hist{display:flex;flex-direction:column;gap:8px}.hist-i{border-left:2px solid var(--line-f);padding:2px 0 2px 10px;font-size:12.5px}.hist-i div{margin-top:2px}
+.ficha-acts{display:flex;gap:6px;flex-wrap:wrap}.ficha-alerta{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.ficha-alerta>div{background:var(--panel);border:1px solid var(--line-f);border-left:3px solid var(--acc);border-radius:9px;padding:9px 12px;font-size:12.5px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.ficha-alerta>div.neg{border-left-color:var(--neg)}
+.ficha-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:14px}.ficha-g .panel{padding-bottom:14px}
+.cob-card{cursor:default}.cob-card>div{font-size:11.5px;margin-top:3px}.cob-mv{font-size:11px;padding:3px 6px;max-width:140px}
+.chk-in{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--dim)}.fx-r.sel{background:color-mix(in srgb,var(--acc) 12%,transparent)}
+.rel-f label{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--dim)}.rel-tab tbody tr[onclick]:hover td{background:var(--panel2)}.inv-b{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px}.inv-b .op-c-h .right{margin-left:auto}
+.rot-i{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:13px}.rot-i.ok b{text-decoration:line-through;color:var(--mut)}.rot-i .right{margin-left:auto}
+.resumo-txt{font-size:13px;line-height:1.65;color:var(--txt)}
+@media(max-width:1000px){.sim-wrap{grid-template-columns:1fr}}
+@media print{.side,.topbar,.filters,.tabs,.btn,.acoes{display:none!important}.shell{display:block}.page{padding:0}.panel{border:0;break-inside:avoid}body{background:#fff;color:#000}}
+
 /* ---------- Específico deste app ---------- */
 .fonte-chip{font-size:9.5px;font-weight:800;letter-spacing:.6px;padding:2px 7px;border-radius:4px;display:inline-block;vertical-align:middle}
 .fonte-chip.GIRO{background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
@@ -855,6 +873,8 @@ a.lnk{color:inherit;text-decoration:none}a.lnk:hover b{color:var(--acc);text-dec
     <div class="field"><label>Taxa de correção % ao mês</label><input id="cl_taxa" placeholder="Ex.: 4,00"><div class="hint">A mesma da planilha de correção. Juros compostos pelos dias que o recurso ficou com o cliente.</div></div>
     <div class="fgrid"><div class="field"><label>Limite de crédito (R$)</label><input id="cl_limite" placeholder="sem limite"><div class="hint">Títulos abertos + antecipações abertas. Avisa ao lançar acima.</div></div>
       <div class="field"><label>Fator padrão das operações % a.m.</label><input id="cl_fator" placeholder="Ex.: 5,00"><div class="hint">Preenche a calculadora ao escolher o cliente.</div></div></div>
+    <div class="fgrid"><div class="field"><label>Contato (nome)</label><input id="cl_contato"></div><div class="field"><label>Telefone / WhatsApp</label><input id="cl_fone"></div></div>
+    <div class="field"><label>E-mail</label><input id="cl_email"></div>
     <div class="field"><label>Observação</label><input id="cl_obs"></div>
     <div class="erro" id="cl_erro"></div>
   </div>
@@ -1058,6 +1078,7 @@ function load(){
     DB.sacados.filter(x=>!sd.sacados.some(y=>y.id===x.id)&&x.nome==='ALEX DAMIÃO'&&!DB.titulos.some(t=>t.sacadoId===x.id)).forEach(x=>{x.deletedAt=Date.now()});DB.migracoes.push('alex-direta')}
   if(!DB.migracoes.includes('modulos-v2')){DB.fontes.forEach(f=>{const sd=(SEED.fontes||[]).find(x=>x.codigo===f.codigo);
     if(sd&&sd.modulos&&f.modulos.parcelas&&f.modulos.captacoes)f.modulos={...sd.modulos}});DB.migracoes.push('modulos-v2')}
+  if(typeof garanteModulos==='function')garanteModulos();
   DB.perfil=DB.perfil||{nome:'Leonardo Katayose',email:'adm@liderebpo.com.br',papel:'Administrador'};
   fonteSel=DB.ui&&DB.ui.fonteSel||(fontes()[0]||{}).codigo||'GIRO';
   mesSel=DB.ui&&DB.ui.mesSel||ultimoMesComDado();
@@ -1157,15 +1178,23 @@ const IC={
  config:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',
  privac:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
  agenda:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ fluxo:'<path d="M3 17l5-6 4 4 8-9"/><path d="M14 6h6v6"/>',
+ rotinas:'<path d="M4 6h11M4 12h11M4 18h7"/><path d="M17 15l2 2 4-4"/>',
+ simulador:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h6"/>',
+ operacoes:'<rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="13" rx="1"/>',
+ cobranca:'<path d="M4 5h16v11H8l-4 4z"/><path d="M9 10h6"/>',
+ relatorios:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+ ficha:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/>',
  sair:'<path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/>'
 };
 const svgIc=k=>'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(IC[k]||'')+'</svg>';
 const ITENS_FONTE=[['razao','Razão'],['titulos','Carteira de títulos'],['antecip','Antecipações'],['parcelas','Parcelas bancárias'],['captacoes','Captações'],['fechamento','Fechamento']];
 const TABS_FONTE=ITENS_FONTE.map(x=>x[0]);
 function navDef(){return [
-  {g:'Visão geral',its:[['painel','Painel'],['agenda','Agenda de vencimentos']]},
+  {g:'Visão geral',its:[['painel','Painel'],['agenda','Agenda de vencimentos'],['fluxo','Fluxo de caixa'],['rotinas','Rotinas']]},
   ...fontes().map(f=>({g:f.nome,fonte:f.codigo,its:ITENS_FONTE.filter(([id])=>temModulo(f,id))})),
-  {g:'Clientes',its:[['correcao','Correção geral'],['clientes','Clientes'],['sacados','Sacados'],['investidores','Investidores']]},
+  {g:'Operações',its:[['simulador','Simulador'],['operacoes','Operações'],['cobranca','Cobrança'],['relatorios','Relatórios']]},
+  {g:'Clientes',its:[['ficha','Ficha do cliente'],['correcao','Correção geral'],['clientes','Clientes'],['sacados','Sacados'],['investidores','Investidores']]},
   {g:'Sistema',its:[['config','Configurações']]}]}
 /* grupos do menu recolhíveis; a escolha fica neste navegador. O grupo da tela aberta fica sempre aberto. */
 function navEstado(){try{return JSON.parse(localStorage.getItem('recursos_nav_grupos')||'{}')}catch(e){return {}}}
@@ -1181,6 +1210,13 @@ const SECAO={
   fechamento:['Fechamento do mês','Saldo calculado contra o extrato e o resultado do mês'],
   agenda:['Agenda de vencimentos','O que entra e o que sai em cada dia do mês: títulos dos clientes e parcelas do banco, nos dois recursos'],
   ficha:['Ficha do cliente','Tudo do cliente num lugar: exposição, limite, operações, antecipações e como ele paga'],
+  fluxo:['Fluxo de caixa','Saldo acumulado previsto por dia, semana ou mês: escolha GIRO, LEO ou os dois e clique no período para ver o que entra e sai'],
+  rotinas:['Rotinas','O que fazer todo dia, toda semana e todo mês, com o atalho para a tela'],
+  simulador:['Simulador de operação','Se eu fizer esta operação, como ficam o caixa e o retorno? Salve e converta em operação'],
+  operacoes:['Operações','Da simulação à liberação e ao acompanhamento, em etapas'],
+  operacao:['Operação','Quanto saiu, quanto voltou, quanto falta e o resultado'],
+  cobranca:['Cobrança','A vencer, contatar, promessa, acompanhar e resolvido, cliente a cliente'],
+  relatorios:['Relatórios','Resultado por cliente e por recurso, previsto × realizado, capital e investidor'],
   correcao:['Correção geral','Quanto cada cliente deve hoje, somando o giro e o Leonardo; a baixa rateia entre os dois'],
   clientes:['Clientes','Quem cede títulos e recebe antecipações, com a taxa de correção'],
   sacados:['Sacados','Quem paga os títulos'],
@@ -1240,7 +1276,7 @@ function render(){
   el('topFonte').style.display=TABS_FONTE.includes(activeTab)?'inline-flex':'none';el('topNovo').style.display=TABS_FONTE.includes(activeTab)?'inline-flex':'none';
   renderNav();renderFoot();
   const V={painel:viewPainel,razao:viewRazao,titulos:viewTitulos,antecip:viewAntecip,parcelas:viewParcelas,captacoes:viewCaptacoes,fechamento:viewFechamento,
-    correcao:viewCorrecao,agenda:viewAgenda,ficha:viewFicha,clientes:viewClientes,sacados:viewSacados,investidores:viewInvestidores,config:viewConfig};
+    correcao:viewCorrecao,agenda:viewAgenda,ficha:viewFicha,fluxo:viewFluxo,rotinas:viewRotinas,simulador:viewSimulador,operacoes:viewOperacoes,operacao:viewOperacao,cobranca:viewCobranca,relatorios:viewRelatorios,clientes:viewClientes,sacados:viewSacados,investidores:viewInvestidores,config:viewConfig};
   el('views').innerHTML=(V[activeTab]||viewPainel)();
 }
 const chipF=c=>`<span class="fonte-chip ${/^[A-Z0-9]+$/.test(c||'')?esc(c):'X'}">${esc(c||'—')}</span>`;
@@ -1369,38 +1405,6 @@ function fichaDados(id){
     titAb:r2(ab.reduce((s,t)=>s+t.valor,0)),titVenc:r2(ab.filter(titVencido).reduce((s,t)=>s+t.valor,0)),maxAtraso:ab.filter(titVencido).reduce((m,t)=>Math.max(m,dias(t.vencimento,H)),0),
     exp:expCli(id),movs:alive(DB.movs).filter(m=>m.clienteId===id).sort((a,b)=>b.data.localeCompare(a.data))};
 }
-function viewFicha(){
-  const L=alive(DB.clientes).sort((a,b)=>a.nome.localeCompare(b.nome));if(!L.length)return vazio('Nenhum cliente cadastrado.');
-  if(!fichaCli||!L.find(c=>c.id===fichaCli))fichaCli=L[0].id;const c=cli(fichaCli),D=fichaDados(fichaCli),H=hoje();
-  const sel=`<div class="filters"><select onchange="fichaCli=this.value;render()">${L.map(x=>`<option value="${x.id}" ${x.id===fichaCli?'selected':''}>${esc(x.nome)}</option>`).join('')}</select>
-    <span class="right" style="display:flex;gap:6px"><button class="btn btn-sm" onclick="openCli('${c.id}')">✎ Editar cadastro</button>${D.A.length?`<button class="btn btn-sm" onclick="crCli='${c.id}';go('correcao','')">Correção geral</button>`:''}</span></div>`;
-  const pct=v=>v==null?'—':pctBR(v);
-  const topo=`<div class="stats" style="margin-bottom:14px">
-    <div class="stat"><div class="k">Exposição total</div><div class="v">${brl(D.exp)}</div><div class="sub">títulos + antecipações em aberto</div></div>
-    <div class="stat"><div class="k">Limite</div><div class="v ${c.limite&&D.exp>c.limite?'neg':''}">${c.limite?brl(c.limite):'—'}</div><div class="sub">${barraLim(D.exp,c.limite)}</div></div>
-    <div class="stat"><div class="k">Títulos em aberto</div><div class="v">${brl(D.titAb)}</div><div class="sub">${D.titVenc?`<span class="neg">${brl(D.titVenc)} vencido · há até ${D.maxAtraso} dia(s)</span>`:`${D.ab.length} título(s), nenhum vencido`}</div></div>
-    <div class="stat"><div class="k">Antecipações · deve hoje</div><div class="v">${brl(D.R.geral.total)}</div><div class="sub">${D.Aab.length} aberta(s) · principal ${brl(D.R.geral.principal)}</div></div>
-    <div class="stat"><div class="k">Como paga</div><div class="v ${D.atrMedio>5?'neg':D.atrMedio!=null?'pos':''}">${D.atrMedio==null?'—':Math.round(D.atrMedio)+' dia(s)'}</div><div class="sub">${D.rec.length?`atraso médio · ${pct(D.emDia)} em dia em ${D.rec.length} título(s)`:'sem título recebido ainda'}${D.perdas.length?` · <span class="neg">${D.perdas.length} perda(s)</span>`:''}</div></div></div>`;
-  const cad=`<div class="panel"><div class="panel-head"><h2>Cadastro</h2></div><div class="kv-grid">
-    <div class="kv"><span>Correção das antecipações</span><b>${c.cobraJuros?pctBR(c.taxaMes)+' a.m.':'sem juros'}</b></div>
-    <div class="kv"><span>Fator padrão das operações</span><b>${c.fatorMes?pctBR(c.fatorMes)+' a.m.':'—'}</b></div>
-    <div class="kv"><span>Operações</span><b>${D.O.length} · ${brl(D.bruto)} de face</b></div>
-    <div class="kv"><span>Deságio recebido</span><b>${brl(r2(D.desagio))}</b></div>
-    <div class="kv"><span>Fator médio · prazo médio</span><b>${pct(D.fatorMed)} · ${D.prazoMed?String(Math.round(D.prazoMed*10)/10).replace('.',',')+' dias':'—'}</b></div>
-    ${c.obs?`<div class="kv"><span>Observação</span><b>${esc(c.obs)}</b></div>`:''}</div></div>`;
-  const tt=D.T.slice().sort((a,b)=>(a.pago-b.pago)||(a.vencimento||'').localeCompare(b.vencimento||''));
-  const tit=`<div class="panel"><div class="panel-head"><h2>Títulos<small>${D.ab.length} em aberto · ${D.rec.length} recebido(s)</small></h2></div>${tt.length?`<div class="tbl-scroll"><table class="tb auto"><thead><tr><th>Recurso</th><th>Sacado</th><th>NF</th><th class="c">Vencimento</th><th class="num">Valor</th><th class="c">Situação</th><th></th></tr></thead><tbody>
-    ${tt.slice(0,40).map(t=>`<tr><td>${chipF(t.fonte)}</td><td>${esc(t.direta?'operação direta':(t.sacado||nomeSac(t.sacadoId)))}</td><td>${esc((t.nf||'')+(t.parcela?' '+t.parcela:''))}</td><td class="c">${fmtBR(t.vencimento)}</td><td class="num">${brl(t.valor)}</td>
-      <td class="c">${t.perda?'<span class="chip chip-bad">perda</span>':t.pago?`<span class="chip chip-ok">recebido ${fmtBR(t.recebimento)}${dias(t.vencimento,t.recebimento)>0?' · '+dias(t.vencimento,t.recebimento)+'d atraso':''}</span>`:titVencido(t)?`<span class="chip chip-bad">vencido há ${dias(t.vencimento,H)}d</span>`:'<span class="chip chip-n">a vencer</span>'}</td>
-      <td class="c">${t.pago?'':`<button class="btn btn-sm btn-gold" onclick="fonteSel='${t.fonte}';openRec('${t.id}')">Receber</button>`}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted">Nenhum título.</div>'}</div>`;
-  const ops=D.O.length?`<div class="panel"><div class="panel-head"><h2>Operações<small>o que cada operação rendeu</small></h2></div><div class="tbl-scroll"><table class="tb auto"><thead><tr><th class="c">Data</th><th>Recurso</th><th>NF</th><th class="num">Face</th><th class="num">Enviado</th><th class="num">Deságio</th><th class="num">Fator</th><th class="num">Prazo</th><th class="num">ROA</th></tr></thead><tbody>
-    ${D.O.slice(0,30).map(o=>`<tr><td class="c">${fmtBR(o.data)}</td><td>${chipF(o.fonte)}</td><td>${esc(o.nf||'')}</td><td class="num">${brl(o.bruto)}</td><td class="num">${brl(o.liquido)}</td><td class="num pos">${brl(o.desagio)}</td><td class="num">${o.fator?pctBR(o.fator):'—'}</td><td class="num">${o.prazoMedio?String(o.prazoMedio).replace('.',',')+'d':'—'}</td><td class="num">${o.roa?pctBR(o.roa):'—'}</td></tr>`).join('')}</tbody></table></div></div>`:'';
-  const ants=D.A.length?`<div class="panel"><div class="panel-head"><h2>Antecipações<small>${D.Aab.length} aberta(s); a baixa é pela Correção geral</small></h2></div><div class="tbl-scroll"><table class="tb auto"><thead><tr><th class="c">Envio</th><th>Recurso</th><th class="num">Enviado</th><th class="num">Principal aberto</th><th class="num">Juros até hoje</th><th class="c">Situação</th></tr></thead><tbody>
-    ${D.A.slice().sort((a,b)=>b.data.localeCompare(a.data)).map(a=>`<tr><td class="c">${fmtBR(a.data)}</td><td>${chipF(a.fonte)}</td><td class="num">${brl(a.valor)}</td><td class="num">${brl(a.principal)}</td><td class="num">${a.status==='quitada'?'—':brl(jurosRef(a,H))}</td><td class="c">${a.status==='quitada'?'<span class="chip chip-ok">quitada</span>':'<span class="chip chip-warn">aberta</span>'}</td></tr>`).join('')}</tbody></table></div></div>`:'';
-  const mv=D.movs.length?`<div class="panel"><div class="panel-head"><h2>Movimentos<small>últimos lançamentos com este cliente, nos dois recursos</small></h2></div><div class="tbl-scroll"><table class="tb auto"><thead><tr><th class="c">Data</th><th>Recurso</th><th>Descrição</th><th class="num">Entrada</th><th class="num">Saída</th><th class="num">Resultado</th></tr></thead><tbody>
-    ${D.movs.slice(0,20).map(m=>`<tr><td class="c">${fmtBR(m.data)}</td><td>${chipF(m.fonte)}</td><td>${esc(m.descricao)}</td><td class="num pos">${m.entrada?brl(m.entrada):''}</td><td class="num neg">${m.saida?brl(m.saida):''}</td><td class="num">${m.resultado?brl(m.resultado):''}</td></tr>`).join('')}</tbody></table></div></div>`:'';
-  return sel+topo+cad+tit+ops+ants+mv;
-}
 
 /* ===== Painel: decisão do dia =====
    Responde, nesta ordem: quanto posso operar hoje; o que precisa de mim; em que semana o caixa aperta;
@@ -1493,7 +1497,7 @@ function viewPainel(){
     ${hero('Posso operar hoje',brl(D.capacidade),'conta + entradas − saídas de 7 dias',D.capacidade<0?'neg':'pos')}
   </div>`;
   const P=pnlPrioridades(D);
-  const prio=`<div class="panel"><div class="panel-head"><h2>O que precisa de você<small>${P.length?`${P.length} ponto(s), do mais urgente para o menos`:'nada pendente: carteira em dia'}</small></h2></div>
+  const prio=`<div class="panel"><div class="panel-head"><h2>Trabalho do dia<small>${P.length?`${P.length} ponto(s), do mais urgente para o menos`:'nada pendente: carteira em dia'}</small></h2></div>
     ${P.length?`<div class="prio">${P.slice(0,10).map(x=>`<div class="pr u${x.u}"><span class="pr-l">${x.lbl}</span><span class="pr-t">${esc(x.txt)}</span><span class="pr-v">${x.meta}</span>${x.tab?`<button class="btn btn-sm" onclick="${x.cli?`abrirFicha('${x.cli}')`:`go('${x.tab}','${x.f||''}')`}">Abrir</button>`:''}</div>`).join('')}${P.length>10?`<div class="muted" style="padding:8px 0">+ ${P.length-10} ponto(s)</div>`:''}</div>`:`<div class="muted">Sem títulos vencidos, parcelas na semana ou antecipações paradas.</div>`}</div>`;
   const sem=pnlFluxo(D),neg=sem.find(x=>x.saldo<0);
   const fluxo=`<div class="panel"><div class="panel-head"><h2>Fluxo projetado · ${SEMANAS_FLUXO} semanas<small>${neg?`<span class="neg">o caixa fica negativo na semana de ${fmtBR(neg.a)}</span>`:'o caixa não fica negativo no período'}${D.parc.length?'':' · sem contratos cadastrados, as saídas do banco não aparecem'}</small></h2>
@@ -1523,14 +1527,14 @@ function viewPainel(){
       <div class="stat"><div class="k">Custo do banco</div><div class="v">${custo!=null?pct(custo):'—'}</div><div class="sub">${custo!=null?'taxa dos contratos, ponderada':'cadastre os contratos'}</div></div>
       <div class="stat"><div class="k">Spread</div><div class="v ${custo!=null&&antP?(txAnt-custo>0?'pos':'neg'):''}">${custo!=null&&antP?pct(txAnt-custo):'—'}</div><div class="sub">antecipações − banco</div></div>
       <div class="stat"><div class="k">Resultado · ${mesLabel(mesSel)}</div><div class="v ${serie[5].v>=0?'pos':'neg'}">${brl(serie[5].v)}</div><div class="sub">receitas − despesas dos dois recursos</div></div></div>
-    ${svgBarras(serie)}</div>`;
+    ${serie.some(x=>Math.abs(x.v)>.005)?svgBarras(serie):'<div class="muted" style="padding:6px 0 4px">Sem resultado lançado nos últimos 6 meses. O gráfico aparece com os primeiros lançamentos de novembro.</div>'}</div>`;
   const conc=pnlConcentracao(D),concTot=conc.reduce((x,o)=>x+o.v,0);
   const concH=`<div class="panel"><div class="panel-head"><h2>Concentração da carteira<small>títulos + antecipações por cliente · ${brl(r2(concTot))} na rua · alerta acima de ${Math.round(LIMITE_CONC*100)}%</small></h2></div>${conc.length?conc.map(x=>hbar(x.nome,x.v,x.pct,x.pct>LIMITE_CONC&&x.nome!=='Outros')).join(''):'<div class="muted">Nada na rua.</div>'}</div>`;
   const agT=pnlAging(D.tit,'vencimento'),agA=pnlAging(D.ants,'data');
   const aging=`<div class="panel"><div class="panel-head"><h2>Carteira por atraso<small>títulos pelo vencimento; antecipações pela data do envio</small></h2></div>
     <div class="aging"><div class="ag-h">Títulos</div>${agT.map((x,i)=>`<div class="ag ${i&&x.v?'al':''}"><div class="k">${x.lbl}</div><div class="v">${brl(x.v)}</div><div class="sub">${x.n} título(s)</div></div>`).join('')}</div>
     <div class="aging"><div class="ag-h">Antecipações</div>${agA.map((x,i)=>`<div class="ag ${i>1&&x.v?'al':''}"><div class="k">${x.lbl}</div><div class="v">${brl(x.v)}</div><div class="sub">${x.n} antecipação(ões)</div></div>`).join('')}</div></div>`;
-  return topo+notifEmprestimos()+prio+fluxo+patr+rent+concH+aging+`<details class="rec-det"><summary>Recursos em detalhe</summary>${painelRecursos()}</details>`;
+  return topo+notifEmprestimos()+prio+(typeof painelExtra==='function'?painelExtra():'')+fluxo+patr+rent+concH+aging+`<details class="rec-det"><summary>Recursos em detalhe</summary>${painelRecursos()}</details>`;
 }
 
 function painelRecursos(){
@@ -1567,7 +1571,7 @@ function viewRazao(){
   const f=fAtual(),c=f.codigo,ms=movsMes(c,mesSel).sort((a,b)=>a.data.localeCompare(b.data)||(a.seq||0)-(b.seq||0));
   let saldo=saldoAntesMes(c,mesSel),mont=montanteAntesMes(c,mesSel);const ab=saldo,mab=mont;const fechado=mesFechado(c,mesSel);
   const rows=ms.map(m=>{saldo=r2(saldo+efCaixa(m));mont=r2(mont+efMont(m));const semCaixa=!m.entrada&&!m.saida;
-    return `<tr><td class="c">${fmtBR(m.data)}</td><td class="desc"><b>${esc(m.descricao)}${m.origem?` <span class="chip chip-n orig">${m.origem}</span>`:''}</b>${m.clienteId?`<div class="muted">${esc(nomeCli(m.clienteId))}</div>`:''}${m.obs?`<div class="muted">${esc(m.obs)}</div>`:''}</td><td class="c">${chipCat(m.categoria)}${semCaixa?' <span class="chip chip-n">sem caixa</span>':''}${m.conc&&concLinhaViva(m)?` <span class="chip chip-ok" title="${esc('No extrato: '+fmtBR(m.conc.data)+' · '+(m.conc.desc||''))}">✓ banco</span>`:''}</td>
+    return `<tr><td class="c">${fmtBR(m.data)}</td><td class="desc"><b>${m.operacaoId?`<a href="#" class="lnk" onclick="abrirOperacao('${m.operacaoId}');return false">${esc(m.descricao)}</a>`:esc(m.descricao)}${m.origem?` <span class="chip chip-n orig">${m.origem}</span>`:''}</b>${m.clienteId?`<div class="muted">${esc(nomeCli(m.clienteId))}</div>`:''}${m.obs?`<div class="muted">${esc(m.obs)}</div>`:''}</td><td class="c">${chipCat(m.categoria)}${semCaixa?' <span class="chip chip-n">sem caixa</span>':''}${m.conc&&concLinhaViva(m)?` <span class="chip chip-ok" title="${esc('No extrato: '+fmtBR(m.conc.data)+' · '+(m.conc.desc||''))}">✓ banco</span>`:''}</td>
       <td class="num">${m.entrada?`<span class="pos">${brl(m.entrada)}</span>`:''}</td><td class="num">${m.saida?`<span class="neg">${brl(m.saida)}</span>`:''}</td>
       <td class="num"><b>${brl(saldo)}</b></td><td class="num goldtxt">${brl(mont)}</td>
       <td class="c" style="white-space:nowrap">${fechado?'<span class="chip chip-n">fechado</span>':m.origem?`<button class="iconbtn del" onclick="delMov('${m.id}')" title="Excluir">🗑</button>`:`<button class="iconbtn" onclick="openMov('${m.id}')" title="Editar">✎</button> <button class="iconbtn del" onclick="delMov('${m.id}')" title="Excluir">🗑</button>`}</td></tr>`}).join('');
@@ -1976,7 +1980,7 @@ function saveOper(){
   const C=operCalcFator();
   const op={id:uid(),fonte:f,data,clienteId:cliId,sacadoId:sacId,direta,nf,bruto:b,liquido:l,desagio:r2(b-l),fator:C&&C.fat?C.fat:null,floatDias:C?C.fl:null,despesas:C?C.desp:0,prazoMedio:C?C.prazoMedio:null,roa:C&&C.prazoMedio>0?r2(((b-l)/b)*30/C.prazoMedio*10000)/10000:null,movId:null,obs:val('o_obs').trim(),deletedAt:null};
   const m={id:uid(),fonte:f,data,descricao:`OPERAÇÃO ${cn}${nf?' NF '+nf:''}`,categoria:'envio_operacao',clienteId:cliId,entrada:0,saida:l,resultado:r2(b-l),capital:0,obs:direta?`${pv.length} título(s) · operação direta, o cliente paga`:`${pv.length} título(s) de ${sn}`,operacaoId:op.id,origem:'operação',deletedAt:null};
-  op.movId=m.id;DB.operacoes.push(op);DB.movs.push(m);
+  op.movId=m.id;DB.operacoes.push(op);DB.movs.push(m);if(typeof aposOperacao==='function')aposOperacao(op);
   pv.forEach((v,i)=>DB.titulos.push({id:uid(),fonte:f,operacaoId:op.id,clienteId:cliId,sacadoId:sacId,direta,dataEntrada:data,sacado:sn,cliente:cn,nf,parcela:`${i+1}/${pv.length}`,valor:pval[i],vencimento:v,pago:false,recebimento:null,valorRecebido:0,obs:'',deletedAt:null}));
   logH(`Operação ${cn} ${nf} em ${f}`);save();closeModal('ovOper');render();toast('Operação registrada');
 }
@@ -2203,9 +2207,9 @@ function saveFonte(){limpaErro('f_erro');const id=val('f_id'),cod=val('f_codigo'
   if(id)Object.assign(DB.fontes.find(x=>x.id===id),base);else DB.fontes.push({id:uid(),codigo:cod,ativa:true,...base});
   logH(`Recurso ${nome}`);save();closeModal('ovFonte');render();toast('Recurso salvo')}
 function openCli(id,ret){limpaErro('cl_erro');const x=id?DB.clientes.find(y=>y.id===id):null;el('cliTitle').textContent=x?'Editar cliente':'Novo cliente';
-  setVal('cl_id',x?x.id:'');setVal('cl_ret',ret||'');setVal('cl_nome',x?x.nome:'');el('cl_juros').checked=x?!!x.cobraJuros:true;el('cl_taxa').disabled=!el('cl_juros').checked;setVal('cl_taxa',x&&x.taxaMes?n2(x.taxaMes*100):'');setVal('cl_limite',x&&x.limite?n2(x.limite):'');setVal('cl_fator',x&&x.fatorMes?n2(x.fatorMes*100):'');setVal('cl_obs',x?x.obs||'':'');openModalId('ovCli');setTimeout(()=>{const e=el('cl_nome');if(e&&!(e.closest('.overlay')||document.body).contains(document.activeElement))e.focus()},60)}
+  setVal('cl_id',x?x.id:'');setVal('cl_ret',ret||'');setVal('cl_nome',x?x.nome:'');el('cl_juros').checked=x?!!x.cobraJuros:true;el('cl_taxa').disabled=!el('cl_juros').checked;setVal('cl_taxa',x&&x.taxaMes?n2(x.taxaMes*100):'');setVal('cl_limite',x&&x.limite?n2(x.limite):'');setVal('cl_fator',x&&x.fatorMes?n2(x.fatorMes*100):'');setVal('cl_contato',x?x.contato||'':'');setVal('cl_fone',x?x.fone||'':'');setVal('cl_email',x?x.email||'':'');setVal('cl_obs',x?x.obs||'':'');openModalId('ovCli');setTimeout(()=>{const e=el('cl_nome');if(e&&!(e.closest('.overlay')||document.body).contains(document.activeElement))e.focus()},60)}
 function saveCli(){limpaErro('cl_erro');const id=val('cl_id'),nome=val('cl_nome').trim();if(!nome)return erro('cl_erro','Informe o nome.');
-  const base={nome,cobraJuros:el('cl_juros').checked,taxaMes:el('cl_juros').checked?parseNum(val('cl_taxa'))/100:0,limite:r2(parseNum(val('cl_limite')))||null,fatorMes:parseNum(val('cl_fator'))/100||null,obs:val('cl_obs').trim()};let x;
+  const base={nome,cobraJuros:el('cl_juros').checked,taxaMes:el('cl_juros').checked?parseNum(val('cl_taxa'))/100:0,limite:r2(parseNum(val('cl_limite')))||null,fatorMes:parseNum(val('cl_fator'))/100||null,contato:val('cl_contato').trim(),fone:val('cl_fone').trim(),email:val('cl_email').trim(),obs:val('cl_obs').trim()};let x;
   if(id){x=DB.clientes.find(y=>y.id===id);Object.assign(x,base)}else{x={id:uid(),...base,deletedAt:null};DB.clientes.push(x)}
   logH(`Cliente ${nome}`);save();closeModal('ovCli');const ret=val('cl_ret');
   if(ret&&el(ret)){el(ret).innerHTML=optCli(x.id);if(ret==='a_cli')antCli()}else render();toast('Cliente salvo')}
@@ -2241,6 +2245,433 @@ function exportCSV(){const c=fAtual().codigo,L=movsMes(c,mesSel).sort((a,b)=>a.d
 
 document.addEventListener('click',e=>{if(e.target.classList.contains('overlay'))e.target.classList.remove('show')});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay.show').forEach(o=>o.classList.remove('show'))});
+/* =========================================================================
+   MÓDULOS DE GESTÃO (01/11/2026)
+   Simulador de operação, operações por etapa e página da operação, ficha do
+   cliente com contatos e demonstrativo, cobrança, fluxo de caixa, relatórios,
+   rotinas e a central de trabalho do dia. Entra no mesmo <script> do app,
+   depois do código principal: usa os mesmos helpers e o mesmo DB.
+   ========================================================================= */
+let simCur=null, opCur=null, opAba='titulos', cobFiltro={q:'',fonte:'',faixa:''}, fxCfg={fontes:null,gran:'semana',dias:90,vencHoje:true}, fxSel=null,
+  relCfg=null, relAba='cliente', relDet=null, rotData=null, buscaQ='';
+const quemSou=()=>(typeof ME!=='undefined'&&ME&&ME.email)||(DB.perfil&&DB.perfil.nome)||'';
+const ETAPAS_SIM=[['simulacao','Simulação'],['analise','Análise'],['aprovacao','Aprovação']];
+const ETAPAS_OP=[['acompanhamento','Acompanhamento'],['encerrada','Encerrada']];
+function garanteModulos(){
+  ['simulacoes','contatos','rotinas','rotinaExec','filtrosRel'].forEach(k=>{DB[k]=DB[k]||[]});DB.cobranca=DB.cobranca||{};
+  if(!DB.migracoes)DB.migracoes=[];
+  if(!DB.migracoes.includes('rotinas-v1')){
+    [['Acompanhar cobrança do dia','diaria','', 'cobranca',''],['Conciliar extratos (OFX) do Sicoob e do Inter','semanal',1,'razao','GIRO'],
+     ['Revisar carteira, concentração e limites','semanal',5,'painel',''],['Reconhecer juros das captações do mês','mensal','ultimo','captacoes','LEO'],
+     ['Preparar demonstrativo do investidor','mensal',1,'relatorios',''],['Fechar o mês dos dois recursos','mensal',1,'fechamento','GIRO']]
+     .forEach(([titulo,freq,dia,tab,f])=>DB.rotinas.push({id:uid(),titulo,freq,dia,tab,fonte:f,obs:'',ativa:true,deletedAt:null}));
+    DB.migracoes.push('rotinas-v1')}
+  alive(DB.operacoes).forEach(o=>{o.historico=o.historico||[{t:Date.parse(o.data+'T12:00:00')||Date.now(),etapa:'acompanhamento',quem:'',obs:'Operação liberada'}];o.documentos=o.documentos||[]});
+}
+/* ganchos no app principal: a operação recém-gravada entra em acompanhamento e herda a simulação que a originou */
+function aposOperacao(op){op.historico=[{t:Date.now(),etapa:'acompanhamento',quem:quemSou(),obs:'Operação liberada e lançada no razão'}];op.documentos=[];
+  if(window._simConv){const s=(DB.simulacoes||[]).find(x=>x.id===window._simConv);if(s){s.etapa='liberada';s.opId=op.id;op.simId=s.id;op.documentos=(s.documentos||[]).slice();
+    s.historico.push({t:Date.now(),etapa:'liberada',quem:quemSou(),obs:'Convertida na operação '+(op.nf||'')});op.historico.unshift(...s.historico.filter(h=>h.etapa!=='liberada'))}window._simConv=null}}
+const titsOp=id=>alive(DB.titulos).filter(t=>t.operacaoId===id);
+const etapaOp=o=>{const T=titsOp(o.id);return T.length&&T.every(t=>t.pago)?'encerrada':'acompanhamento'};
+
+/* ---------- modal genérico ---------- */
+function openGen(titulo,corpo,pe,largo){let o=el('ovGen');if(!o){o=document.createElement('div');o.className='overlay';o.id='ovGen';document.body.appendChild(o)}
+  o.innerHTML=`<div class="modal ${largo?'wide':''}" style="${largo?'max-width:860px':''}"><div class="modal-head"><h3>${titulo}</h3><button class="modal-x" onclick="closeModal('ovGen')">×</button></div><div class="modal-body">${corpo}</div><div class="modal-foot">${pe||`<button class="btn btn-ghost" onclick="closeModal('ovGen')">Fechar</button>`}</div></div>`;openModalId('ovGen')}
+
+/* ========================= 1. SIMULADOR ========================= */
+function simCalc(s){
+  const P=(s.parcelas||[]).filter(p=>p.venc&&p.valor>0),bruto=r2(P.reduce((x,p)=>x+p.valor,0));if(!s.data||!bruto)return null;
+  const prazos=P.map(p=>Math.max(0,dias(s.data,diaUtil(p.venc))+(s.float||0))),pm=prazos.reduce((x,d,i)=>x+d*P[i].valor,0)/bruto;
+  const desagio=r2(P.reduce((x,p,i)=>x+p.valor*(s.fator||0)*prazos[i]/30,0)),desp=r2(s.despesas||0),liquido=r2(bruto-desagio-desp);
+  const roa=pm>0?(desagio+desp)/bruto*30/pm:0,ultimo=P.map(p=>diaUtil(p.venc)).sort().pop();
+  return {bruto,prazoMedio:Math.round(pm*100)/100,desagio,desp,liquido,receita:r2(desagio+desp),roa,ultimo};
+}
+function simGeraParcelas(s){const n=Math.max(1,parseInt(s.n)||1),base=r2(s.bruto/n);let acc=0;s.parcelas=[];
+  for(let i=0;i<n;i++){const v=i===n-1?r2(s.bruto-acc):base;acc=r2(acc+v);s.parcelas.push({venc:s.v1?addDias(s.v1,i*(parseInt(s.intervalo)||30)):'',valor:v})}}
+function simNovo(cliId){const c=cli(cliId);const s={id:null,fonte:fonteSel||'GIRO',clienteId:cliId||'',sacadoId:'',direta:false,nf:'',data:hoje(),bruto:0,n:1,v1:addDias(hoje(),30),intervalo:30,
+  fator:c&&c.fatorMes?c.fatorMes:0.05,float:2,despesas:0,parcelas:[],obs:'',etapa:'simulacao',historico:[],documentos:[]};simGeraParcelas(s);return s}
+function abrirSimulador(id,cliId){simCur=id?JSON.parse(JSON.stringify(DB.simulacoes.find(x=>x.id===id))):simNovo(cliId);go('simulador','')}
+function simLe(){const s=simCur;s.fonte=val('sm_fonte');s.clienteId=val('sm_cli');s.direta=el('sm_direta').checked;s.sacadoId=s.direta?'':val('sm_sac');s.nf=val('sm_nf').trim();
+  s.data=val('sm_data');s.fator=parseNum(val('sm_fator'))/100;s.float=parseInt(val('sm_float'))||0;s.despesas=r2(parseNum(val('sm_desp')));s.obs=val('sm_obs').trim();
+  const b=r2(parseNum(val('sm_bruto'))),n=parseInt(val('sm_n'))||1,v1=val('sm_v1'),it=parseInt(val('sm_int'))||30;
+  if(b!==s.bruto||n!==s.n||v1!==s.v1||it!==s.intervalo){s.bruto=b;s.n=n;s.v1=v1;s.intervalo=it;simGeraParcelas(s)}
+  else s.parcelas=[...document.querySelectorAll('.sm_pv')].map((x,i)=>({venc:x.value,valor:r2(parseNum(document.querySelectorAll('.sm_pval')[i].value))}))}
+function simParcHTML(s){return s.parcelas.map((p,i)=>`<tr><td>${i+1}/${s.parcelas.length}</td><td><input type="date" class="sm_pv" value="${p.venc}" onchange="simAtualiza()"></td><td class="num"><input class="sm_pval" value="${n2(p.valor)}" onchange="simAtualiza()"></td></tr>`).join('')}
+function simAtualiza(){const n0=simCur.parcelas.length,b0=simCur.bruto,v0=simCur.v1,i0=simCur.intervalo;simLe();if(simCur.parcelas.length!==n0||simCur.bruto!==b0||simCur.v1!==v0||simCur.intervalo!==i0)el('sm_parc').innerHTML=simParcHTML(simCur);el('sm_res').innerHTML=simResultado(simCur)}
+function viewSimulador(){
+  if(!simCur)simCur=simNovo();const s=simCur;
+  const linhas=simParcHTML(s);
+  return `<div class="sim-wrap"><div class="panel"><div class="panel-head"><h2>${s.id?'Simulação salva':'Nova simulação'}<small>${s.id?'etapa: '+(ETAPAS_SIM.find(e=>e[0]===s.etapa)||[0,s.etapa])[1]:'preencha e veja o efeito no caixa e no retorno antes de operar'}</small></h2>
+      <button class="btn btn-sm" onclick="simCur=null;render()">+ Nova</button></div>
+    <div class="fgrid">
+      <div class="field"><label>Recurso</label><select id="sm_fonte" onchange="simAtualiza()">${fontes().map(f=>`<option value="${f.codigo}" ${s.fonte===f.codigo?'selected':''}>${f.codigo} · ${esc(f.nome)}</option>`).join('')}</select></div>
+      <div class="field"><label>Data da operação</label><input type="date" id="sm_data" value="${s.data}" onchange="simAtualiza()"></div>
+      <div class="field"><label>Cliente</label><select id="sm_cli" onchange="const c=cli(this.value);if(c&&c.fatorMes)setVal('sm_fator',n2(c.fatorMes*100));simAtualiza()">${optCli(s.clienteId)}</select></div>
+      <div class="field" id="sm_wsac" style="${s.direta?'display:none':''}"><label>Sacado</label><select id="sm_sac" onchange="simAtualiza()">${optSac(s.sacadoId)}</select></div>
+      <div class="chk" style="align-self:end"><input type="checkbox" id="sm_direta" ${s.direta?'checked':''} onchange="el('sm_wsac').style.display=this.checked?'none':'';simAtualiza()"><label for="sm_direta">Operação direta (o cliente paga)</label></div>
+      <div class="field"><label>NF / documento</label><input id="sm_nf" value="${esc(s.nf)}" onchange="simAtualiza()"></div>
+      <div class="field"><label>Valor de face</label><input id="sm_bruto" value="${s.bruto?n2(s.bruto):''}" placeholder="0,00" onchange="simAtualiza()"></div>
+      <div class="field"><label>Fator % a.m.</label><input id="sm_fator" value="${n2(s.fator*100)}" onchange="simAtualiza()"></div>
+      <div class="field"><label>Float (dias)</label><input id="sm_float" value="${s.float}" onchange="simAtualiza()"></div>
+      <div class="field"><label>Despesas cobradas</label><input id="sm_desp" value="${s.despesas?n2(s.despesas):''}" placeholder="0,00" onchange="simAtualiza()"></div>
+      <div class="field"><label>Nº de títulos</label><input id="sm_n" value="${s.n}" onchange="simAtualiza()"></div>
+      <div class="field"><label>1º vencimento</label><input type="date" id="sm_v1" value="${s.v1}" onchange="simAtualiza()"></div>
+      <div class="field"><label>Intervalo (dias)</label><input id="sm_int" value="${s.intervalo}" onchange="simAtualiza()"></div>
+    </div>
+    <div class="parc-list"><table><thead><tr><th>Nº</th><th>Vencimento</th><th class="num">Valor</th></tr></thead><tbody id="sm_parc">${linhas}</tbody></table></div>
+    <div class="field"><label>Observação</label><input id="sm_obs" value="${esc(s.obs)}" onchange="simAtualiza()"></div>
+    <div class="acts-row"><button class="btn btn-gold" onclick="simSalvar()">${s.id?'Salvar alterações':'Salvar simulação'}</button><button class="btn" onclick="simConverter()">Converter em operação</button>${s.id?`<button class="btn btn-ghost" onclick="go('operacoes','')">Ver no quadro de operações</button>`:''}</div>
+    <div class="erro" id="sm_erro"></div></div>
+    <div id="sm_res">${simResultado(s)}</div></div>`;
+}
+function simResultado(s){
+  const C=simCalc(s);if(!C)return `<div class="panel"><div class="vazio"><b>Informe valor de face e vencimentos</b><span>O resultado aparece aqui conforme você preenche.</span></div></div>`;
+  const D=pnlDados(),caixaF=saldoAte(s.fonte,'9999-12-31'),caixaApos=r2(caixaF-C.liquido),capApos=r2(D.capacidade-C.liquido);
+  const conc=pnlConcentracao(D),tot=conc.reduce((x,o)=>x+o.v,0),exp=s.clienteId?expCli(s.clienteId):0,partAntes=tot?exp/tot:0,partDepois=(exp+C.bruto)/(tot+C.bruto);
+  const lim=s.clienteId?limiteAviso('cli',s.clienteId,C.bruto):null,limS=!s.direta&&s.sacadoId?limiteAviso('sac',s.sacadoId,C.bruto):null;
+  const fatores=[-0.01,-0.005,0,0.005,0.01].map(d=>Math.max(0.001,s.fator+d)),prazos=[15,30,60,90];
+  const tab=`<table class="tb auto sim-tab"><thead><tr><th>Fator \\ prazo</th>${prazos.map(p=>`<th class="num">${p} dias</th>`).join('')}</tr></thead><tbody>${fatores.map(f=>`<tr class="${Math.abs(f-s.fator)<1e-9?'sel':''}"><td><b>${pctBR(f)}</b></td>${prazos.map(p=>{const d=r2(C.bruto*f*(p+s.float)/30);return `<td class="num">${brl(r2(C.bruto-d-C.desp))}<div class="muted">deságio ${brl(d)}</div></td>`}).join('')}</tr>`).join('')}</tbody></table>`;
+  const cen=[0,15,30,60].map(a=>({a,roa:(C.receita)/C.bruto*30/(C.prazoMedio+a),volta:addDias(C.ultimo,a)}));
+  return `<div class="panel"><div class="panel-head"><h2>Resultado da simulação</h2></div>
+    <div class="stats"><div class="stat"><div class="k">Líquido a liberar</div><div class="v">${brl(C.liquido)}</div><div class="sub">face ${brl(C.bruto)}</div></div>
+      <div class="stat"><div class="k">Retorno estimado</div><div class="v pos">${brl(C.receita)}</div><div class="sub">deságio ${brl(C.desagio)}${C.desp?' + despesas '+brl(C.desp):''}</div></div>
+      <div class="stat"><div class="k">ROA ao mês</div><div class="v">${pctBR(C.roa)}</div><div class="sub">prazo médio ${String(C.prazoMedio).replace('.',',')} dias</div></div>
+      <div class="stat"><div class="k">Caixa do ${s.fonte} depois</div><div class="v ${caixaApos<0?'neg':''}">${brl(caixaApos)}</div><div class="sub">hoje ${brl(caixaF)} · volta até ${fmtBR(C.ultimo)}</div></div>
+      <div class="stat"><div class="k">Posso operar depois</div><div class="v ${capApos<0?'neg':'pos'}">${brl(capApos)}</div><div class="sub">conta + entradas − saídas de 7 dias, os dois recursos</div></div></div>
+    ${s.clienteId?`<div class="sim-linha"><span>Participação de ${esc(nomeCli(s.clienteId))} na carteira</span><b>${pctBR(partAntes)} → ${pctBR(partDepois)}</b>${partDepois>LIMITE_CONC?'<span class="chip chip-bad">acima de 25%</span>':''}</div>`:''}
+    ${[lim,limS].filter(Boolean).map(x=>`<div class="sim-linha ${x.passa?'neg':''}"><span>Limite ${x.tipo==='cli'?'do cliente':'do sacado'} ${esc(x.nome)}</span><b>${brl(x.depois)} de ${brl(x.limite)}</b>${x.passa?'<span class="chip chip-bad">passa em '+brl(r2(x.depois-x.limite))+'</span>':''}</div>`).join('')}
+    <h4 class="conc-h">Se o recebimento atrasar</h4><table class="tb auto"><thead><tr><th>Cenário</th><th class="c">Dinheiro volta em</th><th class="num">ROA efetivo ao mês</th></tr></thead><tbody>
+      ${cen.map(x=>`<tr><td>${x.a?`atraso de ${x.a} dias`:'no vencimento'}</td><td class="c">${fmtBR(x.volta)}</td><td class="num ${x.roa<C.roa*0.6?'neg':''}">${pctBR(x.roa)}</td></tr>`).join('')}</tbody></table>
+    <div class="muted" style="margin-top:6px">Sem juros de mora: o atraso dilui o mesmo deságio por mais dias.</div>
+    <h4 class="conc-h">Comparar taxas e prazos · valor líquido</h4><div class="tbl-scroll">${tab}</div></div>`;
+}
+function simSalvar(){simLe();const s=simCur;limpaErro('sm_erro');if(!simCalc(s))return erro('sm_erro','Informe valor de face e vencimentos.');
+  if(!s.id){s.id=uid();s.etapa='simulacao';s.historico=[{t:Date.now(),etapa:'simulacao',quem:quemSou(),obs:'Simulação criada'}];s.criadoEm=new Date().toISOString();s.deletedAt=null;DB.simulacoes.push(JSON.parse(JSON.stringify(s)))}
+  else{const i=DB.simulacoes.findIndex(x=>x.id===s.id);DB.simulacoes[i]=JSON.parse(JSON.stringify(s))}
+  logH('Simulação '+(nomeCli(s.clienteId)||'')+' '+brl(simCalc(s).bruto));save();render();toast('Simulação salva')}
+function simConverter(id){if(!id){simLe();if(!simCalc(simCur))return erro('sm_erro','Informe valor de face e vencimentos.');if(!simCur.id)simSalvar();id=simCur.id}
+  const s=DB.simulacoes.find(x=>x.id===id);if(!s)return;fonteSel=s.fonte;openOper();
+  if(s.clienteId)setVal('o_cli',s.clienteId);if(s.direta){el('o_direta').checked=true;el('o_wrapSac').style.display='none'}else if(s.sacadoId)setVal('o_sac',s.sacadoId);
+  setVal('o_data',s.data);setVal('o_nf',s.nf);setVal('o_bruto',n2(simCalc(s).bruto));setVal('o_n',String(s.parcelas.length));setVal('o_v1',s.parcelas[0].venc);setVal('o_int',String(s.intervalo));operGera();
+  document.querySelectorAll('.o_pv').forEach((x,i)=>x.value=s.parcelas[i].venc);document.querySelectorAll('.o_pval').forEach((x,i)=>x.value=n2(s.parcelas[i].valor));
+  setVal('o_fator',n2(s.fator*100));setVal('o_float',String(s.float));setVal('o_desp',s.despesas?n2(s.despesas):'');el('o_liq').dataset.manual='';operCalc();setVal('o_obs',s.obs||'');window._simConv=s.id}
+function simEtapa(id,etapa){const s=DB.simulacoes.find(x=>x.id===id);if(!s)return;s.etapa=etapa;s.historico.push({t:Date.now(),etapa,quem:quemSou(),obs:''});
+  if(etapa==='descartada')s.deletedAt=Date.now();save();render();toast(etapa==='descartada'?'Simulação descartada':'Etapa: '+(ETAPAS_SIM.find(e=>e[0]===etapa)||[0,etapa])[1])}
+
+/* ========================= 2. OPERAÇÕES POR ETAPA E PÁGINA DA OPERAÇÃO ========================= */
+function viewOperacoes(){
+  const sims=alive(DB.simulacoes).filter(s=>ETAPAS_SIM.some(e=>e[0]===s.etapa)),ops=alive(DB.operacoes).sort((a,b)=>b.data.localeCompare(a.data));
+  const cardSim=s=>{const C=simCalc(s);const prox={simulacao:'analise',analise:'aprovacao'}[s.etapa];return `<div class="kb-card op-card"><div class="op-c-h">${chipF(s.fonte)} <b>${esc(nomeCli(s.clienteId)||'sem cliente')}</b></div>
+    <div class="muted">${C?brl(C.bruto)+' · '+pctBR(s.fator)+' · líquido '+brl(C.liquido):'incompleta'}</div><div class="muted">${fmtBR(s.data)}${s.nf?' · NF '+esc(s.nf):''}</div>
+    <div class="op-c-a"><button class="btn btn-sm" onclick="abrirSimulador('${s.id}')">Abrir</button>${prox?`<button class="btn btn-sm" onclick="simEtapa('${s.id}','${prox}')">→ ${ETAPAS_SIM.find(e=>e[0]===prox)[1]}</button>`:`<button class="btn btn-sm btn-gold" onclick="simConverter('${s.id}')">Liberar</button>`}<button class="iconbtn del" title="Descartar" onclick="simEtapa('${s.id}','descartada')">✕</button></div></div>`};
+  const cardOp=o=>{const T=titsOp(o.id),falta=r2(T.filter(t=>!t.pago).reduce((x,t)=>x+t.valor,0)),venc=T.filter(titVencido).length;return `<div class="kb-card op-card" onclick="abrirOperacao('${o.id}')" style="cursor:pointer"><div class="op-c-h">${chipF(o.fonte)} <b>${esc(nomeCli(o.clienteId))}</b></div>
+    <div class="muted">${fmtBR(o.data)}${o.nf?' · NF '+esc(o.nf):''} · face ${brl(o.bruto)}</div><div class="muted">${falta?'falta '+brl(falta):'tudo recebido'}${venc?` · <b class="neg">${venc} vencido(s)</b>`:''}${(o.documentos||[]).some(d=>d.status==='pendente')?' · <b class="warn">doc. pendente</b>':''}</div></div>`};
+  const col=(id,lbl,itens,cor)=>`<div class="kb-col"><div class="kb-h"><span class="dot" style="background:${cor}"></span>${lbl}<span class="cnt">${itens.length}</span></div>${itens.join('')||'<div class="muted" style="padding:6px 2px">vazio</div>'}</div>`;
+  const acomp=ops.filter(o=>etapaOp(o)==='acompanhamento'),enc=ops.filter(o=>etapaOp(o)==='encerrada').slice(0,15);
+  return `<div class="acoes"><button class="acao pri" onclick="abrirSimulador()"><b>+ Nova simulação</b><span>valor, prazo e taxa: veja caixa e retorno antes de operar</span></button><button class="acao" onclick="go('razao','${fonteSel}');openOper()"><b>+ Operação direta no razão</b><span>quando já está fechada e liberada</span></button></div>
+  <div class="kb kb5">${col('simulacao','Simulação',sims.filter(s=>s.etapa==='simulacao').map(cardSim),'var(--mut)')}${col('analise','Análise',sims.filter(s=>s.etapa==='analise').map(cardSim),'var(--warn)')}
+    ${col('aprovacao','Aprovação',sims.filter(s=>s.etapa==='aprovacao').map(cardSim),'var(--acc)')}${col('acompanhamento','Acompanhamento',acomp.map(cardOp),'var(--s2)')}${col('encerrada','Encerrada',enc.map(cardOp),'var(--pos)')}</div>`;
+}
+function abrirOperacao(id){opCur=id;opAba='titulos';go('operacao','')}
+function opResumo(o){const T=titsOp(o.id),rec=T.filter(t=>t.pago&&!t.perda),perda=T.filter(t=>t.perda);
+  const voltou=r2(rec.reduce((x,t)=>x+(t.valorRecebido||0),0)),falta=r2(T.filter(t=>!t.pago).reduce((x,t)=>x+t.valor,0));
+  const jurosT=r2(alive(DB.movs).filter(m=>m.tituloId&&T.some(t=>t.id===m.tituloId)&&m.categoria==='recebimento_titulo').reduce((x,m)=>x+(m.resultado||0),0));
+  const perdas=r2(perda.reduce((x,t)=>x+t.valor,0));
+  return {T,voltou,falta,jurosT,perdas,resultado:r2(o.desagio+jurosT-perdas)}}
+function viewOperacao(){
+  const o=alive(DB.operacoes).find(x=>x.id===opCur);if(!o)return vazio('Escolha uma operação no quadro de operações ou na ficha do cliente.');
+  const R=opResumo(o),H=hoje(),et=etapaOp(o);
+  const emp=empsVivos().concat(alive(DB.emprestimos||[]).filter(e=>e.saldo===0)).filter(e=>e.para===o.fonte&&e.data===o.data);
+  const part=emp.length?`${chipF(o.fonte)} ${brl(r2(o.liquido-emp.reduce((x,e)=>x+e.valor,0)))} do próprio recurso + ${emp.map(e=>`${chipF(e.de)} ${brl(e.valor)} emprestado`).join(' + ')}`:`${chipF(o.fonte)} 100% do próprio recurso`;
+  const abas=[['titulos','Títulos',R.T.length],['movs','Movimentações'],['docs','Documentos',(o.documentos||[]).length],['hist','Histórico',(o.historico||[]).length]];
+  const movs=alive(DB.movs).filter(m=>m.operacaoId===o.id||(m.tituloId&&R.T.some(t=>t.id===m.tituloId))).sort((a,b)=>a.data.localeCompare(b.data));
+  const corpo={
+    titulos:`<table class="tb auto"><thead><tr><th>Parcela</th><th>Sacado</th><th class="c">Vencimento</th><th class="num">Valor</th><th class="c">Situação</th><th></th></tr></thead><tbody>${R.T.map(t=>`<tr><td>${esc(t.parcela||t.nf||'')}</td><td>${esc(t.sacado||'')}</td><td class="c">${fmtBR(t.vencimento)}</td><td class="num">${brl(t.valor)}</td>
+      <td class="c">${t.perda?'<span class="chip chip-bad">perda</span>':t.pago?`<span class="chip chip-ok">recebido ${fmtBR(t.recebimento)} · ${brl(t.valorRecebido)}</span>`:titVencido(t)?`<span class="chip chip-bad">vencido há ${dias(t.vencimento,H)}d</span>`:'<span class="chip chip-n">a vencer</span>'}</td>
+      <td class="c">${t.pago?'':`<button class="btn btn-sm btn-gold" onclick="fonteSel='${t.fonte}';openRec('${t.id}')">Receber</button>`}</td></tr>`).join('')||'<tr><td colspan="6" class="muted">Sem títulos.</td></tr>'}</tbody></table>`,
+    movs:`<table class="tb auto"><thead><tr><th class="c">Data</th><th>Descrição</th><th class="num">Entrada</th><th class="num">Saída</th><th class="num">Resultado</th></tr></thead><tbody>${movs.map(m=>`<tr><td class="c">${fmtBR(m.data)}</td><td>${esc(m.descricao)}</td><td class="num pos">${m.entrada?brl(m.entrada):''}</td><td class="num neg">${m.saida?brl(m.saida):''}</td><td class="num">${m.resultado?brl(m.resultado):''}</td></tr>`).join('')}</tbody></table>`,
+    docs:`<div class="acts-row" style="margin-bottom:10px"><button class="btn btn-sm btn-gold" onclick="docNovo('op','${o.id}')">+ Documento</button><span class="muted">Contrato, borderô, notas, comprovantes: registre o nome e o link (Drive, e-mail) e marque o que falta.</span></div>${docsTabela(o.documentos,'op',o.id)}`,
+    hist:`<div class="hist">${(o.historico||[]).slice().reverse().map(h=>`<div class="hist-i"><b>${new Date(h.t).toLocaleString('pt-BR')}</b> · ${esc(({simulacao:'Simulação',analise:'Análise',aprovacao:'Aprovação',liberada:'Liberada',acompanhamento:'Acompanhamento',encerrada:'Encerrada'})[h.etapa]||h.etapa)}${h.quem?' · '+esc(h.quem):''}${h.obs?`<div class="muted">${esc(h.obs)}</div>`:''}</div>`).join('')}
+      <div class="acts-row"><input id="op_nota" placeholder="Anotar no histórico"><button class="btn btn-sm" onclick="opNota('${o.id}')">Anotar</button></div></div>`};
+  return `<div class="filters"><button class="btn btn-sm btn-ghost" onclick="go('operacoes','')">← Operações</button><span class="right" style="display:flex;gap:6px"><button class="btn btn-sm" onclick="abrirFicha('${o.clienteId}')">Ficha do cliente</button><button class="btn btn-sm" onclick="go('razao','${o.fonte}')">Razão do ${o.fonte}</button></span></div>
+  <div class="panel"><div class="panel-head"><h2>Operação ${esc(o.nf||'')} · ${esc(nomeCli(o.clienteId))}<small>${fmtBR(o.data)} · ${o.direta?'operação direta':'sacado '+esc(nomeSac(o.sacadoId))} · <span class="chip ${et==='encerrada'?'chip-ok':'chip-warn'}">${et==='encerrada'?'encerrada':'em acompanhamento'}</span></small></h2></div>
+    <div class="stats"><div class="stat"><div class="k">Saiu (enviado)</div><div class="v neg">${brl(o.liquido)}</div><div class="sub">face ${brl(o.bruto)}</div></div>
+      <div class="stat"><div class="k">Voltou</div><div class="v pos">${brl(R.voltou)}</div><div class="sub">${R.T.filter(t=>t.pago&&!t.perda).length} de ${R.T.length} título(s)</div></div>
+      <div class="stat"><div class="k">Falta</div><div class="v ${R.T.some(titVencido)?'neg':''}">${brl(R.falta)}</div><div class="sub">${R.T.filter(titVencido).length?R.T.filter(titVencido).length+' vencido(s)':'em dia'}</div></div>
+      <div class="stat"><div class="k">Resultado</div><div class="v ${R.resultado>=0?'pos':'neg'}">${brl(R.resultado)}</div><div class="sub">deságio ${brl(o.desagio)}${R.jurosT?' + juros '+brl(R.jurosT):''}${R.perdas?' − perdas '+brl(R.perdas):''}</div></div>
+      <div class="stat"><div class="k">Condições</div><div class="v" style="font-size:16px">${o.fator?pctBR(o.fator)+' a.m.':'—'}</div><div class="sub">${o.prazoMedio?'prazo '+String(o.prazoMedio).replace('.',',')+'d · ':''}${o.roa?'ROA '+pctBR(o.roa):''}${o.despesas?' · despesas '+brl(o.despesas):''}</div></div></div>
+    <div class="sim-linha"><span>Capital utilizado</span><b>${part}</b></div></div>
+  <div class="tabs">${abas.map(([k,l,n])=>`<button class="tab ${opAba===k?'active':''}" onclick="opAba='${k}';render()">${l}${n?`<span class="cnt">${n}</span>`:''}</button>`).join('')}</div>
+  <div class="panel"><div class="tbl-scroll" style="padding-top:12px">${corpo[opAba]||''}</div></div>`;
+}
+function opNota(id){const o=DB.operacoes.find(x=>x.id===id),t=val('op_nota').trim();if(!t)return;o.historico.push({t:Date.now(),etapa:etapaOp(o),quem:quemSou(),obs:t});save();render()}
+/* documentos: só registro (nome, link, situação); o arquivo continua no Drive ou no e-mail */
+function docsTabela(L,tipo,id){L=L||[];return L.length?`<table class="tb auto"><thead><tr><th>Documento</th><th>Link</th><th class="c">Situação</th><th></th></tr></thead><tbody>${L.map(d=>`<tr><td>${esc(d.nome)}${d.obs?`<div class="muted">${esc(d.obs)}</div>`:''}</td><td>${d.url?`<a href="${esc(d.url)}" target="_blank" rel="noopener">abrir</a>`:'<span class="muted">sem link</span>'}</td>
+  <td class="c"><button class="chip ${d.status==='ok'?'chip-ok':'chip-warn'}" style="border:0;cursor:pointer" onclick="docStatus('${tipo}','${id}','${d.id}')">${d.status==='ok'?'recebido':'pendente'}</button></td><td class="c"><button class="iconbtn del" onclick="docDel('${tipo}','${id}','${d.id}')">🗑</button></td></tr>`).join('')}</tbody></table>`:'<div class="muted">Nenhum documento registrado.</div>'}
+const docsDe=(tipo,id)=>{const x=tipo==='op'?DB.operacoes.find(o=>o.id===id):DB.clientes.find(c=>c.id===id);x.documentos=x.documentos||[];return x.documentos};
+function docNovo(tipo,id){openGen('Novo documento',`<div class="field"><label>Nome</label><input id="dc_nome" placeholder="Ex.: Borderô assinado"></div><div class="field"><label>Link (Drive, e-mail)</label><input id="dc_url" placeholder="https://"></div>
+  <div class="field"><label>Situação</label><select id="dc_st"><option value="pendente">pendente</option><option value="ok">recebido</option></select></div><div class="field"><label>Observação</label><input id="dc_obs"></div><div class="erro" id="dc_erro"></div>`,
+  `<button class="btn btn-ghost" onclick="closeModal('ovGen')">Cancelar</button><button class="btn btn-gold" onclick="docSalvar('${tipo}','${id}')">Salvar</button>`)}
+function docSalvar(tipo,id){const nome=val('dc_nome').trim();if(!nome)return erro('dc_erro','Informe o nome.');docsDe(tipo,id).push({id:uid(),nome,url:val('dc_url').trim(),status:val('dc_st'),obs:val('dc_obs').trim(),em:hoje()});save();closeModal('ovGen');render()}
+function docStatus(tipo,id,did){const d=docsDe(tipo,id).find(x=>x.id===did);d.status=d.status==='ok'?'pendente':'ok';save();render()}
+function docDel(tipo,id,did){const L=docsDe(tipo,id);L.splice(L.findIndex(x=>x.id===did),1);save();render()}
+
+/* ========================= 3. FICHA DO CLIENTE (relacionamento) ========================= */
+const contatosCli=id=>alive(DB.contatos||[]).filter(c=>c.clienteId===id).sort((a,b)=>b.data.localeCompare(a.data)||b.t-a.t);
+function promessaAtiva(id){const c=contatosCli(id).find(x=>x.promessa&&!x.promessa.cumprida);return c?{...c.promessa,contatoId:c.id}:null}
+function proximaAcao(id){const c=contatosCli(id).find(x=>x.proxima&&!x.proxima.feita);return c?{...c.proxima,contatoId:c.id}:null}
+function abrirContato(cliId){const c=cli(cliId);openGen('Registrar contato · '+esc(c.nome),`<div class="fgrid"><div class="field"><label>Data</label><input type="date" id="ct_data" value="${hoje()}"></div>
+  <div class="field"><label>Tipo</label><select id="ct_tipo">${['WhatsApp','Ligação','E-mail','Reunião','Renegociação'].map(x=>`<option>${x}</option>`).join('')}</select></div></div>
+  <div class="field"><label>O que foi conversado</label><textarea id="ct_resumo" rows="3"></textarea></div>
+  <div class="fgrid"><div class="field"><label>Promessa de pagamento: data</label><input type="date" id="ct_pdata"></div><div class="field"><label>Valor prometido</label><input id="ct_pvalor" placeholder="0,00"></div></div>
+  <div class="fgrid"><div class="field"><label>Próxima ação: data</label><input type="date" id="ct_adata"></div><div class="field"><label>Próxima ação</label><input id="ct_atexto" placeholder="Ex.: confirmar o Pix"></div></div>
+  <div class="field"><label>Responsável</label><input id="ct_resp" value="${esc(quemSou())}"></div><div class="erro" id="ct_erro"></div>`,
+  `<button class="btn btn-ghost" onclick="closeModal('ovGen')">Cancelar</button><button class="btn btn-gold" onclick="salvarContato('${cliId}')">Registrar</button>`)}
+function salvarContato(cliId){const resumo=val('ct_resumo').trim(),pd=val('ct_pdata'),pv=r2(parseNum(val('ct_pvalor'))),ad=val('ct_adata'),at=val('ct_atexto').trim();
+  if(!resumo&&!pd&&!ad)return erro('ct_erro','Descreva o contato ou registre uma promessa ou próxima ação.');
+  /* uma promessa nova substitui a anterior em aberto; idem a próxima ação */
+  if(pd)contatosCli(cliId).forEach(c=>{if(c.promessa&&!c.promessa.cumprida)c.promessa.substituida=true,c.promessa.cumprida=true});
+  if(ad)contatosCli(cliId).forEach(c=>{if(c.proxima&&!c.proxima.feita)c.proxima.feita=true});
+  DB.contatos.push({id:uid(),t:Date.now(),clienteId:cliId,data:val('ct_data'),tipo:val('ct_tipo'),resumo,promessa:pd?{data:pd,valor:pv,cumprida:false}:null,proxima:ad?{data:ad,texto:at,feita:false}:null,responsavel:val('ct_resp').trim(),deletedAt:null});
+  const co=(DB.cobranca||{})[cliId];if(co&&co.etapa&&co.etapa!=='auto')co.etapa='auto';
+  logH('Contato '+nomeCli(cliId));save();closeModal('ovGen');render();toast('Contato registrado')}
+function concluirAcao(cid,campo){const c=DB.contatos.find(x=>x.id===cid);if(campo==='promessa')c.promessa.cumprida=true;else c.proxima.feita=true;save();render()}
+/* demonstrativo: posição do cliente numa data, para enviar ou imprimir */
+function demonstrativoDados(cliId,data){const d=data||hoje();const T=alive(DB.titulos).filter(t=>t.clienteId===cliId&&!t.pago).sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+  const A=alive(DB.antecipacoes).filter(a=>a.clienteId===cliId&&a.status!=='quitada').sort((a,b)=>a.data.localeCompare(b.data));
+  const tT=r2(T.reduce((x,t)=>x+t.valor,0)),tV=r2(T.filter(t=>t.vencimento<d).reduce((x,t)=>x+t.valor,0)),aP=r2(A.reduce((x,a)=>x+a.principal,0)),aJ=r2(A.reduce((x,a)=>x+jurosRef(a,d),0));
+  return {d,T,A,tT,tV,aP,aJ,total:r2(tT+aP+aJ)}}
+function demonstrativoHTML(cliId,data){const c=cli(cliId),D=demonstrativoDados(cliId,data);
+  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Demonstrativo · ${esc(c.nome)} · ${fmtBR(D.d)}</title><style>body{font-family:Inter,Segoe UI,Arial,sans-serif;color:#1b1b1b;margin:0}header{background:#0b1f3a;color:#fff;padding:22px 32px}header h1{margin:0;font-size:19px}header p{margin:4px 0 0;color:#c9a227;font-size:12px}main{padding:20px 32px}h2{font-size:14px;color:#0b1f3a;margin:20px 0 8px}table{width:100%;border-collapse:collapse;font-size:12.5px}th{background:#0b1f3a;color:#fff;text-align:left;padding:6px 8px}td{padding:5px 8px;border-bottom:1px solid #e6e6e6}.n{text-align:right;white-space:nowrap}.tot td{font-weight:700;background:#f3ebd3}.v{color:#b42318}.box{display:flex;gap:12px;flex-wrap:wrap}.box div{border:1px solid #e3e3dc;border-radius:8px;padding:10px 14px;min-width:160px}.box b{display:block;font-size:17px;margin-top:4px}small{color:#777}@media print{header{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>
+  <header><h1>Demonstrativo de posição · ${esc(c.nome)}</h1><p>Lidere BPO Financeiro · posição em ${fmtBR(D.d)}</p></header><main>
+  <div class="box"><div>Títulos em aberto<b>${brl(D.tT)}</b>${D.tV?`<small class="v">${brl(D.tV)} vencido</small>`:''}</div><div>Antecipações · principal<b>${brl(D.aP)}</b></div><div>Juros até ${fmtBR(D.d)}<b>${brl(D.aJ)}</b></div><div>Total<b>${brl(D.total)}</b></div></div>
+  ${D.T.length?`<h2>Títulos</h2><table><tr><th>NF / parcela</th><th>Sacado</th><th>Vencimento</th><th class="n">Valor</th><th>Situação</th></tr>${D.T.map(t=>`<tr><td>${esc((t.nf||'')+(t.parcela?' '+t.parcela:''))}</td><td>${esc(t.direta?'':t.sacado||'')}</td><td>${fmtBR(t.vencimento)}</td><td class="n">${brl(t.valor)}</td><td${t.vencimento<D.d?' class="v"':''}>${t.vencimento<D.d?'vencido há '+dias(t.vencimento,D.d)+' dia(s)':'a vencer'}</td></tr>`).join('')}<tr class="tot"><td colspan="3">Total</td><td class="n">${brl(D.tT)}</td><td></td></tr></table>`:''}
+  ${D.A.length?`<h2>Antecipações</h2><table><tr><th>Envio</th><th class="n">Principal</th><th class="n">Taxa</th><th class="n">Juros até ${fmtBR(D.d)}</th><th class="n">Total</th></tr>${D.A.map(a=>{const j=jurosRef(a,D.d);return `<tr><td>${fmtBR(a.data)}</td><td class="n">${brl(a.principal)}</td><td class="n">${a.taxaMes?pctBR(a.taxaMes)+' a.m.':'sem juros'}</td><td class="n">${brl(j)}</td><td class="n">${brl(r2(a.principal+j))}</td></tr>`}).join('')}<tr class="tot"><td>Total</td><td class="n">${brl(D.aP)}</td><td></td><td class="n">${brl(D.aJ)}</td><td class="n">${brl(r2(D.aP+D.aJ))}</td></tr></table>`:''}
+  <p style="margin-top:22px;font-size:11px;color:#777">Juros de antecipação calculados dia a dia pela taxa combinada, sobre o saldo em aberto. Dúvidas: adm@liderebpo.com.br</p></main></body></html>`}
+function gerarDemonstrativo(cliId){const w=window.open('','_blank');if(!w)return toast('O navegador bloqueou a nova janela: libere pop-ups para este site');w.document.write(demonstrativoHTML(cliId));w.document.close();setTimeout(()=>w.print(),400)}
+/* texto de cobrança montado a partir do demonstrativo; revise antes de enviar */
+function textoCobranca(cliId){const c=cli(cliId),D=demonstrativoDados(cliId),nome=(c.contato||'').split(' ')[0]||'tudo bem',H=hoje();
+  const venc=D.T.filter(t=>t.vencimento<H),av=D.T.filter(t=>t.vencimento>=H&&dias(H,t.vencimento)<=7);
+  const L=[`Olá ${nome}, tudo bem?`,'',`Segue a posição da ${c.nome} com a Lidere em ${fmtBR(H)}:`];
+  if(venc.length)L.push(`• Títulos vencidos: ${brl(r2(venc.reduce((x,t)=>x+t.valor,0)))} (${venc.map(t=>'NF '+(t.nf||'')+' de '+fmtBR(t.vencimento)).join(', ')})`);
+  if(av.length)L.push(`• Vencendo nos próximos 7 dias: ${brl(r2(av.reduce((x,t)=>x+t.valor,0)))} (${av.map(t=>'NF '+(t.nf||'')+' em '+fmtBR(t.vencimento)).join(', ')})`);
+  if(D.A.length)L.push(`• Antecipações: ${brl(r2(D.aP+D.aJ))}, sendo ${brl(D.aJ)} de juros até hoje`);
+  L.push(`Total em aberto: ${brl(D.total)}.`,'');
+  const p=promessaAtiva(cliId);L.push(p?`Conforme combinamos, fica o pagamento de ${brl(p.valor)} para ${fmtBR(p.data)}. Pode me confirmar?`:venc.length?'Consegue me passar uma previsão de pagamento dos vencidos?':'Qualquer dúvida, estou à disposição.');
+  L.push('','Obrigado,',(DB.perfil&&DB.perfil.nome)||'Lidere BPO Financeiro');return L.join('\n')}
+function abrirTexto(cliId){const t=textoCobranca(cliId);openGen('Texto de cobrança · '+esc(nomeCli(cliId)),`<div class="hint" style="margin-bottom:8px">Montado com os números do sistema. Revise antes de enviar.</div><textarea id="tx_cob" rows="14" style="width:100%">${esc(t)}</textarea>`,
+  `<button class="btn btn-ghost" onclick="closeModal('ovGen')">Fechar</button><button class="btn btn-gold" onclick="navigator.clipboard.writeText(val('tx_cob')).then(()=>toast('Texto copiado'))">Copiar</button>`)}
+function viewFicha(){
+  const L=alive(DB.clientes).sort((a,b)=>a.nome.localeCompare(b.nome));if(!L.length)return vazio('Nenhum cliente cadastrado.');
+  if(!fichaCli||!L.find(c=>c.id===fichaCli))fichaCli=L[0].id;const c=cli(fichaCli),D=fichaDados(fichaCli),H=hoje(),CT=contatosCli(c.id),pr=promessaAtiva(c.id),px=proximaAcao(c.id);
+  const porF=fontes().map(f=>{const t=r2(D.ab.filter(x=>x.fonte===f.codigo).reduce((s,x)=>s+x.valor,0)),a=D.R.por[f.codigo]||{total:0};return {c:f.codigo,t,a:a.total,tot:r2(t+a.total)}});
+  const sel=`<div class="filters"><select onchange="fichaCli=this.value;render()">${L.map(x=>`<option value="${x.id}" ${x.id===fichaCli?'selected':''}>${esc(x.nome)}</option>`).join('')}</select>
+    <span class="right ficha-acts"><button class="btn btn-sm btn-gold" onclick="abrirSimulador(null,'${c.id}')">Nova simulação</button><button class="btn btn-sm" onclick="abrirContato('${c.id}')">Registrar contato</button><button class="btn btn-sm" onclick="gerarDemonstrativo('${c.id}')">Gerar demonstrativo</button><button class="btn btn-sm" onclick="abrirTexto('${c.id}')">Texto de cobrança</button><button class="btn btn-sm btn-ghost" onclick="openCli('${c.id}')">✎ Cadastro</button></span></div>`;
+  const pct=v=>v==null?'—':pctBR(v);
+  const alerta=(pr||px)?`<div class="ficha-alerta">${pr?`<div class="${pr.data<H?'neg':''}"><b>Promessa de pagamento</b> ${brl(pr.valor)} em ${fmtBR(pr.data)}${pr.data<H?' · <b>não cumprida</b>':''} <button class="btn btn-sm" onclick="concluirAcao('${pr.contatoId}','promessa')">Cumprida</button></div>`:''}
+    ${px?`<div class="${px.data<H?'neg':''}"><b>Próxima ação</b> ${fmtBR(px.data)} · ${esc(px.texto||'')} <button class="btn btn-sm" onclick="concluirAcao('${px.contatoId}','proxima')">Feita</button></div>`:''}</div>`:'';
+  const topo=`<div class="stats" style="margin-bottom:14px">
+    <div class="stat"><div class="k">Em aberto · total</div><div class="v">${brl(r2(porF.reduce((s,x)=>s+x.tot,0)))}</div><div class="sub">${porF.map(x=>`${x.c} ${brl(x.tot)}`).join(' · ')}</div></div>
+    <div class="stat"><div class="k">Limite</div><div class="v ${c.limite&&D.exp>c.limite?'neg':''}">${c.limite?brl(c.limite):'—'}</div><div class="sub">${barraLim(D.exp,c.limite)}</div></div>
+    <div class="stat"><div class="k">Títulos em aberto</div><div class="v">${brl(D.titAb)}</div><div class="sub">${D.titVenc?`<span class="neg">${brl(D.titVenc)} vencido · há até ${D.maxAtraso} dia(s)</span>`:`${D.ab.length} título(s), nenhum vencido`}</div></div>
+    <div class="stat"><div class="k">Antecipações · deve hoje</div><div class="v">${brl(D.R.geral.total)}</div><div class="sub">${D.Aab.length} aberta(s) · juros ${brl(D.R.geral.juros)}</div></div>
+    <div class="stat"><div class="k">Como paga</div><div class="v ${D.atrMedio>5?'neg':D.atrMedio!=null?'pos':''}">${D.atrMedio==null?'—':Math.round(D.atrMedio)+' dia(s)'}</div><div class="sub">${D.rec.length?`atraso médio · ${pct(D.emDia)} em dia em ${D.rec.length} título(s)`:'sem título recebido ainda'}${D.perdas.length?` · <span class="neg">${D.perdas.length} perda(s)</span>`:''}</div></div></div>`;
+  const cad=`<div class="ficha-g"><div class="panel"><div class="panel-head"><h2>Condições e contato</h2></div><div class="kv-grid">
+    <div class="kv"><span>Correção das antecipações</span><b>${c.cobraJuros?pctBR(c.taxaMes)+' a.m.':'sem juros'}</b></div><div class="kv"><span>Fator padrão</span><b>${c.fatorMes?pctBR(c.fatorMes)+' a.m.':'—'}</b></div>
+    <div class="kv"><span>Fator médio · prazo médio</span><b>${pct(D.fatorMed)} · ${D.prazoMed?String(Math.round(D.prazoMed*10)/10).replace('.',',')+' dias':'—'}</b></div><div class="kv"><span>Operações</span><b>${D.O.length} · ${brl(D.bruto)} de face · deságio ${brl(r2(D.desagio))}</b></div>
+    <div class="kv"><span>Contato</span><b>${esc(c.contato||'—')}</b></div><div class="kv"><span>Telefone · e-mail</span><b>${esc([c.fone,c.email].filter(Boolean).join(' · ')||'—')}</b></div>
+    ${c.obs?`<div class="kv"><span>Observação</span><b>${esc(c.obs)}</b></div>`:''}</div></div>
+    <div class="panel"><div class="panel-head"><h2>Contatos e negociações<small>${CT.length} registro(s)</small></h2><button class="btn btn-sm" onclick="abrirContato('${c.id}')">+ Contato</button></div>
+      ${CT.length?`<div class="hist">${CT.slice(0,8).map(x=>`<div class="hist-i"><b>${fmtBR(x.data)} · ${esc(x.tipo)}</b>${x.responsavel?' · '+esc(x.responsavel):''}${x.resumo?`<div>${esc(x.resumo)}</div>`:''}${x.promessa&&!x.promessa.substituida?`<div class="muted">promessa ${brl(x.promessa.valor)} em ${fmtBR(x.promessa.data)}${x.promessa.cumprida?' · cumprida':''}</div>`:''}${x.proxima?`<div class="muted">próxima ação ${fmtBR(x.proxima.data)}: ${esc(x.proxima.texto||'')}${x.proxima.feita?' · feita':''}</div>`:''}</div>`).join('')}</div>`:'<div class="muted">Nenhum contato registrado.</div>'}</div></div>`;
+  const tt=D.T.slice().sort((a,b)=>(a.pago-b.pago)||(a.vencimento||'').localeCompare(b.vencimento||''));
+  const tit=`<div class="panel"><div class="panel-head"><h2>Títulos e histórico de pagamento<small>${D.ab.length} em aberto · ${D.rec.length} recebido(s)</small></h2></div>${tt.length?`<div class="tbl-scroll"><table class="tb auto"><thead><tr><th>Recurso</th><th>Sacado</th><th>NF</th><th class="c">Vencimento</th><th class="num">Valor</th><th class="c">Situação</th><th></th></tr></thead><tbody>
+    ${tt.slice(0,40).map(t=>`<tr><td>${chipF(t.fonte)}</td><td>${esc(t.direta?'operação direta':(t.sacado||nomeSac(t.sacadoId)))}</td><td>${t.operacaoId?`<a href="#" class="lnk" onclick="abrirOperacao('${t.operacaoId}');return false">${esc((t.nf||'')+(t.parcela?' '+t.parcela:''))}</a>`:esc((t.nf||'')+(t.parcela?' '+t.parcela:''))}</td><td class="c">${fmtBR(t.vencimento)}</td><td class="num">${brl(t.valor)}</td>
+      <td class="c">${t.perda?'<span class="chip chip-bad">perda</span>':t.pago?`<span class="chip chip-ok">recebido ${fmtBR(t.recebimento)}${dias(t.vencimento,t.recebimento)>0?' · '+dias(t.vencimento,t.recebimento)+'d atraso':''}</span>`:titVencido(t)?`<span class="chip chip-bad">vencido há ${dias(t.vencimento,H)}d</span>`:'<span class="chip chip-n">a vencer</span>'}</td>
+      <td class="c">${t.pago?'':`<button class="btn btn-sm btn-gold" onclick="fonteSel='${t.fonte}';openRec('${t.id}')">Receber</button>`}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted">Nenhum título.</div>'}</div>`;
+  const ops=D.O.length?`<div class="panel"><div class="panel-head"><h2>Operações</h2></div><div class="tbl-scroll"><table class="tb auto"><thead><tr><th class="c">Data</th><th>Recurso</th><th>NF</th><th class="num">Face</th><th class="num">Enviado</th><th class="num">Deságio</th><th class="num">Fator</th><th class="num">ROA</th><th class="c">Etapa</th></tr></thead><tbody>
+    ${D.O.slice(0,30).map(o=>`<tr style="cursor:pointer" onclick="abrirOperacao('${o.id}')"><td class="c">${fmtBR(o.data)}</td><td>${chipF(o.fonte)}</td><td>${esc(o.nf||'')}</td><td class="num">${brl(o.bruto)}</td><td class="num">${brl(o.liquido)}</td><td class="num pos">${brl(o.desagio)}</td><td class="num">${o.fator?pctBR(o.fator):'—'}</td><td class="num">${o.roa?pctBR(o.roa):'—'}</td><td class="c">${etapaOp(o)==='encerrada'?'<span class="chip chip-ok">encerrada</span>':'<span class="chip chip-warn">acompanhamento</span>'}</td></tr>`).join('')}</tbody></table></div></div>`:'';
+  const ants=D.A.length?`<div class="panel"><div class="panel-head"><h2>Antecipações<small>${D.Aab.length} aberta(s); a baixa é pela Correção geral</small></h2><button class="btn btn-sm" onclick="crCli='${c.id}';go('correcao','')">Correção geral</button></div><div class="tbl-scroll"><table class="tb auto"><thead><tr><th class="c">Envio</th><th>Recurso</th><th class="num">Enviado</th><th class="num">Principal aberto</th><th class="num">Juros até hoje</th><th class="c">Situação</th></tr></thead><tbody>
+    ${D.A.slice().sort((a,b)=>b.data.localeCompare(a.data)).map(a=>`<tr><td class="c">${fmtBR(a.data)}</td><td>${chipF(a.fonte)}</td><td class="num">${brl(a.valor)}</td><td class="num">${brl(a.principal)}</td><td class="num">${a.status==='quitada'?'—':brl(jurosRef(a,H))}</td><td class="c">${a.status==='quitada'?'<span class="chip chip-ok">quitada</span>':'<span class="chip chip-warn">aberta</span>'}</td></tr>`).join('')}</tbody></table></div></div>`:'';
+  const docs=`<div class="panel"><div class="panel-head"><h2>Documentos do cliente<small>contrato social, cadastro, garantias; o arquivo fica no Drive</small></h2><button class="btn btn-sm" onclick="docNovo('cli','${c.id}')">+ Documento</button></div>${docsTabela(c.documentos,'cli',c.id)}</div>`;
+  return sel+alerta+topo+cad+tit+ops+ants+docs;
+}
+
+/* ========================= 4. COBRANÇA ========================= */
+const ETAPAS_COB=[['avencer','A vencer','var(--mut)'],['contatar','Contatar','var(--neg)'],['promessa','Promessa de pagamento','var(--acc)'],['acompanhar','Acompanhar','var(--warn)'],['resolvido','Resolvido','var(--pos)']];
+function cobItens(){const H=hoje(),L=[];
+  alive(DB.clientes).forEach(c=>{const T=alive(DB.titulos).filter(t=>t.clienteId===c.id),ab=T.filter(t=>!t.pago),A=alive(DB.antecipacoes).filter(a=>a.clienteId===c.id&&a.status!=='quitada');
+    const venc=ab.filter(t=>t.vencimento<H),av=ab.filter(t=>t.vencimento>=H&&dias(H,t.vencimento)<=7),ultRet=a=>{const r=(a.retornos||[]).map(x=>x.data).sort().pop();return r||a.data},parada=A.filter(a=>dias(ultRet(a),H)>60);
+    const pagos30=T.filter(t=>t.pago&&!t.perda&&t.recebimento&&dias(t.recebimento,H)<=30);
+    if(!ab.length&&!A.length&&!pagos30.length)return;
+    const CT=contatosCli(c.id),ult=CT[0],pr=promessaAtiva(c.id),px=proximaAcao(c.id),maxAtr=venc.reduce((m,t)=>Math.max(m,dias(t.vencimento,H)),0);
+    let auto;if(!venc.length&&!parada.length&&!av.length)auto=ab.length||A.length?'avencer':'resolvido';
+      else if(pr&&pr.data>=H)auto='promessa';else if(pr&&pr.data<H)auto='acompanhar';else if(ult&&dias(ult.data,H)<=7)auto='acompanhar';else if(venc.length||parada.length)auto='contatar';else auto='avencer';
+    if(!venc.length&&!parada.length&&!av.length&&!ab.length&&!A.length)auto='resolvido';
+    const ov=(DB.cobranca||{})[c.id]||{};const etapa=ov.etapa&&ov.etapa!=='auto'?ov.etapa:auto;
+    const fs=[...new Set(ab.map(t=>t.fonte).concat(A.map(a=>a.fonte)))];
+    L.push({c,etapa,auto,manual:!!(ov.etapa&&ov.etapa!=='auto'),resp:ov.responsavel||'',venc:r2(venc.reduce((x,t)=>x+t.valor,0)),av:r2(av.reduce((x,t)=>x+t.valor,0)),ant:r2(A.reduce((x,a)=>x+a.principal+jurosRef(a,H),0)),maxAtr,ult,pr,px,fs})});
+  return L}
+function viewCobranca(){
+  const f=cobFiltro;let L=cobItens();
+  if(f.q)L=L.filter(x=>x.c.nome.toLowerCase().includes(f.q.toLowerCase()));if(f.fonte)L=L.filter(x=>x.fs.includes(f.fonte));
+  if(f.faixa){const r={a:[0,0],b:[1,30],c:[31,60],d:[61,90],e:[91,1e9]}[f.faixa];L=L.filter(x=>x.maxAtr>=r[0]&&x.maxAtr<=r[1])}
+  const card=x=>`<div class="kb-card cob-card"><div class="op-c-h"><a href="#" class="lnk" onclick="abrirFicha('${x.c.id}');return false"><b>${esc(x.c.nome)}</b></a>${x.fs.map(chipF).join('')}</div>
+    ${x.venc?`<div class="neg">vencido ${brl(x.venc)} · até ${x.maxAtr}d</div>`:''}${x.av?`<div class="muted">vence em 7 dias ${brl(x.av)}</div>`:''}${x.ant?`<div class="muted">antecipações ${brl(x.ant)}</div>`:''}
+    ${x.pr?`<div class="${x.pr.data<hoje()?'neg':'muted'}">promessa ${brl(x.pr.valor)} em ${fmtBR(x.pr.data)}</div>`:''}${x.px?`<div class="muted">próxima ação ${fmtBR(x.px.data)}: ${esc(x.px.texto||'')}</div>`:''}
+    <div class="muted">último contato: ${x.ult?fmtBR(x.ult.data)+' · '+esc(x.ult.tipo):'nenhum'}${x.resp?' · resp. '+esc(x.resp):''}</div>
+    <div class="op-c-a"><button class="btn btn-sm btn-gold" onclick="abrirContato('${x.c.id}')">Contato</button><button class="btn btn-sm" onclick="abrirTexto('${x.c.id}')">Texto</button>
+      <select class="cob-mv" onchange="cobMover('${x.c.id}',this.value)"><option value="auto" ${!x.manual?'selected':''}>etapa automática</option>${ETAPAS_COB.map(e=>`<option value="${e[0]}" ${x.manual&&x.etapa===e[0]?'selected':''}>${e[1]}</option>`).join('')}</select></div></div>`;
+  return `<div class="filters"><input placeholder="Cliente" value="${esc(f.q)}" onchange="cobFiltro.q=this.value;render()"><select onchange="cobFiltro.fonte=this.value;render()"><option value="">os dois recursos</option>${fontes().map(x=>`<option ${f.fonte===x.codigo?'selected':''}>${x.codigo}</option>`).join('')}</select>
+    <select onchange="cobFiltro.faixa=this.value;render()">${[['','qualquer atraso'],['a','sem atraso'],['b','1 a 30 dias'],['c','31 a 60'],['d','61 a 90'],['e','mais de 90']].map(([k,l])=>`<option value="${k}" ${f.faixa===k?'selected':''}>${l}</option>`).join('')}</select>
+    <span class="muted" style="font-size:11.5px">A etapa se ajusta sozinha pelos vencimentos, contatos e promessas; mude à mão quando precisar.</span></div>
+    <div class="kb kb5">${ETAPAS_COB.map(([k,l,cor])=>{const I=L.filter(x=>x.etapa===k);return `<div class="kb-col"><div class="kb-h"><span class="dot" style="background:${cor}"></span>${l}<span class="cnt">${I.length}</span></div>${I.map(card).join('')||'<div class="muted" style="padding:6px 2px">vazio</div>'}</div>`}).join('')}</div>`;
+}
+function cobMover(id,etapa){garanteModulos();DB.cobranca[id]={...(DB.cobranca[id]||{}),etapa};save();render()}
+
+/* ========================= 5. FLUXO DE CAIXA ========================= */
+function fxEventos(fs,ate){const H=hoje(),E=[];
+  fs.forEach(c=>{titsF(c).filter(t=>!t.pago&&t.vencimento<=ate).forEach(t=>{const d=t.vencimento<H?(fxCfg.vencHoje?H:null):t.vencimento;if(d)E.push({d,ent:t.valor,sai:0,txt:`${t.cliente||''} · NF ${t.nf||''}${t.vencimento<H?' (vencido em '+fmtBR(t.vencimento)+')':''}`,fonte:c,tipo:'Título'})});
+    ctrsF(c).forEach(k=>resumoContrato(k).cr.linhas.filter(l=>!l.pago&&l.venc<=ate).forEach(l=>E.push({d:l.venc<H?H:l.venc,ent:0,sai:l.parcela,txt:`Bradesco ${k.numero} · parcela ${l.k}`,fonte:c,tipo:'Parcela'})))});
+  /* promessas de pagamento de antecipações entram como previsão no recurso em que está a antecipação do cliente */
+  alive(DB.contatos||[]).filter(x=>x.promessa&&!x.promessa.cumprida&&x.promessa.valor>0&&x.promessa.data<=ate).forEach(x=>{const a=alive(DB.antecipacoes).find(a=>a.clienteId===x.clienteId&&a.status!=='quitada'&&fs.includes(a.fonte));
+    if(a)E.push({d:x.promessa.data<H?H:x.promessa.data,ent:x.promessa.valor,sai:0,txt:`Promessa de ${nomeCli(x.clienteId)}`,fonte:a.fonte,tipo:'Promessa'})});
+  return E.sort((a,b)=>a.d.localeCompare(b.d))}
+function fxPeriodos(){const H=hoje(),n=fxCfg.dias,P=[];
+  if(fxCfg.gran==='dia')for(let i=0;i<n;i++){const d=addDias(H,i);P.push({a:d,b:d,lbl:fmtBR(d).slice(0,5)})}
+  else if(fxCfg.gran==='semana')for(let i=0;i<Math.ceil(n/7);i++){const a=addDias(H,i*7);P.push({a,b:addDias(a,6),lbl:fmtBR(a).slice(0,5)})}
+  else{let mk=mesDe(H);for(let i=0;i<Math.ceil(n/30);i++){P.push({a:i?mk+'-01':H,b:ultimoDia(mk),lbl:mesLabel(mk).slice(0,3)+'/'+mk.slice(2,4)});mk=addMes(mk,1)}}
+  return P}
+function viewFluxo(){
+  const fs=fxCfg.fontes||fontes().map(f=>f.codigo),P=fxPeriodos(),E=fxEventos(fs,P[P.length-1].b);let saldo=r2(fs.reduce((x,c)=>x+saldoAte(c,'9999-12-31'),0));const ini=saldo;
+  P.forEach(p=>{const I=E.filter(e=>e.d>=p.a&&e.d<=p.b);p.itens=I;p.ent=r2(I.reduce((x,e)=>x+e.ent,0));p.sai=r2(I.reduce((x,e)=>x+e.sai,0));saldo=r2(saldo+p.ent-p.sai);p.saldo=saldo});
+  const neg=P.find(p=>p.saldo<0),sel=fxSel!=null&&P[fxSel]?P[fxSel]:null;
+  const ctl=`<div class="filters">${fontes().map(f=>`<label class="chk-in"><input type="checkbox" ${fs.includes(f.codigo)?'checked':''} onchange="fxTroca('${f.codigo}',this.checked)"> ${f.codigo}</label>`).join('')}
+    <select onchange="fxCfg.gran=this.value;fxSel=null;render()">${[['dia','Diário'],['semana','Semanal'],['mes','Mensal']].map(([k,l])=>`<option value="${k}" ${fxCfg.gran===k?'selected':''}>${l}</option>`).join('')}</select>
+    <select onchange="fxCfg.dias=+this.value;fxSel=null;render()">${[30,60,90,180,365].map(d=>`<option value="${d}" ${fxCfg.dias===d?'selected':''}>${d} dias</option>`).join('')}</select>
+    <label class="chk-in"><input type="checkbox" ${fxCfg.vencHoje?'checked':''} onchange="fxCfg.vencHoje=this.checked;render()"> contar vencidos como entrada hoje</label></div>`;
+  const graf=P.length<=60?svgFluxo(P.map(p=>({a:p.a,b:p.b,lbl:p.lbl,ent:p.ent,sai:p.sai,saldo:p.saldo}))):'';
+  const tab=`<div class="fx-tab" style="max-height:420px"><div class="fx-r fx-h"><span>Período</span><span class="num">Entra</span><span class="num">Sai</span><span class="num">Saldo acumulado</span></div>
+    ${P.map((p,i)=>`<div class="fx-r ${p.saldo<0?'neg':''} ${i===fxSel?'sel':''}" style="cursor:pointer" onclick="fxSel=${i};render()"><span>${p.a===p.b?fmtBR(p.a):fmtBR(p.a)+' a '+fmtBR(p.b).slice(0,5)}${p.itens.length?` <span class="muted">· ${p.itens.length}</span>`:''}</span><span class="num">${p.ent?brl(p.ent):'—'}</span><span class="num">${p.sai?brl(p.sai):'—'}</span><span class="num"><b>${brl(p.saldo)}</b></span></div>`).join('')}</div>`;
+  const det=sel?`<h3 class="ag-t">${sel.a===sel.b?fmtBR(sel.a):fmtBR(sel.a)+' a '+fmtBR(sel.b)}</h3>${sel.itens.map(e=>`<div class="ag-i"><div class="ag-i-h">${chipF(e.fonte)} <b>${esc(e.tipo)}</b><span class="${e.ent?'pos':'neg'}">${e.ent?'+ '+brl(e.ent):'− '+brl(e.sai)}</span></div><div class="muted">${fmtBR(e.d)} · ${esc(e.txt)}</div></div>`).join('')||'<div class="muted">Nada previsto.</div>'}`
+    :`<h3 class="ag-t">Clique num período</h3><div class="muted">Mostra os títulos, parcelas e promessas que compõem o período.</div>`;
+  return ctl+`<div class="stats" style="margin-bottom:14px"><div class="stat"><div class="k">Saldo hoje</div><div class="v ${ini<0?'neg':''}">${brl(ini)}</div><div class="sub">${fs.join(' + ')}</div></div>
+    <div class="stat"><div class="k">Entra no período</div><div class="v pos">${brl(r2(P.reduce((x,p)=>x+p.ent,0)))}</div><div class="sub">títulos e promessas</div></div>
+    <div class="stat"><div class="k">Sai no período</div><div class="v neg">${brl(r2(P.reduce((x,p)=>x+p.sai,0)))}</div><div class="sub">${fs.some(c=>ctrsF(c).length)?'parcelas do banco':'sem contratos cadastrados'}</div></div>
+    <div class="stat"><div class="k">Saldo no fim</div><div class="v ${saldo<0?'neg':''}">${brl(saldo)}</div><div class="sub">${neg?'<span class="neg">negativo a partir de '+fmtBR(neg.a)+'</span>':'não fica negativo'}</div></div></div>
+    <div class="ag-wrap"><div class="panel">${graf}${tab}</div><div class="panel ag-lado">${det}</div></div>`;
+}
+function fxTroca(c,on){const fs=fxCfg.fontes||fontes().map(f=>f.codigo);fxCfg.fontes=on?[...new Set(fs.concat(c))]:fs.filter(x=>x!==c);if(!fxCfg.fontes.length)fxCfg.fontes=[c];fxSel=null;render()}
+
+/* ========================= 6. RELATÓRIOS ========================= */
+function relPadrao(){const mk=mesDe(hoje());return {de:mk+'-01',ate:ultimoDia(mk),fonte:'',cli:'',mod:''}}
+function relModMov(m){if(['envio_operacao','recebimento_titulo','perda_titulo'].includes(m.categoria)){const op=m.operacaoId?DB.operacoes.find(o=>o.id===m.operacaoId):m.tituloId?DB.operacoes.find(o=>o.id===(DB.titulos.find(t=>t.id===m.tituloId)||{}).operacaoId):null;const t=m.tituloId&&DB.titulos.find(t=>t.id===m.tituloId);return (op&&op.direta)||(t&&t.direta)?'direta':'operacao'}
+  if(['antecipacao_enviada','retorno_antecipacao'].includes(m.categoria))return 'antecipacao';return 'outros'}
+function relMovs(f){return alive(DB.movs).filter(m=>m.data>=f.de&&m.data<=f.ate&&(!f.fonte||m.fonte===f.fonte)&&(!f.cli||m.clienteId===f.cli)&&(!f.mod||relModMov(m)===f.mod))}
+function relTabela(cab,linhas,tot){return `<table class="tb auto rel-tab"><thead><tr>${cab.map((c,i)=>`<th class="${i?'num':''}">${c}</th>`).join('')}</tr></thead><tbody>${linhas.map(l=>`<tr ${l.det?`style="cursor:pointer" onclick="relDet=${esc(JSON.stringify(l.det))};render()"`:''}>${l.v.map((c,i)=>`<td class="${i?'num':''}">${c}</td>`).join('')}</tr>`).join('')}${tot?`<tr class="tr-tot">${tot.map((c,i)=>`<td class="${i?'num':''}">${c}</td>`).join('')}</tr>`:''}</tbody></table>`}
+function relDados(){if(!relCfg)relCfg=relPadrao();const f=relCfg,M=relMovs(f),H=hoje();const out={};
+  const agr=(chave,nome)=>{const G={};M.filter(m=>m.resultado).forEach(m=>{const k=chave(m);if(k==null)return;const g=G[k]=G[k]||{nome:nome(k),des:0,jant:0,jtit:0,perda:0,outras:0,ids:[]};
+    const v=m.resultado;if(m.categoria==='envio_operacao')g.des+=v;else if(m.categoria==='retorno_antecipacao')g.jant+=v;else if(m.categoria==='recebimento_titulo')g.jtit+=v;else if(m.categoria==='perda_titulo')g.perda+=v;else g.outras+=v;g.ids.push(m.id)});
+    return Object.values(G).map(g=>({...g,res:r2(g.des+g.jant+g.jtit+g.perda+g.outras)})).sort((a,b)=>b.res-a.res)};
+  out.cliente=agr(m=>m.clienteId||null,k=>nomeCli(k)||'—');out.recurso=agr(m=>m.fonte,k=>k);
+  out.prev=alive(DB.operacoes).filter(o=>o.data>=f.de&&o.data<=f.ate&&(!f.fonte||o.fonte===f.fonte)&&(!f.cli||o.clienteId===f.cli)&&(!f.mod||(f.mod==='direta'?o.direta:f.mod==='operacao'&&!o.direta))).map(o=>{const R=opResumo(o),pagos=R.T.filter(t=>t.pago&&!t.perda);
+    const prazoReal=pagos.length?pagos.reduce((x,t)=>x+dias(o.data,t.recebimento)*t.valor,0)/pagos.reduce((x,t)=>x+t.valor,0):null,enc=etapaOp(o)==='encerrada';
+    return {o,prev:r2(o.desagio),real:R.resultado,roaPrev:o.roa,roaReal:enc&&prazoReal>0?R.resultado/o.bruto*30/prazoReal:null,prazoPrev:o.prazoMedio,prazoReal,enc}});
+  out.capital=fontes().filter(x=>!f.fonte||x.codigo===f.fonte).map(x=>{const k=composicao(x.codigo),aloc=r2(k.titulos+k.antec+(k.invest||0)),base=aloc+Math.max(0,k.caixa);return {c:x.codigo,caixa:k.caixa,tit:k.titulos,ant:k.antec,empR:k.empRec||0,empP:k.empPag||0,capt:k.capt,aloc,total:k.total,pct:base?aloc/base:0}});
+  out.invest=alive(DB.captacoes).filter(k=>!f.fonte||k.fonte===f.fonte);
+  return out}
+function viewRelatorios(){
+  if(!relCfg)relCfg=relPadrao();const f=relCfg,R=relDados();
+  const abas=[['cliente','Resultado por cliente'],['recurso','Resultado por recurso'],['prev','Previsto × realizado'],['capital','Capital alocado × disponível'],['invest','Demonstrativo do investidor']];
+  const ctl=`<div class="filters rel-f"><label>De <input type="date" value="${f.de}" onchange="relCfg.de=this.value;relDet=null;render()"></label><label>Até <input type="date" value="${f.ate}" onchange="relCfg.ate=this.value;relDet=null;render()"></label>
+    <select onchange="relCfg.fonte=this.value;relDet=null;render()"><option value="">os dois recursos</option>${fontes().map(x=>`<option ${f.fonte===x.codigo?'selected':''}>${x.codigo}</option>`).join('')}</select>
+    <select onchange="relCfg.cli=this.value;relDet=null;render()"><option value="">todos os clientes</option>${alive(DB.clientes).sort((a,b)=>a.nome.localeCompare(b.nome)).map(c=>`<option value="${c.id}" ${f.cli===c.id?'selected':''}>${esc(c.nome)}</option>`).join('')}</select>
+    <select onchange="relCfg.mod=this.value;relDet=null;render()">${[['','todas as modalidades'],['operacao','operação de títulos'],['direta','operação direta'],['antecipacao','antecipação'],['outros','outros']].map(([k,l])=>`<option value="${k}" ${f.mod===k?'selected':''}>${l}</option>`).join('')}</select>
+    <span class="right" style="display:flex;gap:6px"><select onchange="if(this.value)relAplica(this.value)"><option value="">filtros salvos</option>${alive(DB.filtrosRel).map(x=>`<option value="${x.id}">${esc(x.nome)}</option>`).join('')}</select><button class="btn btn-sm" onclick="relSalvaFiltro()">Salvar filtro</button>
+      <button class="btn btn-sm" onclick="relCSV()">↓ Excel (CSV)</button><button class="btn btn-sm" onclick="window.print()">PDF</button></span></div>`;
+  const tabs=`<div class="tabs">${abas.map(([k,l])=>`<button class="tab ${relAba===k?'active':''}" onclick="relAba='${k}';relDet=null;render()">${l}</button>`).join('')}</div>`;
+  let corpo='';
+  const linhaRes=g=>({v:[esc(g.nome),brl(r2(g.des)),brl(r2(g.jant)),brl(r2(g.jtit)),brl(r2(g.perda)),brl(r2(g.outras)),`<b>${brl(g.res)}</b>`],det:g.ids});
+  const totRes=L=>['Total',...['des','jant','jtit','perda','outras','res'].map(k=>brl(r2(L.reduce((x,g)=>x+g[k],0))))];
+  const cabRes=n=>[n,'Deságio','Juros antecipação','Juros de título','Perdas','Outros','Resultado'];
+  if(relAba==='cliente')corpo=relTabela(cabRes('Cliente'),R.cliente.map(linhaRes),totRes(R.cliente));
+  if(relAba==='recurso')corpo=relTabela(cabRes('Recurso'),R.recurso.map(linhaRes),totRes(R.recurso))+`<div class="muted" style="margin-top:6px">Inclui despesas do recurso (juros do banco, captação, tarifas) em "Outros". Clique numa linha para ver os lançamentos.</div>`;
+  if(relAba==='prev')corpo=R.prev.length?relTabela(['Operação','Face','Resultado previsto','Resultado realizado','Diferença','ROA previsto','ROA realizado','Prazo previsto','Prazo realizado'],R.prev.map(x=>({v:[`<a href="#" class="lnk" onclick="abrirOperacao('${x.o.id}');return false">${fmtBR(x.o.data)} · ${esc(nomeCli(x.o.clienteId))} ${esc(x.o.nf||'')}</a>${x.enc?'':' <span class="chip chip-warn">aberta</span>'}`,brl(x.o.bruto),brl(x.prev),brl(x.real),`<span class="${x.real-x.prev<0?'neg':'pos'}">${brl(r2(x.real-x.prev))}</span>`,x.roaPrev?pctBR(x.roaPrev):'—',x.roaReal!=null?pctBR(x.roaReal):'—',x.prazoPrev?String(x.prazoPrev).replace('.',',')+'d':'—',x.prazoReal!=null?Math.round(x.prazoReal)+'d':'—']}))):vazio('Nenhuma operação no período.');
+  if(relAba==='capital')corpo=relTabela(['Recurso','Em conta (disponível)','Títulos','Antecipações','A receber de outro recurso','A devolver a outro recurso','Captações','Alocado','% alocado (do aplicado + caixa)','Montante'],R.capital.map(x=>({v:[chipF(x.c),brl(x.caixa),brl(x.tit),brl(x.ant),brl(x.empR),brl(-x.empP),brl(-x.capt),brl(x.aloc),pctBR(x.pct),`<b>${brl(x.total)}</b>`]})));
+  if(relAba==='invest')corpo=R.invest.length?R.invest.map(k=>`<div class="inv-b"><div class="op-c-h"><b>${esc(k.investidor)}</b> ${chipF(k.fonte)}<button class="btn btn-sm right" onclick="demonstrativoInvestidor('${k.id}')">Gerar demonstrativo</button></div>
+      ${relTabela(['Data','Movimento','Valor'],[{v:[fmtBR(k.data),'Saldo de entrada',brl(k.valor)]}].concat((k.eventos||[]).map(e=>({v:[fmtBR(e.data),{juros:'Juros reconhecidos',devolucao:'Devolução',entrada:'Aporte'}[e.tipo]||e.tipo,brl(e.tipo==='devolucao'?-e.valor:e.valor)]}))),['Saldo devido hoje','',`<b>${brl(k.saldo)}</b>`])}
+      <div class="muted">Taxa ${pctBR(k.taxaMes)} a.m. · remuneração reconhecida ${brl(r2((k.eventos||[]).filter(e=>e.tipo==='juros').reduce((x,e)=>x+e.valor,0)))}</div></div>`).join(''):vazio('Nenhuma captação.');
+  const det=relDet&&relDet.length?`<div class="panel"><div class="panel-head"><h2>Lançamentos que compõem a linha<small>${relDet.length}</small></h2><button class="btn btn-sm" onclick="relDet=null;render()">Fechar</button></div>${relTabela(['Lançamento','Data','Recurso','Resultado'],relDet.map(id=>DB.movs.find(m=>m.id===id)).filter(Boolean).map(m=>({v:[m.operacaoId?`<a href="#" class="lnk" onclick="abrirOperacao('${m.operacaoId}');return false">${esc(m.descricao)}</a>`:esc(m.descricao),fmtBR(m.data),chipF(m.fonte),brl(m.resultado)]})))}</div>`:'';
+  return ctl+tabs+`<div class="panel rel-print"><div class="panel-head"><h2>${abas.find(a=>a[0]===relAba)[1]}<small>${fmtBR(f.de)} a ${fmtBR(f.ate)}${f.fonte?' · '+f.fonte:''}${f.cli?' · '+esc(nomeCli(f.cli)):''}</small></h2></div><div class="tbl-scroll" id="rel_tab">${corpo}</div></div>`+det;
+}
+function relSalvaFiltro(){const nome=prompt('Nome do filtro (ex.: LEO no trimestre)');if(!nome)return;DB.filtrosRel.push({id:uid(),nome,f:{...relCfg},aba:relAba,deletedAt:null});save();render();toast('Filtro salvo')}
+function relAplica(id){const x=DB.filtrosRel.find(y=>y.id===id);if(!x)return;relCfg={...x.f};relAba=x.aba||relAba;relDet=null;render()}
+function relCSV(){const t=el('rel_tab').querySelector('table');if(!t)return toast('Nada para exportar');const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+  const csv='﻿'+[...t.querySelectorAll('tr')].map(r=>[...r.children].map(c=>q(c.innerText.trim())).join(';')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`relatorio-${relAba}-${relCfg.de}-${relCfg.ate}.csv`;a.click()}
+function demonstrativoInvestidor(id){const k=DB.captacoes.find(x=>x.id===id),w=window.open('','_blank');if(!w)return toast('O navegador bloqueou a nova janela: libere pop-ups para este site');
+  w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Demonstrativo · ${esc(k.investidor)}</title><style>body{font-family:Inter,Arial,sans-serif;margin:0}header{background:#0b1f3a;color:#fff;padding:22px 32px}header p{color:#c9a227;margin:4px 0 0;font-size:12px}main{padding:20px 32px}table{width:100%;border-collapse:collapse;font-size:13px}th{background:#0b1f3a;color:#fff;text-align:left;padding:6px 8px}td{padding:6px 8px;border-bottom:1px solid #e6e6e6}.n{text-align:right}.tot td{font-weight:700;background:#f3ebd3}</style></head><body>
+  <header><h1 style="margin:0;font-size:19px">Demonstrativo do investidor · ${esc(k.investidor)}</h1><p>Lidere BPO Financeiro · posição em ${fmtBR(hoje())} · taxa ${pctBR(k.taxaMes)} ao mês</p></header><main><table><tr><th>Data</th><th>Movimento</th><th class="n">Valor</th></tr>
+  <tr><td>${fmtBR(k.data)}</td><td>Saldo de entrada</td><td class="n">${brl(k.valor)}</td></tr>${(k.eventos||[]).map(e=>`<tr><td>${fmtBR(e.data)}</td><td>${{juros:'Remuneração do período',devolucao:'Devolução',entrada:'Aporte'}[e.tipo]||e.tipo}</td><td class="n">${brl(e.tipo==='devolucao'?-e.valor:e.valor)}</td></tr>`).join('')}
+  <tr class="tot"><td colspan="2">Saldo em ${fmtBR(hoje())}</td><td class="n">${brl(k.saldo)}</td></tr></table></main></body></html>`);w.document.close();setTimeout(()=>w.print(),400)}
+
+/* ========================= 7. ROTINAS ========================= */
+function rotinaCai(r,d){const x=dt(d),dow=x.getDay(),dom=x.getDate(),ult=ultimoDia(mesDe(d))===d;
+  if(r.freq==='diaria')return dow!==0&&dow!==6;if(r.freq==='semanal')return dow===+r.dia;if(r.freq==='mensal')return r.dia==='ultimo'?ult:dom===+r.dia;return false}
+const rotinaFeita=(r,d)=>alive(DB.rotinaExec).some(e=>e.rotinaId===r.id&&e.data===d);
+const rotinasDoDia=d=>alive(DB.rotinas).filter(r=>r.ativa!==false&&rotinaCai(r,d));
+function viewRotinas(){const d=rotData||hoje(),L=rotinasDoDia(d),feitas=L.filter(r=>rotinaFeita(r,d)).length;
+  const freqTxt=r=>r.freq==='diaria'?'todo dia útil':r.freq==='semanal'?'toda '+['domingo','segunda','terça','quarta','quinta','sexta','sábado'][+r.dia]:r.dia==='ultimo'?'último dia do mês':'todo dia '+r.dia;
+  return `<div class="filters"><input type="date" value="${d}" onchange="rotData=this.value;render()"><span class="muted">${feitas} de ${L.length} feita(s) em ${fmtBR(d)}</span><button class="btn btn-sm btn-gold right" onclick="rotEdita()">+ Rotina</button></div>
+  <div class="panel"><div class="panel-head"><h2>Rotinas de ${fmtBR(d)}</h2></div>${L.length?L.map(r=>{const ok=rotinaFeita(r,d);return `<div class="rot-i ${ok?'ok':''}"><input type="checkbox" ${ok?'checked':''} onchange="rotMarca('${r.id}','${d}',this.checked)"><div><b>${esc(r.titulo)}</b><div class="muted">${freqTxt(r)}${r.obs?' · '+esc(r.obs):''}</div></div>${r.tab?`<button class="btn btn-sm right" onclick="go('${r.tab}','${r.fonte||''}')">Fazer</button>`:''}</div>`}).join(''):'<div class="muted">Nenhuma rotina neste dia.</div>'}</div>
+  <div class="panel"><div class="panel-head"><h2>Todas as rotinas<small>${alive(DB.rotinas).length}</small></h2></div><table class="tb auto"><thead><tr><th>Rotina</th><th>Quando</th><th>Tela</th><th></th></tr></thead><tbody>${alive(DB.rotinas).map(r=>`<tr><td>${esc(r.titulo)}${r.ativa===false?' <span class="chip chip-n">pausada</span>':''}</td><td>${freqTxt(r)}</td><td>${esc((SECAO[r.tab]||[r.tab||'—'])[0])}${r.fonte?' · '+r.fonte:''}</td><td class="c"><button class="iconbtn" onclick="rotEdita('${r.id}')">✎</button> <button class="iconbtn del" onclick="rotDel('${r.id}')">🗑</button></td></tr>`).join('')}</tbody></table></div>`}
+function rotMarca(id,d,on){if(on)DB.rotinaExec.push({id:uid(),rotinaId:id,data:d,quem:quemSou(),t:Date.now(),deletedAt:null});else DB.rotinaExec.filter(e=>e.rotinaId===id&&e.data===d).forEach(e=>e.deletedAt=Date.now());save();render()}
+function rotEdita(id){const r=id?DB.rotinas.find(x=>x.id===id):{titulo:'',freq:'semanal',dia:1,tab:'',fonte:'',obs:'',ativa:true};
+  openGen(id?'Editar rotina':'Nova rotina',`<div class="field"><label>Rotina</label><input id="rt_t" value="${esc(r.titulo)}"></div>
+  <div class="fgrid"><div class="field"><label>Frequência</label><select id="rt_f">${[['diaria','Diária (dias úteis)'],['semanal','Semanal'],['mensal','Mensal']].map(([k,l])=>`<option value="${k}" ${r.freq===k?'selected':''}>${l}</option>`).join('')}</select></div>
+  <div class="field"><label>Dia</label><input id="rt_d" value="${r.dia}" placeholder="semanal: 0 a 6 (1 = segunda); mensal: 1 a 31 ou ultimo"></div></div>
+  <div class="fgrid"><div class="field"><label>Abre a tela</label><select id="rt_tab"><option value="">—</option>${Object.keys(SECAO).map(k=>`<option value="${k}" ${r.tab===k?'selected':''}>${SECAO[k][0]}</option>`).join('')}</select></div><div class="field"><label>Recurso</label><select id="rt_fo"><option value="">—</option>${fontes().map(f=>`<option ${r.fonte===f.codigo?'selected':''}>${f.codigo}</option>`).join('')}</select></div></div>
+  <div class="field"><label>Observação</label><input id="rt_o" value="${esc(r.obs||'')}"></div><div class="chk"><input type="checkbox" id="rt_a" ${r.ativa!==false?'checked':''}><label for="rt_a">Ativa</label></div><div class="erro" id="rt_erro"></div>`,
+  `<button class="btn btn-ghost" onclick="closeModal('ovGen')">Cancelar</button><button class="btn btn-gold" onclick="rotSalva('${id||''}')">Salvar</button>`)}
+function rotSalva(id){const t=val('rt_t').trim();if(!t)return erro('rt_erro','Dê um nome à rotina.');const b={titulo:t,freq:val('rt_f'),dia:val('rt_d').trim()||1,tab:val('rt_tab'),fonte:val('rt_fo'),obs:val('rt_o').trim(),ativa:el('rt_a').checked};
+  if(id)Object.assign(DB.rotinas.find(x=>x.id===id),b);else DB.rotinas.push({id:uid(),...b,deletedAt:null});save();closeModal('ovGen');render()}
+function rotDel(id){if(!confirm('Excluir a rotina?'))return;DB.rotinas.find(x=>x.id===id).deletedAt=Date.now();save();render()}
+
+/* ========================= 8. CENTRAL DO DIA: prioridades, resumo e busca ========================= */
+const _pnlPrioBase=pnlPrioridades;
+pnlPrioridades=function(D){const F=_pnlPrioBase(D),H=D.H,add=(u,lbl,txt,meta,tab,f,extra)=>F.push({u,lbl,txt,meta,tab,f,...(extra||{})});
+  alive(DB.clientes).forEach(c=>{const p=promessaAtiva(c.id),x=proximaAcao(c.id);
+    if(p&&p.data<H)add(3,'Promessa não cumprida',`${c.nome}: ${brl(p.valor)} prometido para ${fmtBR(p.data)}`,brl(p.valor),'ficha','',{cli:c.id});
+    else if(p&&p.data===H)add(2,'Promessa para hoje',`${c.nome}: confirmar o pagamento de ${brl(p.valor)}`,brl(p.valor),'ficha','',{cli:c.id});
+    if(x&&x.data<=H)add(2,x.data<H?'Ação atrasada':'Ação de hoje',`${c.nome}: ${x.texto||'retomar contato'}${x.data<H?' (era '+fmtBR(x.data)+')':''}`,'','ficha','',{cli:c.id})});
+  const ct=cobItens().filter(x=>x.etapa==='contatar');if(ct.length)add(2,'Cobrança a fazer',`${ct.length} cliente(s) com vencido e sem contato na semana: ${ct.slice(0,3).map(x=>x.c.nome).join(', ')}${ct.length>3?'…':''}`,brl(r2(ct.reduce((s,x)=>s+x.venc,0))),'cobranca','');
+  const docP=alive(DB.operacoes).filter(o=>(o.documentos||[]).some(d=>d.status==='pendente'));if(docP.length)add(1,'Documento pendente',`${docP.length} operação(ões) com documento a receber`,'','operacoes','');
+  const sp=alive(DB.simulacoes).filter(s=>['analise','aprovacao'].includes(s.etapa));if(sp.length)add(1,'Operação para decidir',`${sp.length} simulação(ões) em análise ou aprovação`,'','operacoes','');
+  const rp=rotinasDoDia(H).filter(r=>!rotinaFeita(r,H));if(rp.length)add(1,'Rotina de hoje',rp.map(r=>r.titulo).join(' · '),`${rp.length} pendente(s)`,'rotinas','');
+  return F.sort((a,b)=>b.u-a.u)};
+/* resumo da carteira em texto, montado pelas regras (sem IA): para ler de manhã ou colar numa mensagem */
+function resumoCarteira(){const D=pnlDados(),H=D.H,d7=addDias(H,-7),conc=pnlConcentracao(D),top=conc[0];
+  const rec7=alive(DB.titulos).filter(t=>t.pago&&!t.perda&&t.recebimento>=d7),ops7=alive(DB.operacoes).filter(o=>o.data>=d7),ret7=alive(DB.movs).filter(m=>m.categoria==='retorno_antecipacao'&&m.data>=d7);
+  const L=[`Posição em ${fmtBR(H)}.`,`Em conta: ${brl(D.caixa)}. Na rua: ${brl(r2(D.tit.reduce((s,t)=>s+t.valor,0)+D.ants.reduce((s,a)=>s+a.principal,0)))} (títulos ${brl(r2(D.tit.reduce((s,t)=>s+t.valor,0)))}, antecipações ${brl(r2(D.ants.reduce((s,a)=>s+a.principal,0)))}).`,
+    `Vencido a cobrar: ${brl(D.vencTitV)}${D.vencTit.length?' em '+D.vencTit.length+' título(s)':''}.`,`Últimos 7 dias: ${ops7.length} operação(ões) (${brl(r2(ops7.reduce((s,o)=>s+o.bruto,0)))} de face), ${rec7.length} título(s) recebido(s) (${brl(r2(rec7.reduce((s,t)=>s+(t.valorRecebido||0),0)))}), ${ret7.length} retorno(s) de antecipação (${brl(r2(ret7.reduce((s,m)=>s+m.entrada,0)))}).`];
+  if(top)L.push(`Maior exposição: ${top.nome}, ${pctBR(top.pct)} da carteira${top.pct>LIMITE_CONC?' (acima de 25%)':''}.`);
+  L.push(`Para operar hoje sem ficar descoberto: até ${brl(D.capacidade)}.`);return L.join(' ')}
+/* busca rápida: "LEO vence semana", "vencidos GIRO", nome de cliente ou sacado */
+function buscaRapida(q){const s=q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''),H=hoje();if(!s.trim())return [];
+  let T=alive(DB.titulos).filter(t=>!t.pago);const f=fontes().map(x=>x.codigo).find(c=>new RegExp('\\b'+c.toLowerCase()+'\\b').test(s));if(f)T=T.filter(t=>t.fonte===f);
+  if(/vencid/.test(s))T=T.filter(t=>t.vencimento<H);if(/hoje/.test(s))T=T.filter(t=>t.vencimento===H);else if(/semana/.test(s))T=T.filter(t=>t.vencimento>=H&&t.vencimento<=addDias(H,7));else if(/\bmes\b/.test(s))T=T.filter(t=>mesDe(t.vencimento)===mesDe(H));
+  const resto=s.replace(/\b(giro|leo|vence|vencem|vencidos?|vencendo|hoje|semana|mes|nesta|neste|do|da|de|quais|que|operacoes|operacao|titulos?)\b/g,' ').trim();
+  if(resto){const n=x=>(x||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');T=T.filter(t=>resto.split(/\s+/).every(w=>n(t.cliente).includes(w)||n(t.sacado).includes(w)||n(t.nf).includes(w)))}
+  return T.sort((a,b)=>a.vencimento.localeCompare(b.vencimento))}
+function painelExtra(){const R=buscaRapida(buscaQ);
+  return `<div class="panel"><div class="panel-head"><h2>Busca rápida<small>ex.: "LEO vence semana", "vencidos GIRO", ou o nome do cliente ou do sacado</small></h2></div>
+    <div class="acts-row"><input id="bq" value="${esc(buscaQ)}" placeholder="O que você procura?" style="flex:1" onkeydown="if(event.key==='Enter'){buscaQ=this.value;render()}"><button class="btn btn-sm" onclick="buscaQ=val('bq');render()">Buscar</button></div>
+    ${buscaQ?(R.length?`<table class="tb auto" style="margin-top:8px"><tbody>${R.slice(0,20).map(t=>`<tr><td>${chipF(t.fonte)}</td><td><a href="#" class="lnk" onclick="abrirFicha('${t.clienteId}');return false">${esc(t.cliente||'')}</a></td><td>${esc(t.direta?'direta':t.sacado||'')}</td><td>NF ${esc(t.nf||'')}</td><td class="c">${fmtBR(t.vencimento)}</td><td class="num">${brl(t.valor)}</td><td class="c">${t.operacaoId?`<button class="btn btn-sm" onclick="abrirOperacao('${t.operacaoId}')">Operação</button>`:''}</td></tr>`).join('')}</tbody></table><div class="muted">${R.length} título(s) · ${brl(r2(R.reduce((s,t)=>s+t.valor,0)))}</div>`:'<div class="muted" style="margin-top:8px">Nada encontrado.</div>'):''}</div>
+  <div class="panel"><div class="panel-head"><h2>Resumo da carteira<small>montado com os números do sistema</small></h2><button class="btn btn-sm" onclick="navigator.clipboard.writeText(resumoCarteira()).then(()=>toast('Resumo copiado'))">Copiar</button></div><div class="resumo-txt">${esc(resumoCarteira())}</div></div>`}
+
+/* toda tela passa a ter as estruturas novas, mesmo num banco antigo ou recém-restaurado */
+const _renderBase=render;render=function(){if(DB)garanteModulos();_renderBase()};
+
 if(typeof MODO_NUVEM==='undefined'||!MODO_NUVEM){load();render();avisoAbertura()}
 /* =========================================================================
    NUVEM: login, aprovação e gravação no Supabase (projeto compartilhado da
