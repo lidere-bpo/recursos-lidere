@@ -497,11 +497,9 @@ a.lnk{color:inherit;text-decoration:none}a.lnk:hover b{color:var(--acc);text-dec
 @media(max-width:900px){.ag-wrap{grid-template-columns:1fr}.ag-c{min-height:60px;font-size:10.5px}}
 
 /* ===== Módulos de gestão ===== */
-.sim-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:start}.sim-wrap .panel{padding-bottom:14px}
 .acts-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}.acts-row input{min-width:200px}
 .sim-linha{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line);font-size:12.5px}.sim-linha.neg b{color:var(--neg)}
-.sim-tab td .muted{font-size:10.5px}.sim-tab tr.sel td{background:color-mix(in srgb,var(--acc) 10%,transparent)}
-.kb.kb5{grid-template-columns:repeat(5,minmax(200px,1fr));overflow-x:auto}.op-card{cursor:default;font-size:12px}.op-card .muted{margin-top:3px;font-size:11.5px}
+.kb.kb2{grid-template-columns:repeat(2,minmax(0,1fr))}.op-card{cursor:default;font-size:12px}.op-card .muted{margin-top:3px;font-size:11.5px}
 .op-c-h{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.op-c-a{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;align-items:center}.op-c-a .iconbtn{margin-left:auto}.warn{color:var(--warn)}
 .hist{display:flex;flex-direction:column;gap:8px}.hist-i{border-left:2px solid var(--line-f);padding:2px 0 2px 10px;font-size:12.5px}.hist-i div{margin-top:2px}
 .ficha-acts{display:flex;gap:6px;flex-wrap:wrap}.ficha-alerta{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.ficha-alerta>div{background:var(--panel);border:1px solid var(--line-f);border-left:3px solid var(--acc);border-radius:9px;padding:9px 12px;font-size:12.5px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.ficha-alerta>div.neg{border-left-color:var(--neg)}
@@ -511,7 +509,7 @@ a.lnk{color:inherit;text-decoration:none}a.lnk:hover b{color:var(--acc);text-dec
 .rel-f label{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--dim)}.rel-tab tbody tr[onclick]:hover td{background:var(--panel2)}.inv-b{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px}.inv-b .op-c-h .right{margin-left:auto}
 .rot-i{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:13px}.rot-i.ok b{text-decoration:line-through;color:var(--mut)}.rot-i .right{margin-left:auto}
 .resumo-txt{font-size:13px;line-height:1.65;color:var(--txt)}
-@media(max-width:1000px){.sim-wrap{grid-template-columns:1fr}}
+
 @media print{.side,.topbar,.filters,.tabs,.btn,.acoes{display:none!important}.shell{display:block}.page{padding:0}.panel{border:0;break-inside:avoid}body{background:#fff;color:#000}}
 
 /* ===== IA ===== */
@@ -525,6 +523,7 @@ a.lnk{color:inherit;text-decoration:none}a.lnk:hover b{color:var(--acc);text-dec
 .bord-box{border:1px dashed var(--acc);border-radius:10px;padding:10px 12px;margin:0 0 12px;background:var(--panel2)}.bord-box .field{margin:0}
 .bord-ok{font-size:12.5px;color:var(--txt);margin-top:8px;line-height:1.5}.bord-box .neg{font-size:12.5px;margin-top:6px}
 .bord-av{margin:6px 0 0 18px;padding:0;font-size:12px;color:var(--warn)}.bord-av li{margin:3px 0;line-height:1.45}
+@media(max-width:900px){.kb.kb2{grid-template-columns:1fr}}
 
 /* ---------- Específico deste app ---------- */
 .fonte-chip{font-size:9.5px;font-weight:800;letter-spacing:.6px;padding:2px 7px;border-radius:4px;display:inline-block;vertical-align:middle}
@@ -1193,7 +1192,6 @@ const IC={
  agenda:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
  fluxo:'<path d="M3 17l5-6 4 4 8-9"/><path d="M14 6h6v6"/>',
  rotinas:'<path d="M4 6h11M4 12h11M4 18h7"/><path d="M17 15l2 2 4-4"/>',
- simulador:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h6"/>',
  operacoes:'<rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="13" rx="1"/>',
  cobranca:'<path d="M4 5h16v11H8l-4 4z"/><path d="M9 10h6"/>',
  relatorios:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
@@ -1206,7 +1204,7 @@ const TABS_FONTE=ITENS_FONTE.map(x=>x[0]);
 function navDef(){return [
   {g:'Visão geral',its:[['painel','Painel'],['agenda','Agenda de vencimentos'],['fluxo','Fluxo de caixa'],['rotinas','Rotinas']]},
   ...fontes().map(f=>({g:f.nome,fonte:f.codigo,its:ITENS_FONTE.filter(([id])=>temModulo(f,id))})),
-  {g:'Operações',its:[['simulador','Simulador'],['operacoes','Operações'],['cobranca','Cobrança'],['relatorios','Relatórios']]},
+  {g:'Operações',its:[['operacoes','Operações'],['cobranca','Cobrança'],['relatorios','Relatórios']]},
   {g:'Clientes',its:[['ficha','Ficha do cliente'],['correcao','Correção geral'],['clientes','Clientes'],['sacados','Sacados'],['investidores','Investidores']]},
   {g:'Sistema',its:[['config','Configurações']]}]}
 /* grupos do menu recolhíveis; a escolha fica neste navegador. O grupo da tela aberta fica sempre aberto. */
@@ -1225,8 +1223,7 @@ const SECAO={
   ficha:['Ficha do cliente','Tudo do cliente num lugar: exposição, limite, operações, antecipações e como ele paga'],
   fluxo:['Fluxo de caixa','Saldo acumulado previsto por dia, semana ou mês: escolha GIRO, LEO ou os dois e clique no período para ver o que entra e sai'],
   rotinas:['Rotinas','O que fazer todo dia, toda semana e todo mês, com o atalho para a tela'],
-  simulador:['Simulador de operação','Se eu fizer esta operação, como ficam o caixa e o retorno? Salve e converta em operação'],
-  operacoes:['Operações','Da simulação à liberação e ao acompanhamento, em etapas'],
+  operacoes:['Operações','Em acompanhamento e encerradas, cada uma com o seu borderô'],
   operacao:['Operação','Quanto saiu, quanto voltou, quanto falta e o resultado'],
   cobranca:['Cobrança','A vencer, contatar, promessa, acompanhar e resolvido, cliente a cliente'],
   relatorios:['Relatórios','Resultado por cliente e por recurso, previsto × realizado, capital e investidor'],
@@ -1289,7 +1286,7 @@ function render(){
   el('topFonte').style.display=TABS_FONTE.includes(activeTab)?'inline-flex':'none';el('topNovo').style.display=TABS_FONTE.includes(activeTab)?'inline-flex':'none';
   renderNav();renderFoot();
   const V={painel:viewPainel,razao:viewRazao,titulos:viewTitulos,antecip:viewAntecip,parcelas:viewParcelas,captacoes:viewCaptacoes,fechamento:viewFechamento,
-    correcao:viewCorrecao,agenda:viewAgenda,ficha:viewFicha,fluxo:viewFluxo,rotinas:viewRotinas,simulador:viewSimulador,operacoes:viewOperacoes,operacao:viewOperacao,cobranca:viewCobranca,relatorios:viewRelatorios,clientes:viewClientes,sacados:viewSacados,investidores:viewInvestidores,config:viewConfig};
+    correcao:viewCorrecao,agenda:viewAgenda,ficha:viewFicha,fluxo:viewFluxo,rotinas:viewRotinas,operacoes:viewOperacoes,operacao:viewOperacao,cobranca:viewCobranca,relatorios:viewRelatorios,clientes:viewClientes,sacados:viewSacados,investidores:viewInvestidores,config:viewConfig};
   el('views').innerHTML=(V[activeTab]||viewPainel)();
 }
 const chipF=c=>`<span class="fonte-chip ${/^[A-Z0-9]+$/.test(c||'')?esc(c):'X'}">${esc(c||'—')}</span>`;
@@ -1943,7 +1940,7 @@ function delMov(id){const m=DB.movs.find(x=>x.id===id);if(!m)return;if(mesFechad
 function openOper(){
   limpaErro('o_erro');fixaFonte('o_fonte','o_fx',fonteSel);setVal('o_saldo',n2(saldoAte(fonteSel,'9999-12-31')));el('o_cli').innerHTML=optCli();el('o_sac').innerHTML=optSac();
   el('o_direta').checked=false;el('o_wrapSac').style.display='flex';setVal('o_forca','');setVal('o_fator','');setVal('o_float','2');setVal('o_desp','');el('o_liq').dataset.manual='';setVal('o_data',dataPadrao());setVal('o_nf','');setVal('o_bruto','');setVal('o_liq','');setVal('o_desagio','');setVal('o_n','1');setVal('o_v1',addDias(dataPadrao(),30));setVal('o_int','30');setVal('o_obs','');
-  window._simConv=null;if(typeof operBordReset==='function')operBordReset();operGera();openModalId('ovOper');
+  if(typeof operBordReset==='function')operBordReset();operGera();openModalId('ovOper');
 }
 /* Calculadora da operação, no mesmo critério do LiveWork: prazo de cada título = dias corridos até o vencimento
    (vencimento no fim de semana passa para a segunda) + float; deságio = valor × fator × prazo ÷ 30;
@@ -1989,14 +1986,14 @@ async function saveOper(){
   const pv=[...document.querySelectorAll('.o_pv')].map(x=>x.value),pval=[...document.querySelectorAll('.o_pval')].map(x=>r2(parseNum(x.value)));
   if(pv.some(x=>!x))return erro('o_erro','Informe o vencimento de cada título.');
   if(Math.abs(pval.reduce((s,v)=>s+v,0)-b)>.005)return erro('o_erro',`Os títulos somam ${brl(pval.reduce((s,v)=>s+v,0))}, e o bruto é ${brl(b)}.`);
-  const B=await operBordPronto('o_erro');if(!B)return;
+  const bord=await operBordPronto('o_erro');if(!bord)return;
   const nf=val('o_nf').trim(),cn=nomeCli(cliId),sn=direta?cn:nomeSac(sacId);
   const C=operCalcFator();
   const op={id:uid(),fonte:f,data,clienteId:cliId,sacadoId:sacId,direta,nf,bruto:b,liquido:l,desagio:r2(b-l),fator:C&&C.fat?C.fat:null,floatDias:C?C.fl:null,despesas:C?C.desp:0,prazoMedio:C?C.prazoMedio:null,roa:C&&C.prazoMedio>0?r2(((b-l)/b)*30/C.prazoMedio*10000)/10000:null,movId:null,obs:val('o_obs').trim(),deletedAt:null};
   const m={id:uid(),fonte:f,data,descricao:`OPERAÇÃO ${cn}${nf?' NF '+nf:''}`,categoria:'envio_operacao',clienteId:cliId,entrada:0,saida:l,resultado:r2(b-l),capital:0,obs:direta?`${pv.length} título(s) · operação direta, o cliente paga`:`${pv.length} título(s) de ${sn}`,operacaoId:op.id,origem:'operação',deletedAt:null};
   op.movId=m.id;DB.operacoes.push(op);DB.movs.push(m);if(typeof aposOperacao==='function')aposOperacao(op);
-  op.documentos=op.documentos||[];if(B.doc)op.documentos.unshift(B.doc);op.borderoId=(B.doc||B.sd).id;window._bordOp=null;
-  op.historico=op.historico||[];op.historico.push({t:Date.now(),etapa:'acompanhamento',quem:quemSou(),obs:'Borderô anexado: '+(B.doc||B.sd).arquivo.nome});
+  op.documentos.unshift(bord);op.borderoId=bord.id;window._bordOp=null;
+  op.historico.push({t:Date.now(),etapa:'acompanhamento',quem:quemSou(),obs:'Borderô anexado: '+bord.arquivo.nome});
   pv.forEach((v,i)=>DB.titulos.push({id:uid(),fonte:f,operacaoId:op.id,clienteId:cliId,sacadoId:sacId,direta,dataEntrada:data,sacado:sn,cliente:cn,nf,parcela:`${i+1}/${pv.length}`,valor:pval[i],vencimento:v,pago:false,recebimento:null,valorRecebido:0,obs:'',deletedAt:null}));
   logH(`Operação ${cn} ${nf} em ${f}`);save();closeModal('ovOper');render();toast('Operação registrada');
 }
@@ -2263,18 +2260,17 @@ document.addEventListener('click',e=>{if(e.target.classList.contains('overlay'))
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay.show').forEach(o=>o.classList.remove('show'))});
 /* =========================================================================
    MÓDULOS DE GESTÃO (01/11/2026)
-   Simulador de operação, operações por etapa e página da operação, ficha do
-   cliente com contatos e demonstrativo, cobrança, fluxo de caixa, relatórios,
+   Quadro de operações e página da operação, ficha do cliente com contatos
+   e demonstrativo, cobrança, fluxo de caixa, relatórios,
    rotinas e a central de trabalho do dia. Entra no mesmo <script> do app,
    depois do código principal: usa os mesmos helpers e o mesmo DB.
    ========================================================================= */
-let simCur=null, opCur=null, opAba='titulos', cobFiltro={q:'',fonte:'',faixa:''}, fxCfg={fontes:null,gran:'semana',dias:90,vencHoje:true}, fxSel=null,
+let opCur=null, opAba='titulos', cobFiltro={q:'',fonte:'',faixa:''}, fxCfg={fontes:null,gran:'semana',dias:90,vencHoje:true}, fxSel=null,
   relCfg=null, relAba='cliente', relDet=null, rotData=null, buscaQ='';
 const quemSou=()=>(typeof ME!=='undefined'&&ME&&ME.email)||(DB.perfil&&DB.perfil.nome)||'';
-const ETAPAS_SIM=[['simulacao','Simulação'],['analise','Análise'],['aprovacao','Aprovação']];
 const ETAPAS_OP=[['acompanhamento','Acompanhamento'],['encerrada','Encerrada']];
 function garanteModulos(){
-  ['simulacoes','contatos','rotinas','rotinaExec','filtrosRel'].forEach(k=>{DB[k]=DB[k]||[]});DB.cobranca=DB.cobranca||{};
+  ['contatos','rotinas','rotinaExec','filtrosRel'].forEach(k=>{DB[k]=DB[k]||[]});DB.cobranca=DB.cobranca||{};
   if(!DB.migracoes)DB.migracoes=[];
   if(!DB.migracoes.includes('rotinas-v1')){
     [['Acompanhar cobrança do dia','diaria','', 'cobranca',''],['Conciliar extratos (OFX) do Sicoob e do Inter','semanal',1,'razao','GIRO'],
@@ -2284,10 +2280,8 @@ function garanteModulos(){
     DB.migracoes.push('rotinas-v1')}
   alive(DB.operacoes).forEach(o=>{o.historico=o.historico||[{t:Date.parse(o.data+'T12:00:00')||Date.now(),etapa:'acompanhamento',quem:'',obs:'Operação liberada'}];o.documentos=o.documentos||[]});
 }
-/* ganchos no app principal: a operação recém-gravada entra em acompanhamento e herda a simulação que a originou */
-function aposOperacao(op){op.historico=[{t:Date.now(),etapa:'acompanhamento',quem:quemSou(),obs:'Operação liberada e lançada no razão'}];op.documentos=[];
-  if(window._simConv){const s=(DB.simulacoes||[]).find(x=>x.id===window._simConv);if(s){s.etapa='liberada';s.opId=op.id;op.simId=s.id;op.documentos=(s.documentos||[]).slice();
-    s.historico.push({t:Date.now(),etapa:'liberada',quem:quemSou(),obs:'Convertida na operação '+(op.nf||'')});op.historico.unshift(...s.historico.filter(h=>h.etapa!=='liberada'))}window._simConv=null}}
+/* gancho no app principal: a operação recém-gravada entra em acompanhamento */
+function aposOperacao(op){op.historico=[{t:Date.now(),etapa:'acompanhamento',quem:quemSou(),obs:'Operação liberada e lançada no razão'}];op.documentos=[]}
 const titsOp=id=>alive(DB.titulos).filter(t=>t.operacaoId===id);
 const etapaOp=o=>{const T=titsOp(o.id);return T.length&&T.every(t=>t.pago)?'encerrada':'acompanhamento'};
 
@@ -2295,101 +2289,15 @@ const etapaOp=o=>{const T=titsOp(o.id);return T.length&&T.every(t=>t.pago)?'ence
 function openGen(titulo,corpo,pe,largo){let o=el('ovGen');if(!o){o=document.createElement('div');o.className='overlay';o.id='ovGen';document.body.appendChild(o)}
   o.innerHTML=`<div class="modal ${largo?'wide':''}" style="${largo?'max-width:860px':''}"><div class="modal-head"><h3>${titulo}</h3><button class="modal-x" onclick="closeModal('ovGen')">×</button></div><div class="modal-body">${corpo}</div><div class="modal-foot">${pe||`<button class="btn btn-ghost" onclick="closeModal('ovGen')">Fechar</button>`}</div></div>`;openModalId('ovGen')}
 
-/* ========================= 1. SIMULADOR ========================= */
-function simCalc(s){
-  const P=(s.parcelas||[]).filter(p=>p.venc&&p.valor>0),bruto=r2(P.reduce((x,p)=>x+p.valor,0));if(!s.data||!bruto)return null;
-  const prazos=P.map(p=>Math.max(0,dias(s.data,diaUtil(p.venc))+(s.float||0))),pm=prazos.reduce((x,d,i)=>x+d*P[i].valor,0)/bruto;
-  const desagio=r2(P.reduce((x,p,i)=>x+p.valor*(s.fator||0)*prazos[i]/30,0)),desp=r2(s.despesas||0),liquido=r2(bruto-desagio-desp);
-  const roa=pm>0?(desagio+desp)/bruto*30/pm:0,ultimo=P.map(p=>diaUtil(p.venc)).sort().pop();
-  return {bruto,prazoMedio:Math.round(pm*100)/100,desagio,desp,liquido,receita:r2(desagio+desp),roa,ultimo};
-}
-function simGeraParcelas(s){const n=Math.max(1,parseInt(s.n)||1),base=r2(s.bruto/n);let acc=0;s.parcelas=[];
-  for(let i=0;i<n;i++){const v=i===n-1?r2(s.bruto-acc):base;acc=r2(acc+v);s.parcelas.push({venc:s.v1?addDias(s.v1,i*(parseInt(s.intervalo)||30)):'',valor:v})}}
-function simNovo(cliId){const c=cli(cliId);const s={id:null,fonte:fonteSel||'GIRO',clienteId:cliId||'',sacadoId:'',direta:false,nf:'',data:hoje(),bruto:0,n:1,v1:addDias(hoje(),30),intervalo:30,
-  fator:c&&c.fatorMes?c.fatorMes:0.05,float:2,despesas:0,parcelas:[],obs:'',etapa:'simulacao',historico:[],documentos:[]};simGeraParcelas(s);return s}
-function abrirSimulador(id,cliId){simCur=id?JSON.parse(JSON.stringify(DB.simulacoes.find(x=>x.id===id))):simNovo(cliId);go('simulador','')}
-function simLe(){const s=simCur;s.fonte=val('sm_fonte');s.clienteId=val('sm_cli');s.direta=el('sm_direta').checked;s.sacadoId=s.direta?'':val('sm_sac');s.nf=val('sm_nf').trim();
-  s.data=val('sm_data');s.fator=parseNum(val('sm_fator'))/100;s.float=parseInt(val('sm_float'))||0;s.despesas=r2(parseNum(val('sm_desp')));s.obs=val('sm_obs').trim();
-  const b=r2(parseNum(val('sm_bruto'))),n=parseInt(val('sm_n'))||1,v1=val('sm_v1'),it=parseInt(val('sm_int'))||30;
-  if(b!==s.bruto||n!==s.n||v1!==s.v1||it!==s.intervalo){s.bruto=b;s.n=n;s.v1=v1;s.intervalo=it;simGeraParcelas(s)}
-  else s.parcelas=[...document.querySelectorAll('.sm_pv')].map((x,i)=>({venc:x.value,valor:r2(parseNum(document.querySelectorAll('.sm_pval')[i].value))}))}
-function simParcHTML(s){return s.parcelas.map((p,i)=>`<tr><td>${i+1}/${s.parcelas.length}</td><td><input type="date" class="sm_pv" value="${p.venc}" onchange="simAtualiza()"></td><td class="num"><input class="sm_pval" value="${n2(p.valor)}" onchange="simAtualiza()"></td></tr>`).join('')}
-function simAtualiza(){const n0=simCur.parcelas.length,b0=simCur.bruto,v0=simCur.v1,i0=simCur.intervalo;simLe();if(simCur.parcelas.length!==n0||simCur.bruto!==b0||simCur.v1!==v0||simCur.intervalo!==i0)el('sm_parc').innerHTML=simParcHTML(simCur);el('sm_res').innerHTML=simResultado(simCur)}
-function viewSimulador(){
-  if(!simCur)simCur=simNovo();const s=simCur;
-  const linhas=simParcHTML(s);
-  return `<div class="sim-wrap"><div class="panel"><div class="panel-head"><h2>${s.id?'Simulação salva':'Nova simulação'}<small>${s.id?'etapa: '+(ETAPAS_SIM.find(e=>e[0]===s.etapa)||[0,s.etapa])[1]:'preencha e veja o efeito no caixa e no retorno antes de operar'}</small></h2>
-      ${typeof IA_ATIVA!=='undefined'&&IA_ATIVA?`<button class="btn btn-sm btn-gold" onclick="lerBordero()" title="Envie o PDF ou a foto do borderô: a IA preenche a simulação">Ler borderô com IA</button>`:''}<input type="file" id="sm_bord" accept=".pdf,application/pdf" hidden onchange="simBordEscolhe(this)"><button class="btn btn-sm btn-gold" onclick="el('sm_bord').click()" title="PDF do borderô do LiveWork: preenche a simulação e fica anexado">Ler borderô (PDF)</button><button class="btn btn-sm" onclick="simCur=null;render()">+ Nova</button></div>
-    <div id="sm_ia"></div>${typeof simIAPainel==='function'?simIAPainel(s):''}${simBordLinha(s)}
-    <div class="fgrid">
-      <div class="field"><label>Recurso</label><select id="sm_fonte" onchange="simAtualiza()">${fontes().map(f=>`<option value="${f.codigo}" ${s.fonte===f.codigo?'selected':''}>${f.codigo} · ${esc(f.nome)}</option>`).join('')}</select></div>
-      <div class="field"><label>Data da operação</label><input type="date" id="sm_data" value="${s.data}" onchange="simAtualiza()"></div>
-      <div class="field"><label>Cliente</label><select id="sm_cli" onchange="const c=cli(this.value);if(c&&c.fatorMes)setVal('sm_fator',n2(c.fatorMes*100));simAtualiza()">${optCli(s.clienteId)}</select></div>
-      <div class="field" id="sm_wsac" style="${s.direta?'display:none':''}"><label>Sacado</label><select id="sm_sac" onchange="simAtualiza()">${optSac(s.sacadoId)}</select></div>
-      <div class="chk" style="align-self:end"><input type="checkbox" id="sm_direta" ${s.direta?'checked':''} onchange="el('sm_wsac').style.display=this.checked?'none':'';simAtualiza()"><label for="sm_direta">Operação direta (o cliente paga)</label></div>
-      <div class="field"><label>NF / documento</label><input id="sm_nf" value="${esc(s.nf)}" onchange="simAtualiza()"></div>
-      <div class="field"><label>Valor de face</label><input id="sm_bruto" value="${s.bruto?n2(s.bruto):''}" placeholder="0,00" onchange="simAtualiza()"></div>
-      <div class="field"><label>Fator % a.m.</label><input id="sm_fator" value="${n2(s.fator*100)}" onchange="simAtualiza()"></div>
-      <div class="field"><label>Float (dias)</label><input id="sm_float" value="${s.float}" onchange="simAtualiza()"></div>
-      <div class="field"><label>Despesas cobradas</label><input id="sm_desp" value="${s.despesas?n2(s.despesas):''}" placeholder="0,00" onchange="simAtualiza()"></div>
-      <div class="field"><label>Nº de títulos</label><input id="sm_n" value="${s.n}" onchange="simAtualiza()"></div>
-      <div class="field"><label>1º vencimento</label><input type="date" id="sm_v1" value="${s.v1}" onchange="simAtualiza()"></div>
-      <div class="field"><label>Intervalo (dias)</label><input id="sm_int" value="${s.intervalo}" onchange="simAtualiza()"></div>
-    </div>
-    <div class="parc-list"><table><thead><tr><th>Nº</th><th>Vencimento</th><th class="num">Valor</th></tr></thead><tbody id="sm_parc">${linhas}</tbody></table></div>
-    <div class="field"><label>Observação</label><input id="sm_obs" value="${esc(s.obs)}" onchange="simAtualiza()"></div>
-    <div class="acts-row"><button class="btn btn-gold" onclick="simSalvar()">${s.id?'Salvar alterações':'Salvar simulação'}</button><button class="btn" onclick="simConverter()">Converter em operação</button>${s.id?`<button class="btn btn-ghost" onclick="go('operacoes','')">Ver no quadro de operações</button>`:''}</div>
-    <div class="erro" id="sm_erro"></div></div>
-    <div id="sm_res">${simResultado(s)}</div></div>`;
-}
-function simResultado(s){
-  const C=simCalc(s);if(!C)return `<div class="panel"><div class="vazio"><b>Informe valor de face e vencimentos</b><span>O resultado aparece aqui conforme você preenche.</span></div></div>`;
-  const D=pnlDados(),caixaF=saldoAte(s.fonte,'9999-12-31'),caixaApos=r2(caixaF-C.liquido),capApos=r2(D.capacidade-C.liquido);
-  const conc=pnlConcentracao(D),tot=conc.reduce((x,o)=>x+o.v,0),exp=s.clienteId?expCli(s.clienteId):0,partAntes=tot?exp/tot:0,partDepois=(exp+C.bruto)/(tot+C.bruto);
-  const lim=s.clienteId?limiteAviso('cli',s.clienteId,C.bruto):null,limS=!s.direta&&s.sacadoId?limiteAviso('sac',s.sacadoId,C.bruto):null;
-  const fatores=[-0.01,-0.005,0,0.005,0.01].map(d=>Math.max(0.001,s.fator+d)),prazos=[15,30,60,90];
-  const tab=`<table class="tb auto sim-tab"><thead><tr><th>Fator \\ prazo</th>${prazos.map(p=>`<th class="num">${p} dias</th>`).join('')}</tr></thead><tbody>${fatores.map(f=>`<tr class="${Math.abs(f-s.fator)<1e-9?'sel':''}"><td><b>${pctBR(f)}</b></td>${prazos.map(p=>{const d=r2(C.bruto*f*(p+s.float)/30);return `<td class="num">${brl(r2(C.bruto-d-C.desp))}<div class="muted">deságio ${brl(d)}</div></td>`}).join('')}</tr>`).join('')}</tbody></table>`;
-  const cen=[0,15,30,60].map(a=>({a,roa:(C.receita)/C.bruto*30/(C.prazoMedio+a),volta:addDias(C.ultimo,a)}));
-  return `<div class="panel"><div class="panel-head"><h2>Resultado da simulação</h2></div>
-    <div class="stats"><div class="stat"><div class="k">Líquido a liberar</div><div class="v">${brl(C.liquido)}</div><div class="sub">face ${brl(C.bruto)}</div></div>
-      <div class="stat"><div class="k">Retorno estimado</div><div class="v pos">${brl(C.receita)}</div><div class="sub">deságio ${brl(C.desagio)}${C.desp?' + despesas '+brl(C.desp):''}</div></div>
-      <div class="stat"><div class="k">ROA ao mês</div><div class="v">${pctBR(C.roa)}</div><div class="sub">prazo médio ${String(C.prazoMedio).replace('.',',')} dias</div></div>
-      <div class="stat"><div class="k">Caixa do ${s.fonte} depois</div><div class="v ${caixaApos<0?'neg':''}">${brl(caixaApos)}</div><div class="sub">hoje ${brl(caixaF)} · volta até ${fmtBR(C.ultimo)}</div></div>
-      <div class="stat"><div class="k">Posso operar depois</div><div class="v ${capApos<0?'neg':'pos'}">${brl(capApos)}</div><div class="sub">conta + entradas − saídas de 7 dias, os dois recursos</div></div></div>
-    ${s.clienteId?`<div class="sim-linha"><span>Participação de ${esc(nomeCli(s.clienteId))} na carteira</span><b>${pctBR(partAntes)} → ${pctBR(partDepois)}</b>${partDepois>LIMITE_CONC?'<span class="chip chip-bad">acima de 25%</span>':''}</div>`:''}
-    ${[lim,limS].filter(Boolean).map(x=>`<div class="sim-linha ${x.passa?'neg':''}"><span>Limite ${x.tipo==='cli'?'do cliente':'do sacado'} ${esc(x.nome)}</span><b>${brl(x.depois)} de ${brl(x.limite)}</b>${x.passa?'<span class="chip chip-bad">passa em '+brl(r2(x.depois-x.limite))+'</span>':''}</div>`).join('')}
-    <h4 class="conc-h">Se o recebimento atrasar</h4><table class="tb auto"><thead><tr><th>Cenário</th><th class="c">Dinheiro volta em</th><th class="num">ROA efetivo ao mês</th></tr></thead><tbody>
-      ${cen.map(x=>`<tr><td>${x.a?`atraso de ${x.a} dias`:'no vencimento'}</td><td class="c">${fmtBR(x.volta)}</td><td class="num ${x.roa<C.roa*0.6?'neg':''}">${pctBR(x.roa)}</td></tr>`).join('')}</tbody></table>
-    <div class="muted" style="margin-top:6px">Sem juros de mora: o atraso dilui o mesmo deságio por mais dias.</div>
-    <h4 class="conc-h">Comparar taxas e prazos · valor líquido</h4><div class="tbl-scroll">${tab}</div></div>`;
-}
-function simSalvar(){simLe();const s=simCur;limpaErro('sm_erro');if(!simCalc(s))return erro('sm_erro','Informe valor de face e vencimentos.');
-  if(!s.id){s.id=uid();s.etapa='simulacao';s.historico=[{t:Date.now(),etapa:'simulacao',quem:quemSou(),obs:'Simulação criada'}];s.criadoEm=new Date().toISOString();s.deletedAt=null;DB.simulacoes.push(JSON.parse(JSON.stringify(s)))}
-  else{const i=DB.simulacoes.findIndex(x=>x.id===s.id);DB.simulacoes[i]=JSON.parse(JSON.stringify(s))}
-  logH('Simulação '+(nomeCli(s.clienteId)||'')+' '+brl(simCalc(s).bruto));save();render();toast('Simulação salva')}
-function simConverter(id){if(!id){simLe();if(!simCalc(simCur))return erro('sm_erro','Informe valor de face e vencimentos.');if(!simCur.id)simSalvar();id=simCur.id}
-  const s=DB.simulacoes.find(x=>x.id===id);if(!s)return;fonteSel=s.fonte;openOper();
-  if(s.clienteId)setVal('o_cli',s.clienteId);if(s.direta){el('o_direta').checked=true;el('o_wrapSac').style.display='none'}else if(s.sacadoId)setVal('o_sac',s.sacadoId);
-  setVal('o_data',s.data);setVal('o_nf',s.nf);setVal('o_bruto',n2(simCalc(s).bruto));setVal('o_n',String(s.parcelas.length));setVal('o_v1',s.parcelas[0].venc);setVal('o_int',String(s.intervalo));operGera();
-  document.querySelectorAll('.o_pv').forEach((x,i)=>x.value=s.parcelas[i].venc);document.querySelectorAll('.o_pval').forEach((x,i)=>x.value=n2(s.parcelas[i].valor));
-  setVal('o_fator',n2(s.fator*100));setVal('o_float',String(s.float));setVal('o_desp',s.despesas?n2(s.despesas):'');el('o_liq').dataset.manual='';
-  if(s.bordero&&s.bordero.liquido!=null){setVal('o_liq',n2(s.bordero.liquido));el('o_liq').dataset.manual='1'}operCalc();setVal('o_obs',s.obs||'');window._simConv=s.id;if(typeof operBordInfo==='function')operBordInfo()}
-function simEtapa(id,etapa){const s=DB.simulacoes.find(x=>x.id===id);if(!s)return;s.etapa=etapa;s.historico.push({t:Date.now(),etapa,quem:quemSou(),obs:''});
-  if(etapa==='descartada')s.deletedAt=Date.now();save();render();toast(etapa==='descartada'?'Simulação descartada':'Etapa: '+(ETAPAS_SIM.find(e=>e[0]===etapa)||[0,etapa])[1])}
-
-/* ========================= 2. OPERAÇÕES POR ETAPA E PÁGINA DA OPERAÇÃO ========================= */
+/* ========================= 1. QUADRO E PÁGINA DA OPERAÇÃO ========================= */
 function viewOperacoes(){
-  const sims=alive(DB.simulacoes).filter(s=>ETAPAS_SIM.some(e=>e[0]===s.etapa)),ops=alive(DB.operacoes).sort((a,b)=>b.data.localeCompare(a.data));
-  const cardSim=s=>{const C=simCalc(s);const prox={simulacao:'analise',analise:'aprovacao'}[s.etapa];return `<div class="kb-card op-card"><div class="op-c-h">${chipF(s.fonte)} <b>${esc(nomeCli(s.clienteId)||'sem cliente')}</b></div>
-    <div class="muted">${C?brl(C.bruto)+' · '+pctBR(s.fator)+' · líquido '+brl(C.liquido):'incompleta'}</div><div class="muted">${fmtBR(s.data)}${s.nf?' · NF '+esc(s.nf):''}</div>
-    <div class="op-c-a"><button class="btn btn-sm" onclick="abrirSimulador('${s.id}')">Abrir</button>${prox?`<button class="btn btn-sm" onclick="simEtapa('${s.id}','${prox}')">→ ${ETAPAS_SIM.find(e=>e[0]===prox)[1]}</button>`:`<button class="btn btn-sm btn-gold" onclick="simConverter('${s.id}')">Liberar</button>`}<button class="iconbtn del" title="Descartar" onclick="simEtapa('${s.id}','descartada')">✕</button></div></div>`};
+  const ops=alive(DB.operacoes).sort((a,b)=>b.data.localeCompare(a.data));
   const cardOp=o=>{const T=titsOp(o.id),falta=r2(T.filter(t=>!t.pago).reduce((x,t)=>x+t.valor,0)),venc=T.filter(titVencido).length;return `<div class="kb-card op-card" onclick="abrirOperacao('${o.id}')" style="cursor:pointer"><div class="op-c-h">${chipF(o.fonte)} <b>${esc(nomeCli(o.clienteId))}</b></div>
     <div class="muted">${fmtBR(o.data)}${o.nf?' · NF '+esc(o.nf):''} · face ${brl(o.bruto)}</div><div class="muted">${falta?'falta '+brl(falta):'tudo recebido'}${venc?` · <b class="neg">${venc} vencido(s)</b>`:''}${(o.documentos||[]).some(d=>d.status==='pendente')?' · <b class="warn">doc. pendente</b>':''}${borderoDe(o)?'':' · <b class="neg">sem borderô</b>'}</div></div>`};
   const col=(id,lbl,itens,cor)=>`<div class="kb-col"><div class="kb-h"><span class="dot" style="background:${cor}"></span>${lbl}<span class="cnt">${itens.length}</span></div>${itens.join('')||'<div class="muted" style="padding:6px 2px">vazio</div>'}</div>`;
   const acomp=ops.filter(o=>etapaOp(o)==='acompanhamento'),enc=ops.filter(o=>etapaOp(o)==='encerrada').slice(0,15);
-  return `<div class="acoes"><button class="acao pri" onclick="abrirSimulador()"><b>+ Nova simulação</b><span>valor, prazo e taxa: veja caixa e retorno antes de operar</span></button><button class="acao" onclick="go('razao','${fonteSel}');openOper()"><b>+ Operação direta no razão</b><span>quando já está fechada e liberada</span></button></div>
-  <div class="kb kb5">${col('simulacao','Simulação',sims.filter(s=>s.etapa==='simulacao').map(cardSim),'var(--mut)')}${col('analise','Análise',sims.filter(s=>s.etapa==='analise').map(cardSim),'var(--warn)')}
-    ${col('aprovacao','Aprovação',sims.filter(s=>s.etapa==='aprovacao').map(cardSim),'var(--acc)')}${col('acompanhamento','Acompanhamento',acomp.map(cardOp),'var(--s2)')}${col('encerrada','Encerrada',enc.map(cardOp),'var(--pos)')}</div>`;
+  return `<div class="acoes"><button class="acao pri" onclick="go('razao','${fonteSel}');openOper()"><b>+ Nova operação</b><span>simulada e fechada no LiveWork: anexe o borderô e o sistema preenche</span></button></div>
+  <div class="kb kb2">${col('acompanhamento','Acompanhamento',acomp.map(cardOp),'var(--s2)')}${col('encerrada','Encerrada',enc.map(cardOp),'var(--pos)')}</div>`;
 }
 function abrirOperacao(id){opCur=id;opAba='titulos';go('operacao','')}
 function opResumo(o){const T=titsOp(o.id),rec=T.filter(t=>t.pago&&!t.perda),perda=T.filter(t=>t.perda);
@@ -2492,7 +2400,7 @@ function viewFicha(){
   if(!fichaCli||!L.find(c=>c.id===fichaCli))fichaCli=L[0].id;const c=cli(fichaCli),D=fichaDados(fichaCli),H=hoje(),CT=contatosCli(c.id),pr=promessaAtiva(c.id),px=proximaAcao(c.id);
   const porF=fontes().map(f=>{const t=r2(D.ab.filter(x=>x.fonte===f.codigo).reduce((s,x)=>s+x.valor,0)),a=D.R.por[f.codigo]||{total:0};return {c:f.codigo,t,a:a.total,tot:r2(t+a.total)}});
   const sel=`<div class="filters"><select onchange="fichaCli=this.value;render()">${L.map(x=>`<option value="${x.id}" ${x.id===fichaCli?'selected':''}>${esc(x.nome)}</option>`).join('')}</select>
-    <span class="right ficha-acts"><button class="btn btn-sm btn-gold" onclick="abrirSimulador(null,'${c.id}')">Nova simulação</button><button class="btn btn-sm" onclick="abrirContato('${c.id}')">Registrar contato</button><button class="btn btn-sm" onclick="gerarDemonstrativo('${c.id}')">Gerar demonstrativo</button><button class="btn btn-sm" onclick="abrirTexto('${c.id}')">Texto de cobrança</button><button class="btn btn-sm btn-ghost" onclick="openCli('${c.id}')">✎ Cadastro</button></span></div>`;
+    <span class="right ficha-acts"><button class="btn btn-sm btn-gold" onclick="go('razao',fonteSel);openOper();setVal('o_cli','${c.id}');operCli()">Nova operação</button><button class="btn btn-sm" onclick="abrirContato('${c.id}')">Registrar contato</button><button class="btn btn-sm" onclick="gerarDemonstrativo('${c.id}')">Gerar demonstrativo</button><button class="btn btn-sm" onclick="abrirTexto('${c.id}')">Texto de cobrança</button><button class="btn btn-sm btn-ghost" onclick="openCli('${c.id}')">✎ Cadastro</button></span></div>`;
   const pct=v=>v==null?'—':pctBR(v);
   const alerta=(pr||px)?`<div class="ficha-alerta">${pr?`<div class="${pr.data<H?'neg':''}"><b>Promessa de pagamento</b> ${brl(pr.valor)} em ${fmtBR(pr.data)}${pr.data<H?' · <b>não cumprida</b>':''} <button class="btn btn-sm" onclick="concluirAcao('${pr.contatoId}','promessa')">Cumprida</button></div>`:''}
     ${px?`<div class="${px.data<H?'neg':''}"><b>Próxima ação</b> ${fmtBR(px.data)} · ${esc(px.texto||'')} <button class="btn btn-sm" onclick="concluirAcao('${px.contatoId}','proxima')">Feita</button></div>`:''}</div>`:'';
@@ -2672,7 +2580,6 @@ pnlPrioridades=function(D){const F=_pnlPrioBase(D),H=D.H,add=(u,lbl,txt,meta,tab
   const ct=cobItens().filter(x=>x.etapa==='contatar');if(ct.length)add(2,'Cobrança a fazer',`${ct.length} cliente(s) com vencido e sem contato na semana: ${ct.slice(0,3).map(x=>x.c.nome).join(', ')}${ct.length>3?'…':''}`,brl(r2(ct.reduce((s,x)=>s+x.venc,0))),'cobranca','');
   const semB=alive(DB.operacoes).filter(o=>!borderoDe(o));if(semB.length)add(3,'Operação sem borderô',`${semB.length} operação(ões) sem o borderô anexado: ${semB.slice(0,3).map(o=>nomeCli(o.clienteId)+' '+fmtBR(o.data)).join(', ')}${semB.length>3?'…':''}`,'','operacoes','');
   const docP=alive(DB.operacoes).filter(o=>(o.documentos||[]).some(d=>d.status==='pendente'));if(docP.length)add(1,'Documento pendente',`${docP.length} operação(ões) com documento a receber`,'','operacoes','');
-  const sp=alive(DB.simulacoes).filter(s=>['analise','aprovacao'].includes(s.etapa));if(sp.length)add(1,'Operação para decidir',`${sp.length} simulação(ões) em análise ou aprovação`,'','operacoes','');
   const rp=rotinasDoDia(H).filter(r=>!rotinaFeita(r,H));if(rp.length)add(1,'Rotina de hoje',rp.map(r=>r.titulo).join(' · '),`${rp.length} pendente(s)`,'rotinas','');
   return F.sort((a,b)=>b.u-a.u)};
 /* resumo da carteira em texto, montado pelas regras (sem IA): para ler de manhã ou colar numa mensagem */
@@ -2721,43 +2628,12 @@ function iaRegistraUso(acao,u){if(!u)return;DB.iaUso=DB.iaUso||[];const usd=Math
 const iaUsoMes=()=>{const mk=mesDe(hoje()),L=(DB.iaUso||[]).filter(x=>mesDe(new Date(x.t).toISOString().slice(0,10))===mk);return {n:L.length,usd:L.reduce((s,x)=>s+x.usd,0)}};
 const usd=v=>'US$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 function iaStatus(id,msg,erro){const e=el(id);if(e){e.innerHTML=msg?`<div class="ia-st ${erro?'neg':''}">${erro?'':'<span class="ia-spin"></span>'}${esc(msg)}</div>`:''}}
-const arqBase64=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(f)});
 
-/* ---------- 1. ler borderô ---------- */
+/* ---------- casar nomes com o cadastro (o bordero.js também usa) ---------- */
 const normNome=s=>(s||'').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\b(LTDA|S\/?A|SA|ME|EPP|EIRELI|EM RECUPERACAO JUDICIAL)\b|[.,\-\/()]/g,' ').replace(/\s+/g,' ').trim();
 function acharPorNome(L,nome){const n=normNome(nome);if(!n)return null;
   return L.find(x=>normNome(x.nome)===n)||L.find(x=>{const m=normNome(x.nome);return m&&(m.includes(n)||n.includes(m))})||null}
-function lerBordero(){const inp=document.createElement('input');inp.type='file';inp.accept='.pdf,application/pdf,image/png,image/jpeg,image/webp';
-  inp.onchange=async e=>{const f=e.target.files[0];if(!f)return;if(f.size>8*1024*1024)return toast('Arquivo acima de 8 MB');
-    const tipo=f.type||(/\.pdf$/i.test(f.name)?'application/pdf':'');if(!['application/pdf','image/png','image/jpeg','image/webp'].includes(tipo))return toast('Use PDF, PNG, JPG ou WEBP');
-    iaStatus('sm_ia','Lendo o borderô com a IA. Leva de 20 a 60 segundos.');
-    try{const r=await iaChamar({acao:'bordero',hoje:hoje(),arquivo:{nome:f.name,tipo,base64:await arqBase64(f)}});aplicarBordero(r.dados,f.name,r.uso)}
-    catch(err){iaStatus('sm_ia',err.message,true)}};inp.click()}
-/* transforma o que a IA leu numa simulação; o que não casou com o cadastro ou veio incerto vira aviso para conferir */
-function aplicarBordero(d,arquivo,u){
-  const s=simNovo(),av=[];s.fonte=fonteSel||'GIRO';s.data=d.data_operacao||hoje();if(!d.data_operacao)av.push('Data da operação não encontrada: usei hoje.');
-  const c=acharPorNome(alive(DB.clientes),d.cliente_nome);if(c){s.clienteId=c.id;if(c.fatorMes)s.fator=c.fatorMes}else if(d.cliente_nome)av.push(`Cliente "${d.cliente_nome}"${d.cliente_cnpj?' ('+d.cliente_cnpj+')':''} não está cadastrado: cadastre em Clientes e escolha na lista.`);
-  const T=(d.titulos||[]).filter(t=>t.vencimento&&t.valor>0);
-  const sacs=[...new Set(T.map(t=>t.sacado).filter(Boolean))];
-  if(sacs.length===1){const x=acharPorNome(alive(DB.sacados),sacs[0]);if(x)s.sacadoId=x.id;else av.push(`Sacado "${sacs[0]}" não está cadastrado: cadastre em Sacados e escolha na lista.`)}
-  else if(sacs.length>1)av.push(`O borderô tem ${sacs.length} sacados (${sacs.slice(0,4).join(', ')}${sacs.length>4?'…':''}). O simulador usa um só: ao converter, lance uma operação por sacado ou escolha o principal.`);
-  if(!sacs.length&&c)s.direta=true;
-  s.parcelas=T.map(t=>({venc:t.vencimento,valor:r2(t.valor)}));s.bruto=r2(s.parcelas.reduce((x,p)=>x+p.valor,0));s.n=s.parcelas.length||1;s.v1=s.parcelas[0]?s.parcelas[0].venc:s.v1;
-  if(s.parcelas.length>1){const d1=dias(s.parcelas[0].venc,s.parcelas[1].venc);if(d1>0)s.intervalo=d1}
-  if(!s.parcelas.length){simGeraParcelas(s);av.push('Nenhum título com vencimento e valor legíveis.')}
-  if(d.fator_mensal_pct!=null)s.fator=d.fator_mensal_pct/100;else av.push('Fator não encontrado no borderô: usei o padrão do cliente ou 5%.');
-  if(d.float_dias!=null)s.float=d.float_dias;if(d.despesas!=null)s.despesas=r2(d.despesas);
-  s.nf=T.map(t=>t.numero).filter(Boolean).join(', ').slice(0,80);
-  if(d.valor_face_total!=null&&Math.abs(d.valor_face_total-s.bruto)>.01)av.push(`A soma dos títulos (${brl(s.bruto)}) difere do total de face do borderô (${brl(d.valor_face_total)}).`);
-  s.obs=('Lido do borderô '+(arquivo||'')+(d.observacoes?'. '+d.observacoes:'')).slice(0,200);
-  s.ia={arquivo,liquidoDoc:d.valor_liquido,incertos:(d.incertos||[]).map(x=>`${x.campo}: ${x.motivo}`),avisos:av,usd:u?Math.round(((u.entrada||0)*IA_PRECO.entrada+(u.saida||0)*IA_PRECO.saida)*100)/100:null};
-  simCur=s;if(activeTab!=='simulador')go('simulador','');else render();toast('Borderô lido: confira os campos marcados')}
-function simIAPainel(s){if(!s.ia)return '';const C=simCalc(s),dif=C&&s.ia.liquidoDoc!=null?r2(s.ia.liquidoDoc-C.liquido):null,L=[...s.ia.avisos,...s.ia.incertos];
-  if(dif!=null&&Math.abs(dif)>.01)L.unshift(`O líquido do borderô (${brl(s.ia.liquidoDoc)}) difere do calculado (${brl(C.liquido)}) em ${brl(dif)}: confira fator, float e despesas.`);
-  return `<div class="ia-box"><div class="ia-h"><b>${s.ia.usd!=null?'Lido pela IA':'Lido do borderô'}</b> · ${esc(s.ia.arquivo||'')}${s.ia.usd!=null?` · custo aprox. ${usd(s.ia.usd)}`:''}<button class="iconbtn right" title="Fechar" onclick="delete simCur.ia;render()">×</button></div>
-    ${L.length?`<ul>${L.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<div class="muted">Tudo legível e os totais batem. Confira mesmo assim antes de salvar.</div>'}</div>`}
-
-/* ---------- 2. perguntar ao sistema ---------- */
+/* ---------- 1. perguntar ao sistema ---------- */
 function iaRetrato(){const H=hoje(),d90=addDias(H,-90),d180=addDias(H,-180);
   const T=alive(DB.titulos),A=alive(DB.antecipacoes).filter(a=>a.status!=='quitada');
   const res={};alive(DB.movs).filter(m=>m.resultado&&m.data>=addDias(H,-190)).forEach(m=>{const k=m.fonte+' '+mesDe(m.data);res[k]=r2((res[k]||0)+m.resultado)});
@@ -2767,7 +2643,6 @@ function iaRetrato(){const H=hoje(),d90=addDias(H,-90),d180=addDias(H,-180);
     titulos_recebidos_90d:T.filter(t=>t.pago&&t.recebimento>=d90).map(t=>({id:t.id,recurso:t.fonte,cliente:t.cliente,nf:t.nf,vencimento:t.vencimento,recebimento:t.recebimento,valor:t.valor,recebido:t.valorRecebido,perda:!!t.perda})),
     antecipacoes_abertas:A.map(a=>{const j=jurosRef(a,H);return {id:a.id,recurso:a.fonte,cliente:a.cliente,envio:a.data,principal:a.principal,taxa_mes:a.taxaMes,juros_hoje:j,total_hoje:r2(a.principal+j),ultimo_retorno:(a.retornos||[]).map(x=>x.data).sort().pop()||null}}),
     operacoes_180d:alive(DB.operacoes).filter(o=>o.data>=d180).map(o=>({id:o.id,recurso:o.fonte,data:o.data,cliente:nomeCli(o.clienteId),nf:o.nf,face:o.bruto,liquido:o.liquido,desagio:o.desagio,fator_mes:o.fator,prazo_medio:o.prazoMedio,roa:o.roa,etapa:etapaOp(o)})),
-    simulacoes_em_andamento:alive(DB.simulacoes||[]).filter(s=>['simulacao','analise','aprovacao'].includes(s.etapa)).map(s=>{const C=simCalc(s);return {etapa:s.etapa,cliente:nomeCli(s.clienteId),face:C&&C.bruto,liquido:C&&C.liquido}}),
     clientes:alive(DB.clientes).map(c=>{const p=promessaAtiva(c.id),x=proximaAcao(c.id),u=contatosCli(c.id)[0];return {id:c.id,nome:c.nome,limite:c.limite||null,exposicao:expCli(c.id),taxa_antecipacao_mes:c.taxaMes,fator_operacao_mes:c.fatorMes||null,
       promessa:p?{data:p.data,valor:p.valor}:null,proxima_acao:x?{data:x.data,texto:x.texto}:null,ultimo_contato:u?{data:u.data,tipo:u.tipo,resumo:u.resumo}:null}}),
     captacoes:alive(DB.captacoes).filter(k=>k.status!=='quitada').map(k=>({investidor:k.investidor,recurso:k.fonte,saldo:k.saldo,taxa_mes:k.taxaMes})),
@@ -2787,7 +2662,7 @@ function painelIA(){if(!IA_ATIVA)return '';const R=iaResp,U=iaUsoMes();
     ${R&&R.erro?`<div class="ia-st neg">${esc(R.erro)}</div>`:''}
     ${R&&R.resposta?`<div class="ia-resp">${esc(R.resposta).replace(/\n/g,'<br>')}</div>${R.itens.length?`<div class="ia-itens">${R.itens.map(x=>`<button class="btn btn-sm" onclick="iaAbrirItem('${esc(x.tipo)}','${esc(x.id)}')">${esc(x.rotulo)}</button>`).join('')}</div>`:''}<div class="muted" style="margin-top:6px">Resposta gerada por IA a partir dos dados de hoje: confira os números antes de decidir.${R.usd!=null?' Custo aprox. '+usd(R.usd)+'.':''}</div>`:''}</div>`}
 
-/* ---------- 3. texto de cobrança melhorado ---------- */
+/* ---------- 2. texto de cobrança melhorado ---------- */
 async function iaMelhorarTexto(){const b=el('tx_ia'),t=val('tx_cob');if(b){b.disabled=true;b.textContent='Reescrevendo…'}
   try{const r=await iaChamar({acao:'texto',texto:t});setVal('tx_cob',r.texto);toast('Texto reescrito: revise antes de enviar')}
   catch(err){toast(err.message)}finally{if(b){b.disabled=false;b.textContent='Melhorar com IA'}}}
@@ -3075,7 +2950,6 @@ function arqAbrirDoc(tipo,id,did){const d=docsDe(tipo,id).find(x=>x.id===did);if
 /* ---------- qual documento é o borderô ---------- */
 const ehBordero=d=>!!(d&&d.arquivo&&(d.tipo==='bordero'||/border/i.test(d.nome||'')));
 const borderoDe=o=>(o&&o.documentos||[]).find(ehBordero)||null;
-const bordDaSim=id=>{const s=id&&(DB.simulacoes||[]).find(x=>x.id===id);return s?(s.documentos||[]).find(ehBordero)||null:null};
 function bordDuplicado(sha){if(!sha)return null;return alive(DB.operacoes).find(o=>(o.documentos||[]).some(d=>d.arquivo&&d.arquivo.sha256===sha))||null}
 const bordDoc=(a,d)=>({id:uid(),tipo:'bordero',nome:'Borderô'+(d&&d.numero?' nº '+d.numero:''),url:'',status:'ok',obs:d&&d.sistema?'Lido do PDF do '+d.sistema:'',em:hoje(),arquivo:a,numero:d&&d.numero||null,liquidoDoc:d&&d.valor_liquido!=null?d.valor_liquido:null});
 
@@ -3086,7 +2960,7 @@ const bordDoc=(a,d)=>({id:uid(),tipo:'bordero',nome:'Borderô'+(d&&d.numero?' n�
      Emitente/Sacado Número Doc. Vencimento Valor de Face Ad-Valorem IOF Deságio Valor Compra
      EMPRESA SACADA S.A DUP - 100/001 15/10/2026 21.384,00 0,00 0,00 997,92 20.386,08
      Total: 5 106.920,00 0,00 0,00 7.520,04 99.399,96 · Total de Despesas 40,00 · Líquido a Pagar da Operação: R$ 99.349,96
-   Devolve o mesmo formato que a IA devolveria, para o simulador e a operação usarem igual. */
+   Devolve os campos no formato que operDoBordero usa para preencher a operação. */
 const BR_MES={JANEIRO:1,FEVEREIRO:2,MARCO:3,ABRIL:4,MAIO:5,JUNHO:6,JULHO:7,AGOSTO:8,SETEMBRO:9,OUTUBRO:10,NOVEMBRO:11,DEZEMBRO:12};
 const semAcento=s=>(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'');
 const numBR=s=>parseFloat(String(s).replace(/[R$\s.]/g,'').replace(',','.'))||0;
@@ -3180,9 +3054,8 @@ function operDoBordero(d){
   operCalc();return av;
 }
 function operBordInfo(){
-  const box=el('o_bordInfo');if(!box)return;const b=window._bordOp,sd=bordDaSim(window._simConv);
-  if(!b&&!sd){box.innerHTML='';return}
-  if(!b){box.innerHTML=`<div class="bord-ok">📎 Borderô da simulação: <b>${esc(sd.arquivo.nome)}</b> · já guardado</div>`;return}
+  const box=el('o_bordInfo');if(!box)return;const b=window._bordOp;
+  if(!b){box.innerHTML='';return}
   const d=b.dados,dup=bordDuplicado(b.sha),T=d?(d.titulos||[]):[];
   box.innerHTML=`<div class="bord-ok">📎 <b>${esc(b.file.name)}</b> · ${arqTam(b.file.size)}${d?` · lido: ${T.length} título(s), face ${brl(r2(T.reduce((s,t)=>s+t.valor,0)))}${d.valor_liquido!=null?', líquido '+brl(d.valor_liquido):''}`:' · anexado sem leitura automática (não é PDF de borderô do LiveWork)'}</div>`
     +(dup?`<div class="neg">Este mesmo arquivo já está na operação de ${fmtBR(dup.data)} (${esc(nomeCli(dup.clienteId))}).</div>`:'')
@@ -3190,28 +3063,16 @@ function operBordInfo(){
 }
 /* chamado pelo saveOper depois das conferências: garante o borderô e guarda o arquivo antes de gravar a operação */
 async function operBordPronto(eid){
-  const b=window._bordOp,sd=bordDaSim(window._simConv);
-  if(!b&&!sd){erro(eid,'Anexe o borderô da operação (PDF ou imagem). Sem borderô a operação não é registrada.');return null}
-  if(!b)return {doc:null,sd};
+  const b=window._bordOp;
+  if(!b){erro(eid,'Anexe o borderô da operação (PDF ou imagem). Sem borderô a operação não é registrada.');return null}
   const dup=bordDuplicado(b.sha);
   if(dup&&val('o_dup')!=='1'){setVal('o_dup','1');erro(eid,`Este borderô já está anexado à operação de ${fmtBR(dup.data)} (${nomeCli(dup.clienteId)}). Clique em Rodar operação de novo para registrar mesmo assim.`);return null}
   const bt=el('o_ok');if(bt){bt.disabled=true;bt.textContent='Guardando o borderô…'}
-  try{return {doc:bordDoc(await arqGuardar(b.file,'operacoes',b.sha),b.dados),sd}}
+  try{return bordDoc(await arqGuardar(b.file,'operacoes',b.sha),b.dados)}
   catch(e){erro(eid,e.message);return null}
   finally{if(bt){bt.disabled=false;bt.textContent='Rodar operação'}}
 }
 
-/* ---------- no simulador: ler o PDF de graça e já deixar o arquivo anexado ---------- */
-async function simBordEscolhe(inp){
-  const f=inp.files[0];inp.value='';if(!f)return;
-  try{iaStatus('sm_ia','Lendo o borderô…');const r=await bordLer(f);
-    if(!r.dados){iaStatus('sm_ia','');return toast('Não reconheci um borderô do LiveWork neste arquivo. Anexe direto na operação.')}
-    aplicarBordero(r.dados,f.name,null);simCur.nf=bordNF(r.dados);simCur.bordero={numero:r.dados.numero,liquido:r.dados.valor_liquido};
-    simCur.documentos=[bordDoc(await arqGuardar(f,'simulacoes',r.sha),r.dados)];render()}
-  catch(e){iaStatus('sm_ia',e.message,true)}
-}
-function simBordLinha(s){const b=(s.documentos||[]).find(ehBordero);
-  return b?`<div class="sim-linha"><span>Borderô anexado</span><b>📎 ${esc(b.arquivo.nome)} <button class="btn btn-sm" onclick="arqAbrir(simCur.documentos.find(x=>x.id==='${b.id}').arquivo)">abrir</button></b></div>`:''}
 
 if(typeof MODO_NUVEM==='undefined'||!MODO_NUVEM){load();render();avisoAbertura()}
 /* =========================================================================
