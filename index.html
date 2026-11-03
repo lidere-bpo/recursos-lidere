@@ -1315,12 +1315,12 @@ function sair(){toast('Nesta versão local não há login. Na nuvem, Sair encerr
 const TEMAS=[
   {id:'dual',nome:'Turquesa + âmbar',a:'#2ee6c0',b:'#f0b448',bg:'#070d0f',pn:'#0d1618',tx:'#e8f1f1'},
   {id:'claro',nome:'Claro Lidere',a:'#a9761d',b:'#0f7a5c',bg:'#f5f2ea',pn:'#ffffff',tx:'#1c2130'},
-  {id:'classico',nome:'Clássico Lidere (preto + dourado)',a:'#d4a840',b:'#d4a840',bg:'#07090d',pn:'#0e131d',tx:'#e9edf4'}];
+  {id:'classico',nome:'Escuro Lidere (preto + dourado) · padrão',a:'#d4a840',b:'#d4a840',bg:'#07090d',pn:'#0e131d',tx:'#e9edf4'}];
 function temaLocal(){let t='classico';try{t=localStorage.getItem('lidere_app_tema')||'classico'}catch(e){}return TEMAS.some(x=>x.id===t)?t:'classico'}
 function aplicaTema(id){document.documentElement.setAttribute('data-tema',id);try{localStorage.setItem('lidere_app_tema',id)}catch(e){}}
 function setTema(id){aplicaTema(id);render();toast('Tema: '+(TEMAS.find(t=>t.id===id)||{}).nome)}
-function cfgAparencia(){const at=temaLocal();
- return `<div class="panel"><div class="panel-head"><h2>Aparência<small>tema de cores — vale só para este navegador</small></h2></div>
+function cfgAparencia(){const at=document.documentElement.getAttribute('data-tema')||temaLocal(),NUV=typeof MODO_NUVEM!=='undefined'&&MODO_NUVEM;
+ return `<div class="panel"><div class="panel-head"><h2>Aparência<small>${NUV?'cada login tem o seu tema: fica guardado na sua conta e vale em qualquer computador':'tema de cores: vale para este navegador'}</small></h2></div>
  <div class="tema-cards">${TEMAS.map(t=>`<button class="tema-card ${at===t.id?'on':''}" onclick="setTema('${t.id}')">
    <div class="tema-prev" style="background:${t.bg}"><div class="tema-prev-pn" style="background:${t.pn}">
      <i style="background:${t.a};width:62%"></i><i style="background:${t.b};width:40%"></i><i style="background:${t.tx};opacity:.25;width:80%"></i></div></div>
@@ -3356,6 +3356,24 @@ const TABELA='recursos_state', RPC_GRAVAR='recursos_gravar';
 let sb=null, ME=null, PERFIL=null, salvando=false, pendente=false, canal=null;
 /* Versão do estado que este navegador leu: gravar só vale se ela ainda for a do banco. */
 let VERSAO=0, emConflito=false;
+/* Última versão dos dados gravada ou lida, em texto: navegar não muda os dados e não grava nada na nuvem. */
+let ULTIMO='';
+
+/* ---------- Preferências de cada login (tema e onde parou), na tabela recursos_preferencias ----------
+   Ficam fora dos dados da empresa: o Enzo no tema escuro e o Leonardo no claro, ao mesmo tempo,
+   e a navegação de um não mexe na tela do outro. Padrão: escuro (Escuro Lidere). */
+let PREF={tema:null,ui:null}, prefPronto=false, prefTimer=null;
+const TABELA_PREF='recursos_preferencias';
+const temaUsuario=()=>TEMAS.some(t=>t.id===PREF.tema)?PREF.tema:'classico';
+async function carregarPrefs(){prefPronto=false;PREF={tema:null,ui:null};
+  try{const {data}=await sb.from(TABELA_PREF).select('tema,ui').eq('user_id',ME.id).maybeSingle();if(data)PREF={tema:data.tema||null,ui:data.ui&&data.ui.tab?data.ui:null}}catch(e){}
+  aplicaTema(temaUsuario())}
+function salvarPref(parcial){if(!ME)return;Object.assign(PREF,parcial);clearTimeout(prefTimer);
+  prefTimer=setTimeout(()=>{sb.from(TABELA_PREF).upsert({user_id:ME.id,tema:PREF.tema,ui:PREF.ui||{},updated_at:new Date().toISOString()}).then(({error})=>{if(error)console.warn('preferência não gravada',error.message)})},500)}
+const navAtual=()=>({fonteSel,mesSel,tab:activeTab});
+function voltaNav(n){if(!n)return;if(n.fonteSel&&fonte(n.fonteSel))fonteSel=n.fonteSel;if(n.mesSel)mesSel=n.mesSel;if(n.tab)activeTab=n.tab}
+const _setTemaLocal=setTema;
+setTema=function(id){_setTemaLocal(id);salvarPref({tema:id})};
 
 /* ---------- Perfis: admin administra; financeiro lança; consulta só lê ---------- */
 const papelAtual=()=>(PERFIL&&(PERFIL.papel||(PERFIL.is_admin?'admin':'financeiro')))||'consulta';
@@ -3406,7 +3424,7 @@ async function criarConta(){
 }
 async function recuperarSenha(){const email=(el('ac_email')||{}).value;if(!email)return telaAcesso('login','Digite o e-mail primeiro e clique de novo em "Esqueci a senha".');
   const {error}=await sb.auth.resetPasswordForEmail(email.trim(),{redirectTo:location.href});telaAcesso('login',error?error.message:'Enviamos um link de redefinição para o seu e-mail.')}
-async function sair(){if(canal){sb.removeChannel(canal);canal=null}await sb.auth.signOut();ME=null;PERFIL=null;telaAcesso('login')}
+async function sair(){if(canal){sb.removeChannel(canal);canal=null}clearTimeout(prefTimer);if(ME&&prefPronto)await sb.from(TABELA_PREF).upsert({user_id:ME.id,tema:PREF.tema,ui:navAtual(),updated_at:new Date().toISOString()});prefPronto=false;await sb.auth.signOut();ME=null;PERFIL=null;telaAcesso('login')}
 async function recarregarPerfil(){await aposLogin()}
 
 /* ---------- Depois do login: aprovação, carga e Realtime ---------- */
@@ -3415,18 +3433,20 @@ async function aposLogin(){
   const {data:p}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();PERFIL=p;
   if(!p||!p.approved)return telaAcesso('analise');
   el('acesso').style.display='none';document.querySelector('.shell').style.display='';
-  await carregarNuvem();ligarRealtime();
+  await carregarPrefs();await carregarNuvem();ligarRealtime();
 }
 async function carregarNuvem(){
   const {data,error}=await sb.from(TABELA).select('data,versao').eq('id',1).maybeSingle();
   if(error){toast('Não consegui carregar: '+error.message);return}
-  VERSAO=(data&&data.versao)||0;emConflito=false;
+  VERSAO=(data&&data.versao)||0;emConflito=false;ULTIMO=data&&data.data?JSON.stringify(data.data):'';
+  /* onde o usuário estava: na primeira carga, o que ele deixou gravado; numa recarga (conflito), a tela atual */
+  const nav=prefPronto?navAtual():PREF.ui;prefPronto=false;
   /* O arquivo publicado é público e não leva dado nenhum: com o banco vazio, a carga inicial vem do JSON de abertura, fora do repositório. */
   const vazio=!(data&&data.data&&data.data.fontes&&data.data.fontes.some(f=>f.montanteAbertura||f.saldoAbertura)&&(data.data.titulos||[]).length+(data.data.antecipacoes||[]).length+(data.data.movs||[]).length>0);
   DB=vazio?null:data.data;
   /* banco vazio: nada é gravado até a carga inicial, para não registrar um sistema em branco na nuvem */
   window._semCarga=vazio;
-  load();aplicaTema();render();avisoAbertura();
+  load();voltaNav(nav);prefPronto=true;aplicaTema(temaUsuario());render();avisoAbertura();
   if(vazio)telaCargaInicial();
 }
 function telaCargaInicial(){
@@ -3445,7 +3465,7 @@ function ligarRealtime(){
   canal=sb.channel('recursos').on('postgres_changes',{event:'*',schema:'public',table:TABELA},payload=>{
     const novo=payload.new||{};if(novo.updated_by===(ME&&ME.id)){VERSAO=novo.versao||VERSAO;return}
     if(!novo.data||!novo.data.fontes)return;
-    DB=novo.data;VERSAO=novo.versao||0;emConflito=false;load();aplicaTema();render();toast('Alterado por outro usuário: tela atualizada');
+    const nav=navAtual();prefPronto=false;DB=novo.data;VERSAO=novo.versao||0;ULTIMO=JSON.stringify(novo.data);emConflito=false;load();voltaNav(nav);prefPronto=true;aplicaTema(temaUsuario());render();toast('Alterado por outro usuário: tela atualizada');
   }).subscribe();
 }
 
@@ -3454,13 +3474,14 @@ async function persistir(){
   if(window._semCarga){marcarSync(true,'aguardando a carga inicial');return}
   if(!podeEditar()){marcarSync(true,'somente leitura');return}
   if(emConflito)return;if(salvando){pendente=true;return}
+  delete DB.ui;const txt=JSON.stringify(DB);if(txt===ULTIMO)return;
   salvando=true;
   const {data,error}=await sb.rpc(RPC_GRAVAR,{p_data:DB,p_versao:VERSAO});
   salvando=false;
   if(error){marcarSync(true,'não gravou');toast('Não consegui gravar: '+error.message);return}
   const linha=Array.isArray(data)?data[0]:data;
   if(!linha){pendente=false;return conflito()}
-  VERSAO=linha.versao;marcarSync(false);
+  VERSAO=linha.versao;ULTIMO=txt;marcarSync(false);
   if(pendente){pendente=false;persistir()}
 }
 async function conflito(){
@@ -3476,12 +3497,13 @@ async function conflito(){
 }
 async function forcarGravacao(){
   const {data,error}=await sb.rpc(RPC_GRAVAR,{p_data:DB,p_versao:-1});if(error)return toast('Não consegui gravar: '+error.message);
-  const linha=Array.isArray(data)?data[0]:data;VERSAO=linha?linha.versao:VERSAO;marcarSync(false);toast('Gravado por cima do que estava na nuvem');
+  const linha=Array.isArray(data)?data[0]:data;VERSAO=linha?linha.versao:VERSAO;ULTIMO=JSON.stringify(DB);marcarSync(false);toast('Gravado por cima do que estava na nuvem');
 }
 function marcarSync(erro,texto){const s=el('syncEstado');if(!s)return;s.textContent=texto?(erro?'⚠ ':'')+texto:(erro?'⚠ não gravou':'✓ salvo na nuvem');s.className='sync '+(erro?'ruim':'ok');
   if(!erro&&!texto){clearTimeout(window._sy);window._sy=setTimeout(()=>{s.textContent='';s.className='sync'},2500)}}
 /* A troca da versão local para a nuvem, em uma linha: save() deixa o localStorage e vai para o banco. */
-save=function(){DB.ui={fonteSel,mesSel,tab:activeTab};persistir()};
+/* A navegação (aba, mês, recurso) vai para as preferências do login, nunca para os dados da empresa. */
+save=function(){delete DB.ui;if(prefPronto){const n=navAtual();if(JSON.stringify(n)!==JSON.stringify(PREF.ui))salvarPref({ui:n})}persistir()};
 /* Na nuvem, "apagar tudo" zera os dados da empresa no banco: só o administrador, com confirmação dupla. */
 apagarTudo=function(){if(travadoAdmin('Apagar todos os dados'))return;if(!confirm('Apagar TODOS os dados da empresa na nuvem? Isso vale para todos os usuários. Baixe o backup antes.'))return;if(!confirm('Tem certeza? Não dá para desfazer sem o backup.'))return;DB=null;load();render();closeModal('privOverlay');toast('Dados apagados na nuvem')};
 
