@@ -524,6 +524,32 @@ a.lnk{color:inherit;text-decoration:none}a.lnk:hover b{color:var(--acc);text-dec
 .bord-ok{font-size:12.5px;color:var(--txt);margin-top:8px;line-height:1.5}.bord-box .neg{font-size:12.5px;margin-top:6px}
 .bord-av{margin:6px 0 0 18px;padding:0;font-size:12px;color:var(--warn)}.bord-av li{margin:3px 0;line-height:1.45}
 @media(max-width:900px){.kb.kb2{grid-template-columns:1fr}}
+/* estrutura 03/11: painel de cartões por recurso, cadastro único, evolução do capital */
+.topchip{gap:8px;align-items:center}.topchip .btn{padding:4px 10px}
+.geral-ic{display:inline-flex;width:26px;height:26px;border-radius:7px;align-items:center;justify-content:center;background:var(--panel2);color:var(--s2)}
+.hubg{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-bottom:16px}
+.hubc{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:14px;padding:18px 18px 14px;cursor:pointer;display:flex;flex-direction:column;gap:5px;transition:transform .15s,border-color .15s;min-height:210px}
+.hubc:hover{border-color:var(--line-f);border-left-color:var(--acc);transform:translateY(-1px)}
+.hubc.geral{border-left-color:var(--s2)}.hubc.inv{border-left-color:var(--s2);cursor:default}.hubc.inv:hover{transform:none}
+.hc-h{display:flex;align-items:center;gap:12px;margin-bottom:6px}.hc-n{font-weight:800;font-size:14.5px;letter-spacing:-.2px}.hc-s{font-size:11.5px;color:var(--mut);margin-top:2px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.hc-ic{width:44px;height:44px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;background:var(--panel2);color:var(--s2)}.hc-ic svg{width:22px;height:22px}
+.hc-v{font-size:27px;font-weight:800;letter-spacing:-.8px;font-variant-numeric:tabular-nums;line-height:1.1;margin-top:4px}.hc-v.neg{color:var(--neg)}
+.hc-c{font-size:11.5px;color:var(--mut)}
+.hc-l{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:12px;font-variant-numeric:tabular-nums}
+.hc-bar{height:5px;border-radius:5px;background:var(--panel2);overflow:hidden;margin:6px 0 2px}.hc-bar i{display:block;height:100%;background:var(--acc);border-radius:5px}
+.hc-a{margin-top:auto;padding-top:10px;font-size:12px;font-weight:700;color:var(--acc)}
+.avatar{border-radius:50%;object-fit:cover;flex:0 0 auto;display:inline-block;border:1.5px solid var(--line-f)}
+.avatar.ini{display:inline-flex;align-items:center;justify-content:center;background:var(--panel2);color:var(--acc);font-weight:800}
+.av-up{cursor:pointer;display:inline-flex;position:relative}.av-up:hover .avatar{border-color:var(--acc)}
+.cod{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.4px;color:var(--mut);background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-variant-numeric:tabular-nums}
+.pes-n{display:inline-flex;align-items:center;gap:8px}.pes-top{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.papeis{display:flex;gap:6px;flex-wrap:wrap}.chip.papel{border:0;cursor:pointer}
+.tb.evo td,.tb.evo th{white-space:nowrap}.tb.evo th .muted{font-weight:500;text-transform:none;letter-spacing:0;font-size:10.5px}
+.tb.evo .evo-sec td{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;font-weight:800;color:var(--mut);background:transparent;padding-top:14px}
+.tb.evo .tr-sub td{border-top:1px solid var(--line-f);font-weight:700}.tb.evo .evo-dt td{font-size:11.5px;color:var(--dim)}.tb.evo .evo-esc{color:var(--acc)}
+.tb .op-row{cursor:pointer}.tb .op-row:hover td{background:var(--panel2)}
+.op-filtros label{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--mut)}
+@media(max-width:700px){.hubg{grid-template-columns:1fr}.hc-v{font-size:23px}}
 
 /* ---------- Específico deste app ---------- */
 .fonte-chip{font-size:9.5px;font-weight:800;letter-spacing:.6px;padding:2px 7px;border-radius:4px;display:inline-block;vertical-align:middle}
@@ -1091,6 +1117,7 @@ function load(){
   if(!DB.migracoes.includes('modulos-v2')){DB.fontes.forEach(f=>{const sd=(SEED.fontes||[]).find(x=>x.codigo===f.codigo);
     if(sd&&sd.modulos&&f.modulos.parcelas&&f.modulos.captacoes)f.modulos={...sd.modulos}});DB.migracoes.push('modulos-v2')}
   if(typeof garanteModulos==='function')garanteModulos();
+  if(typeof garanteEstrutura==='function')garanteEstrutura();
   DB.perfil=DB.perfil||{nome:'Leonardo Katayose',email:'adm@liderebpo.com.br',papel:'Administrador'};
   fonteSel=DB.ui&&DB.ui.fonteSel||(fontes()[0]||{}).codigo||'GIRO';
   mesSel=DB.ui&&DB.ui.mesSel||ultimoMesComDado();
@@ -1196,16 +1223,20 @@ const IC={
  cobranca:'<path d="M4 5h16v11H8l-4 4z"/><path d="M9 10h6"/>',
  relatorios:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
  ficha:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/>',
+ evolucao:'<path d="M4 20h16"/><rect x="5" y="12" width="3" height="6" rx=".6"/><rect x="10.5" y="9" width="3" height="9" rx=".6"/><rect x="16" y="5" width="3" height="13" rx=".6"/>',
+ cadastro:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.6-2 2-3 3.5-3s2.9 1 3.5 3M14 9h4M14 13h4"/>',
  sair:'<path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/>'
 };
 const svgIc=k=>'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(IC[k]||'')+'</svg>';
 const ITENS_FONTE=[['razao','Razão'],['titulos','Carteira de títulos'],['antecip','Antecipações'],['parcelas','Parcelas bancárias'],['captacoes','Captações'],['fechamento','Fechamento']];
 const TABS_FONTE=ITENS_FONTE.map(x=>x[0]);
-function navDef(){return [
-  {g:'Visão geral',its:[['painel','Painel'],['agenda','Agenda de vencimentos'],['fluxo','Fluxo de caixa'],['rotinas','Rotinas']]},
-  ...fontes().map(f=>({g:f.nome,fonte:f.codigo,its:ITENS_FONTE.filter(([id])=>temModulo(f,id))})),
+/* menu enxuto (03/11/2026): Razão, Carteira e Antecipações abrem num painel com LEO, GIRO e Geral; o financeiro (banco e fechamento) fica à parte */
+function navDef(){const tem=id=>fontes().some(f=>temModulo(f,id));return [
+  {g:'Visão geral',its:[['painel','Painel'],['evolucao','Evolução do capital'],['agenda','Agenda de vencimentos'],['fluxo','Fluxo de caixa'],['rotinas','Rotinas']]},
+  {g:'Recursos',its:[['razao','Razão'],['titulos','Carteira de títulos'],['antecip','Antecipações'],...(tem('captacoes')?[['captacoes','Captações']]:[])]},
   {g:'Operações',its:[['operacoes','Operações'],['cobranca','Cobrança'],['relatorios','Relatórios']]},
-  {g:'Clientes',its:[['ficha','Ficha do cliente'],['correcao','Correção geral'],['clientes','Clientes'],['sacados','Sacados'],['investidores','Investidores']]},
+  {g:'Financeiro',its:[...(tem('parcelas')?[['parcelas','Parcelas bancárias']]:[]),['fechamento','Fechamento do mês']]},
+  {g:'Clientes',its:[['ficha','Ficha do cliente'],['correcao','Correção geral'],['cadastro','Cadastro']]},
   {g:'Sistema',its:[['config','Configurações']]}]}
 /* grupos do menu recolhíveis; a escolha fica neste navegador. O grupo da tela aberta fica sempre aberto. */
 function navEstado(){try{return JSON.parse(localStorage.getItem('recursos_nav_grupos')||'{}')}catch(e){return {}}}
@@ -1213,12 +1244,14 @@ function navToggle(g){const st=navEstado();st[g]=!navAberto(g,st);try{localStora
 function navAberto(g,st){const grp=navDef().find(x=>x.g===g);const ativo=grp&&grp.its.some(([id])=>id===activeTab&&(!grp.fonte||grp.fonte===fonteSel));return st[g]===undefined?true:(st[g]||ativo)}
 const SECAO={
   painel:['Painel','O que decidir hoje: caixa, prioridades, fluxo projetado, patrimônio, rentabilidade e carteira'],
-  razao:['Razão','Cada entrada e saída, com o saldo da conta e o montante após cada transação'],
+  razao:['Razão','Escolha o recurso, ou o Geral com os dois juntos: cada entrada e saída, com o saldo da conta e o montante'],
+  evolucao:['Evolução do capital','O montante de cada recurso no começo de cada mês, como um balanço: quanto havia de recurso em cada data'],
+  cadastro:['Cadastro','Cadastro único: cada pessoa com o seu código, em um ou mais papéis'],
   titulos:['Carteira de títulos','O que volta das operações, quando, e o que já passou do prazo'],
   antecip:['Antecipações','Recurso enviado a clientes, com juros pela planilha de correção'],
   parcelas:['Parcelas bancárias','Contratos do Bradesco: juros é despesa, principal reduz a dívida'],
   captacoes:['Captações','Dinheiro de terceiros dentro do recurso'],
-  fechamento:['Fechamento do mês','Saldo calculado contra o extrato e o resultado do mês'],
+  fechamento:['Fechamento do mês','Saldo calculado contra o extrato e o resultado do mês, recurso a recurso'],
   agenda:['Agenda de vencimentos','O que entra e o que sai em cada dia do mês: títulos dos clientes e parcelas do banco, nos dois recursos'],
   ficha:['Ficha do cliente','Tudo do cliente num lugar: exposição, limite, operações, antecipações e como ele paga'],
   fluxo:['Fluxo de caixa','Saldo acumulado previsto por dia, semana ou mês: escolha GIRO, LEO ou os dois e clique no período para ver o que entra e sai'],
@@ -1228,24 +1261,24 @@ const SECAO={
   cobranca:['Cobrança','A vencer, contatar, promessa, acompanhar e resolvido, cliente a cliente'],
   relatorios:['Relatórios','Resultado por cliente e por recurso, previsto × realizado, capital e investidor'],
   correcao:['Correção geral','Quanto cada cliente deve hoje, somando o giro e o Leonardo; a baixa rateia entre os dois'],
-  clientes:['Clientes','Quem cede títulos e recebe antecipações, com a taxa de correção'],
-  sacados:['Sacados','Quem paga os títulos'],
-  investidores:['Investidores','Quem coloca recurso de terceiros nas captações'],
+  clientes:['Cadastro','Clientes: quem cede títulos e recebe antecipações, com a taxa de correção'],
+  sacados:['Cadastro','Sacados: quem paga os títulos'],
+  investidores:['Cadastro','Investidores: quem coloca recurso de terceiros nas captações'],
   config:['Configurações','Aparência, perfil, recursos, plano de contas, backup e excluídos']
 };
-function tabCount(id,c){
-  if(id==='razao')return movsMes(c,mesSel).length||null;
-  if(id==='titulos')return titsF(c).filter(titVencido).length||null;
-  if(id==='antecip')return antsF(c).filter(a=>a.status!=='quitada').length||null;
-  if(id==='parcelas')return ctrsF(c).reduce((s,x)=>s+resumoContrato(x).vencidas,0)||null;
-  if(id==='captacoes')return capsF(c).filter(k=>k.status!=='quitada').length||null;
+function tabCount(id,c){const FS=c?[c]:fontes().map(f=>f.codigo),S=fn=>FS.reduce((s,x)=>s+fn(x),0)||null;
+  if(id==='razao')return S(x=>movsMes(x,mesSel).length);
+  if(id==='titulos')return S(x=>titsF(x).filter(titVencido).length);
+  if(id==='antecip')return S(x=>antsF(x).filter(a=>a.status!=='quitada').length);
+  if(id==='parcelas')return S(x=>ctrsF(x).reduce((s,k)=>s+resumoContrato(k).vencidas,0));
+  if(id==='captacoes')return S(x=>capsF(x).filter(k=>k.status!=='quitada').length);
   return null;
 }
 function renderNav(){const st=navEstado();
   el('nav').innerHTML=navDef().map(g=>{const ab=navAberto(g.g,st);const tot=g.its.reduce((s,[id])=>s+(Number(tabCount(id,g.fonte))||0),0);
     return `<div class="nav-g ${ab?'':'fechado'}"><button class="nav-gh" onclick="navToggle('${esc(g.g)}')" aria-expanded="${ab}">
       <span>${esc(g.g)}</span>${!ab&&tot?`<span class="n">${tot}</span>`:''}<svg class="chev" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
-      <div class="nav-its">${g.its.map(([id,lbl])=>{const c=tabCount(id,g.fonte);const on=activeTab===id&&(!g.fonte||fonteSel===g.fonte);
+      <div class="nav-its">${g.its.map(([id,lbl])=>{const c=tabCount(id,g.fonte);const on=activeTab===id||(id==='cadastro'&&CAD_TABS.includes(activeTab))||(id==='operacoes'&&activeTab==='operacao');
       return `<button class="nav-i ${on?'on':''}" onclick="go('${id}','${g.fonte||''}')"><span class="ic">${svgIc(id)}</span>${lbl}${c?`<span class="n">${c}</span>`:''}</button>`}).join('')}</div></div>`}).join('');
 }
 function renderFoot(){const p=DB.perfil||{};const nm=p.nome||'',ini=(nm||p.email||'?').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();
@@ -1278,15 +1311,15 @@ aplicaTema(temaLocal());
 function mudaMes(n){mesSel=addMes(mesSel,n);save();render()}
 function toggleMenu(v){const s=el('side'),sc=el('scrim');const abrir=v===undefined?!s.classList.contains('open'):v;s.classList.toggle('open',abrir);sc.classList.toggle('on',abrir)}
 const temModulo=(f,id)=>id==='parcelas'?!!(f.modulos||{}).parcelas:id==='captacoes'?!!(f.modulos||{}).captacoes:true;
-function go(id,f){activeTab=id;if(f)fonteSel=f;if(TABS_FONTE.includes(id)&&!temModulo(fAtual(),id))activeTab='razao';toggleMenu(false);save();render();window.scrollTo({top:0,behavior:'smooth'})}
+function go(id,f){activeTab=id;if(HUB_TABS.includes(id))vistaPara(id,f);else if(f)fonteSel=f;if(TABS_FONTE.includes(id)&&vista==='fonte'&&!temModulo(fAtual(),id))vistaPara(id,'');toggleMenu(false);save();render();window.scrollTo({top:0,behavior:'smooth'})}
 function render(){
   const [t,sub]=SECAO[activeTab]||['',''];
   el('pgTitle').childNodes[0].nodeValue=t;el('pgSub').textContent=sub;el('mesLbl').textContent=mesLabel(mesSel);
-  const f=fAtual();el('topFonte').innerHTML=TABS_FONTE.includes(activeTab)&&f?`${logoBanco(f)} ${chipF(f.codigo)} ${esc(f.nome)}`:'';
-  el('topFonte').style.display=TABS_FONTE.includes(activeTab)?'inline-flex':'none';el('topNovo').style.display=TABS_FONTE.includes(activeTab)?'inline-flex':'none';
+  const tf=topoRecurso();el('topFonte').innerHTML=tf;el('topFonte').style.display=tf?'inline-flex':'none';el('topNovo').style.display=TABS_FONTE.includes(activeTab)&&vista==='fonte'?'inline-flex':'none';
   renderNav();renderFoot();
-  const V={painel:viewPainel,razao:viewRazao,titulos:viewTitulos,antecip:viewAntecip,parcelas:viewParcelas,captacoes:viewCaptacoes,fechamento:viewFechamento,
-    correcao:viewCorrecao,agenda:viewAgenda,ficha:viewFicha,fluxo:viewFluxo,rotinas:viewRotinas,operacoes:viewOperacoes,operacao:viewOperacao,cobranca:viewCobranca,relatorios:viewRelatorios,clientes:viewClientes,sacados:viewSacados,investidores:viewInvestidores,config:viewConfig};
+  const V={painel:viewPainel,razao:()=>vistaRecurso('razao',viewRazao),titulos:()=>vistaRecurso('titulos',viewTitulos),antecip:()=>vistaRecurso('antecip',viewAntecip),parcelas:()=>vistaRecurso('parcelas',viewParcelas),
+    captacoes:()=>vistaRecurso('captacoes',()=>viewCaptacoesCards()+viewCaptacoes()),fechamento:()=>vistaRecurso('fechamento',viewFechamento),evolucao:viewEvolucao,cadastro:viewCadastro,
+    correcao:viewCorrecao,agenda:viewAgenda,ficha:viewFicha,fluxo:viewFluxo,rotinas:viewRotinas,operacoes:viewOperacoes,operacao:viewOperacao,cobranca:viewCobranca,relatorios:viewRelatorios,clientes:()=>viewCadastroTabs()+viewClientes(),sacados:()=>viewCadastroTabs()+viewSacados(),investidores:()=>viewCadastroTabs()+viewInvestidores(),config:viewConfig};
   el('views').innerHTML=(V[activeTab]||viewPainel)();
 }
 const chipF=c=>`<span class="fonte-chip ${/^[A-Z0-9]+$/.test(c||'')?esc(c):'X'}">${esc(c||'—')}</span>`;
@@ -1525,7 +1558,7 @@ function viewPainel(){
       ${hbar('Conta',k.caixa,Math.abs(k.caixa)/tot,k.caixa<0)}${hbar('Títulos a vencer',k.titulos,k.titulos/tot)}${hbar('Antecipações',k.antec,k.antec/tot)}${k.empRec?hbar('A receber do outro recurso',k.empRec,k.empRec/tot):''}${k.invest?hbar('Investimentos',k.invest,k.invest/tot):''}
       ${k.empPag?`<div class="muted" style="margin-top:6px">menos ${brl(k.empPag)} a devolver ao outro recurso</div>`:''}${k.capt?`<div class="muted">menos ${brl(k.capt)} de captação</div>`:''}</div>`}).join('')}</div></div>`;
   const antP=D.ants.reduce((x,a)=>x+a.principal,0),txAnt=antP?D.ants.reduce((x,a)=>x+a.principal*(a.taxaMes||0),0)/antP:0;
-  const ops=alive(DB.operacoes).filter(o=>mesDe(o.data)===mesSel),bruto=ops.reduce((x,o)=>x+o.bruto,0),desag=ops.reduce((x,o)=>x+o.desagio,0);
+  const ops=opsReais().filter(o=>mesDe(o.data)===mesSel),bruto=ops.reduce((x,o)=>x+o.bruto,0),desag=ops.reduce((x,o)=>x+o.desagio,0);
   const ctrs=D.fs.flatMap(c=>ctrsF(c).map(resumoContrato)),devT=ctrs.reduce((x,r)=>x+r.saldoDevedor,0),custo=devT?ctrs.reduce((x,r)=>x+r.saldoDevedor*(Math.pow(1+r.cr.taxa,1/12)-1),0)/devT:null;
   const pct=v=>(v*100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';
   const meses=[];{let [y,m]=mesSel.split('-').map(Number);for(let i=5;i>=0;i--){const d=new Date(y,m-1-i,1);meses.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`)}}
@@ -1610,7 +1643,7 @@ function viewRazao(){
 
 /* ===== Carteira de títulos ===== */
 function viewTitulos(){
-  const c=fAtual().codigo,H=hoje();let L=titsF(c);
+  const G=vista==='geral',c=fAtual().codigo,H=hoje();let L=G?fontes().flatMap(f=>titsF(f.codigo)):titsF(c);
   const n={abertos:L.filter(titAberto).length,vencidos:L.filter(titVencido).length,pagos:L.filter(t=>t.pago).length,todos:L.length};
   if(titTab==='abertos')L=L.filter(titAberto);else if(titTab==='vencidos')L=L.filter(titVencido);else if(titTab==='pagos')L=L.filter(t=>t.pago);
   const fc=el('tf_cli')?val('tf_cli'):'',fs=el('tf_sac')?val('tf_sac'):'';
@@ -1619,11 +1652,11 @@ function viewTitulos(){
   const tabs=[['abertos','Abertos'],['vencidos','Vencidos'],['pagos','Recebidos'],['todos','Todos']].map(([k,l])=>`<button class="tab ${titTab===k?'active':''}" onclick="titTab='${k}';render()">${l}<span class="cnt">${n[k]}</span></button>`).join('');
   const opt=(arr,sel)=>'<option value="">todos</option>'+alive(arr).map(x=>`<option value="${x.id}" ${sel===x.id?'selected':''}>${esc(x.nome)}</option>`).join('');
   const rows=L.map(t=>{const d=t.vencimento?dias(H,t.vencimento):null;
-    return `<tr><td class="c">${fmtBR(t.dataEntrada)}</td><td class="desc"><b>${esc(t.cliente||nomeCli(t.clienteId)||'—')}</b>${t.obs?`<div class="muted obs" title="${esc(t.obs)}">${esc(t.obs)}</div>`:''}</td><td class="desc">${t.direta?`<b>${esc(t.cliente||nomeCli(t.clienteId))}</b><div class="muted">operação direta · o cliente paga</div>`:`<b>${esc(t.sacado||nomeSac(t.sacadoId)||'—')}</b>`}</td><td class="c">${esc(t.nf||'')}${t.parcela?` <span class="pill">${esc(t.parcela)}</span>`:''}</td>
+    return `<tr><td class="c">${G?chipF(t.fonte)+' ':''}${fmtBR(t.dataEntrada)}</td><td class="desc"><b>${esc(t.cliente||nomeCli(t.clienteId)||'—')}</b>${t.obs?`<div class="muted obs" title="${esc(t.obs)}">${esc(t.obs)}</div>`:''}</td><td class="desc">${t.direta?`<b>${esc(t.cliente||nomeCli(t.clienteId))}</b><div class="muted">operação direta · o cliente paga</div>`:`<b>${esc(t.sacado||nomeSac(t.sacadoId)||'—')}</b>`}</td><td class="c">${t.operacaoId?`<a href="#" class="lnk" title="Abrir a operação deste título" onclick="abrirOperacao('${t.operacaoId}');return false">${esc(t.nf||'operação')}</a>`:esc(t.nf||'')}${t.parcela?` <span class="pill">${esc(t.parcela)}</span>`:''}</td>
       <td class="num"><b>${brl(t.valor)}</b></td><td class="c">${fmtBR(t.vencimento)}${!t.pago&&d!=null?`<div class="muted">${d<0?`${-d} dia(s) de atraso`:d===0?'vence hoje':`em ${d} dia(s)`}</div>`:''}</td>
       <td class="c">${t.pago?(t.perda?'<span class="chip chip-bad">perda</span>':`<span class="chip chip-ok">recebido ${fmtBR(t.recebimento)}</span>`):titVencido(t)?'<span class="chip chip-bad">vencido</span>':'<span class="chip chip-n">a vencer</span>'}</td>
-      <td class="c" style="white-space:nowrap">${t.pago?'':`<button class="btn btn-sm btn-gold" onclick="openRec('${t.id}')">Receber</button> `}<button class="iconbtn" onclick="openTit('${t.id}')">✎</button> <button class="iconbtn del" onclick="delTit('${t.id}')">🗑</button></td></tr>`}).join('');
-  return `<div class="tabs">${tabs}<span class="right"></span><button class="btn btn-sm" onclick="openOper()">+ Operação</button><button class="btn btn-sm btn-gold" onclick="openTit()">+ Título avulso</button></div>
+      <td class="c" style="white-space:nowrap">${t.pago?'':`<button class="btn btn-sm btn-gold" onclick="fonteSel='${t.fonte}';openRec('${t.id}')">Receber</button> `}<button class="iconbtn" onclick="fonteSel='${t.fonte}';openTit('${t.id}')">✎</button> <button class="iconbtn del" onclick="delTit('${t.id}')">🗑</button></td></tr>`}).join('');
+  return `<div class="tabs">${tabs}<span class="right"></span>${G?'':`<button class="btn btn-sm btn-gold" onclick="openOper()" title="Todo título nasce de uma operação, com o borderô">+ Operação</button>`}</div>
   <div class="filters"><select id="tf_cli" onchange="render()">${opt(DB.clientes,fc)}</select><select id="tf_sac" onchange="render()">${opt(DB.sacados,fs)}</select><span class="muted" style="font-size:11.5px">filtrar por cliente e sacado</span></div>
   <div class="panel"><div class="tbl-scroll"><table class="tb"><colgroup><col style="width:100px"><col><col style="width:190px"><col style="width:120px"><col style="width:130px"><col style="width:120px"><col style="width:120px"><col style="width:150px"></colgroup><thead><tr><th class="c">Entrada</th><th>Cliente</th><th>Sacado</th><th class="c">NF</th><th class="num">Valor</th><th class="c">Vencimento</th><th class="c">Situação</th><th></th></tr></thead>
   <tbody>${rows||`<tr><td colspan="8">${vazio('Nenhum título aqui.')}</td></tr>`}<tr class="tr-tot"><td></td><td class="desc">${L.length} título(s)</td><td></td><td></td><td class="num">${brl(r2(L.reduce((s,t)=>s+t.valor,0)))}</td><td colspan="3"></td></tr></tbody></table></div></div>`;
@@ -1631,21 +1664,21 @@ function viewTitulos(){
 
 /* ===== Antecipações ===== */
 function viewAntecip(){
-  const c=fAtual().codigo,H=hoje();let L=antsF(c);
+  const G=vista==='geral',c=fAtual().codigo,H=hoje();let L=G?fontes().flatMap(f=>antsF(f.codigo)):antsF(c);
   const n={abertas:L.filter(a=>a.status!=='quitada').length,quitadas:L.filter(a=>a.status==='quitada').length,todas:L.length};
   if(antTab==='abertas')L=L.filter(a=>a.status!=='quitada');else if(antTab==='quitadas')L=L.filter(a=>a.status==='quitada');
   const fc=el('af_cli')?val('af_cli'):'';if(fc)L=L.filter(a=>a.clienteId===fc);
   L.sort((a,b)=>b.data.localeCompare(a.data));
   const tabs=[['abertas','Abertas'],['quitadas','Quitadas'],['todas','Todas']].map(([k,l])=>`<button class="tab ${antTab===k?'active':''}" onclick="antTab='${k}';render()">${l}<span class="cnt">${n[k]}</span></button>`).join('');
   const rows=L.map(a=>{const ref=a.status==='quitada'?0:jurosRef(a,H);
-    return `<tr><td class="c">${fmtBR(a.data)}</td><td class="desc"><b>${esc(a.cliente||nomeCli(a.clienteId))}</b>${a.obs?`<div class="muted obs" title="${esc(a.obs)}">${esc(a.obs)}</div>`:''}</td><td class="num">${brl(a.valor)}</td>
+    return `<tr><td class="c">${G?chipF(a.fonte)+' ':''}${fmtBR(a.data)}</td><td class="desc"><b>${esc(a.cliente||nomeCli(a.clienteId))}</b>${a.obs?`<div class="muted obs" title="${esc(a.obs)}">${esc(a.obs)}</div>`:''}</td><td class="num">${brl(a.valor)}</td>
       <td class="c">${a.taxaMes?(a.taxaMes*100).toFixed(2).replace('.',',')+'%':'<span class="muted">sem juros</span>'}</td><td class="num"><b>${brl(a.principal)}</b></td><td class="num">${brl(a.jurosRecebidos||0)}</td>
       <td class="num">${a.status==='quitada'?'—':`${brl(ref)}<div class="muted">${dias(a.dataBase||a.data,H)} dia(s) desde ${fmtBR(a.dataBase||a.data)}</div>`}</td>
       <td class="num">${a.status==='quitada'?'—':`<b>${brl(r2(a.principal+ref))}</b><div class="muted">principal + juros</div>`}</td>
       <td class="c">${a.status==='quitada'?'<span class="chip chip-ok">quitada</span>':'<span class="chip chip-warn">aberta</span>'}</td>
-      <td class="c" style="white-space:nowrap">${a.status==='quitada'?'':`<button class="btn btn-sm btn-gold" onclick="openRet('${a.id}')">Retorno</button> `}<button class="iconbtn" title="Editar" onclick="openAnt('${a.id}')">✎</button> <button class="iconbtn del" onclick="delAnt('${a.id}')">🗑</button></td></tr>`}).join('');
+      <td class="c" style="white-space:nowrap">${a.status==='quitada'?'':`<button class="btn btn-sm btn-gold" onclick="fonteSel='${a.fonte}';openRet('${a.id}')">Retorno</button> `}<button class="iconbtn" title="Editar" onclick="openAnt('${a.id}')">✎</button> <button class="iconbtn del" onclick="delAnt('${a.id}')">🗑</button></td></tr>`}).join('');
   const opt='<option value="">todos os clientes</option>'+alive(DB.clientes).map(x=>`<option value="${x.id}" ${fc===x.id?'selected':''}>${esc(x.nome)}</option>`).join('');
-  return `<div class="tabs">${tabs}<button class="btn btn-sm btn-gold right" onclick="openAnt()">+ Antecipação</button></div>
+  return `<div class="tabs">${tabs}${G?'':`<button class="btn btn-sm btn-gold right" onclick="openAnt()">+ Antecipação</button>`}</div>
   <div class="filters"><select id="af_cli" onchange="render()">${opt}</select><span class="muted" style="font-size:11.5px">Os juros de referência são uma conta de apoio; o que vale é a planilha de correção.</span></div>
   <div class="panel"><div class="tbl-scroll"><table class="tb" style="min-width:1200px"><colgroup><col style="width:96px"><col><col style="width:110px"><col style="width:70px"><col style="width:120px"><col style="width:110px"><col style="width:140px"><col style="width:140px"><col style="width:84px"><col style="width:112px"></colgroup><thead><tr><th class="c">Envio</th><th>Cliente</th><th class="num">Enviado</th><th class="c">Taxa a.m.</th><th class="num">Principal aberto</th><th class="num">Juros recebidos</th><th class="num">Juros de referência hoje</th><th class="num">Total a receber hoje</th><th class="c">Situação</th><th></th></tr></thead>
   <tbody>${rows||`<tr><td colspan="10">${vazio('Nenhuma antecipação.')}</td></tr>`}<tr class="tr-tot"><td></td><td class="desc">${L.length} antecipação(ões)</td><td class="num">${brl(r2(L.reduce((s,a)=>s+a.valor,0)))}</td><td></td><td class="num">${brl(r2(L.reduce((s,a)=>s+a.principal,0)))}</td><td class="num">${brl(r2(L.reduce((s,a)=>s+(a.jurosRecebidos||0),0)))}</td><td class="num">${brl(r2(L.filter(a=>a.status!=='quitada').reduce((s,a)=>s+jurosRef(a,H),0)))}</td><td class="num">${brl(r2(L.filter(a=>a.status!=='quitada').reduce((s,a)=>s+a.principal+jurosRef(a,H),0)))}</td><td colspan="2"></td></tr></tbody></table></div></div>`;
@@ -1820,7 +1853,7 @@ function saveBaixa(){
 function viewClientes(){
   const L=alive(DB.clientes).sort((a,b)=>a.nome.localeCompare(b.nome));
   const rows=L.map(x=>{const ab=alive(DB.antecipacoes).filter(a=>a.clienteId===x.id&&a.status!=='quitada'),ts=alive(DB.titulos).filter(t=>t.clienteId===x.id&&!t.pago);
-    return `<tr><td><a href="#" class="lnk" onclick="abrirFicha('${x.id}');return false"><b>${esc(x.nome)}</b></a>${x.obs?`<div class="muted" style="font-size:11px">${esc(x.obs)}</div>`:''}</td><td>${x.cobraJuros?`<span class="chip chip-ok">${(x.taxaMes*100).toFixed(2).replace('.',',')}% a.m.</span>`:'<span class="chip chip-n">sem juros</span>'}</td>
+    return `<tr><td>${codDe(x)} <a href="#" class="lnk" onclick="abrirFicha('${x.id}');return false"><b>${esc(x.nome)}</b></a>${x.obs?`<div class="muted" style="font-size:11px">${esc(x.obs)}</div>`:''}</td><td>${x.cobraJuros?`<span class="chip chip-ok">${(x.taxaMes*100).toFixed(2).replace('.',',')}% a.m.</span>`:'<span class="chip chip-n">sem juros</span>'}</td>
       <td class="num">${brl(r2(ab.reduce((s,a)=>s+a.principal,0)))}<div class="muted" style="font-size:10.5px">${ab.length} antecipação(ões)</div></td><td class="num">${brl(r2(ts.reduce((s,t)=>s+t.valor,0)))}<div class="muted" style="font-size:10.5px">${ts.length} título(s)</div></td>
       <td>${barraLim(expCli(x.id),x.limite)}${x.fatorMes?`<div class="muted" style="font-size:10.5px">fator ${pctBR(x.fatorMes)} a.m.</div>`:''}</td>
       <td class="num"><button class="iconbtn" onclick="openCli('${x.id}')">✎</button> <button class="iconbtn del" onclick="delCad('clientes','${x.id}')">🗑</button></td></tr>`}).join('');
@@ -1831,7 +1864,7 @@ function viewInvestidores(){
   const L=alive(DB.investidores).sort((a,b)=>a.nome.localeCompare(b.nome));
   const rows=L.map(x=>{const ks=alive(DB.captacoes).filter(k=>k.investidorId===x.id),ab=ks.filter(k=>k.status!=='quitada');
     const dev=r2(ab.reduce((s,k)=>s+k.saldo,0)),jur=r2(ks.reduce((s,k)=>s+(k.eventos||[]).filter(e=>e.tipo==='juros').reduce((q,e)=>q+e.valor,0),0));
-    return `<tr><td><b>${esc(x.nome)}</b>${x.vinculo?`<div class="muted" style="font-size:11px">${esc(x.vinculo)}</div>`:''}${x.obs?`<div class="muted" style="font-size:11px">${esc(x.obs)}</div>`:''}</td>
+    return `<tr><td><span class="pes-n">${avatarPes(pes(x.pessoaId)||x,28)}${codDe(x)} <b>${esc(x.nome)}</b></span>${x.vinculo?`<div class="muted" style="font-size:11px">${esc(x.vinculo)}</div>`:''}${x.obs?`<div class="muted" style="font-size:11px">${esc(x.obs)}</div>`:''}</td>
       <td>${x.taxaMes?`<span class="chip chip-ok">${(x.taxaMes*100).toFixed(2).replace('.',',')}% a.m.</span>`:'<span class="chip chip-n">sem juros</span>'}</td><td>${esc(x.contato||'')}</td>
       <td class="num">${brl(dev)}<div class="muted" style="font-size:10.5px">${ab.length} captação(ões) aberta(s)${ab.length?' · '+ab.map(k=>k.fonte).filter((v,i,a)=>a.indexOf(v)===i).join(' + '):''}</div></td>
       <td class="num">${brl(jur)}</td>
@@ -1842,7 +1875,7 @@ function viewInvestidores(){
 function viewSacados(){
   const L=alive(DB.sacados).sort((a,b)=>a.nome.localeCompare(b.nome));
   const rows=L.map(x=>{const ts=alive(DB.titulos).filter(t=>t.sacadoId===x.id),ab=ts.filter(t=>!t.pago);
-    return `<tr><td><b>${esc(x.nome)}</b>${x.obs?`<div class="muted" style="font-size:11px">${esc(x.obs)}</div>`:''}</td><td class="num">${ts.length}</td><td class="num">${brl(r2(ab.reduce((s,t)=>s+t.valor,0)))}<div class="muted" style="font-size:10.5px">${ab.filter(titVencido).length} vencido(s)</div></td><td>${barraLim(expSac(x.id),x.limite)}</td>
+    return `<tr><td>${codDe(x)} <b>${esc(x.nome)}</b>${x.obs?`<div class="muted" style="font-size:11px">${esc(x.obs)}</div>`:''}</td><td class="num">${ts.length}</td><td class="num">${brl(r2(ab.reduce((s,t)=>s+t.valor,0)))}<div class="muted" style="font-size:10.5px">${ab.filter(titVencido).length} vencido(s)</div></td><td>${barraLim(expSac(x.id),x.limite)}</td>
       <td class="num"><button class="iconbtn" onclick="openSac('${x.id}')">✎</button> <button class="iconbtn del" onclick="delCad('sacados','${x.id}')">🗑</button></td></tr>`}).join('');
   return `<div class="panel"><div class="panel-head"><h2>Sacados<small>quem paga os títulos</small></h2><button class="btn btn-sm btn-gold" onclick="openSac()">+ Sacado</button></div>
     <div class="tbl-scroll"><table class="tb auto"><thead><tr><th>Nome</th><th class="num">Títulos</th><th class="num">Em aberto</th><th>Limite em uso</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5">${vazio('Nenhum sacado cadastrado.')}</td></tr>`}</tbody></table></div></div>`;
@@ -2219,11 +2252,12 @@ function saveFonte(){limpaErro('f_erro');const id=val('f_id'),cod=val('f_codigo'
   const base={modulos:{parcelas:el('f_parcelas').checked,captacoes:el('f_captacoes').checked},nome,banco:val('f_banco').trim(),dataAbertura:val('f_abertura'),saldoAbertura:r2(parseNum(val('f_saldo'))),montanteAbertura:r2(parseNum(val('f_montante'))),terceirosAbertura:r2(parseNum(val('f_terceiros'))),descricao:val('f_desc').trim(),logo:fLogoTmp};
   if(id)Object.assign(DB.fontes.find(x=>x.id===id),base);else DB.fontes.push({id:uid(),codigo:cod,ativa:true,...base});
   logH(`Recurso ${nome}`);save();closeModal('ovFonte');render();toast('Recurso salvo')}
-function openCli(id,ret){limpaErro('cl_erro');const x=id?DB.clientes.find(y=>y.id===id):null;el('cliTitle').textContent=x?'Editar cliente':'Novo cliente';
+function openCli(id,ret){limpaErro('cl_erro');if(id)window._pesLiga=null;const x=id?DB.clientes.find(y=>y.id===id):null;el('cliTitle').textContent=x?'Editar cliente':'Novo cliente';
   setVal('cl_id',x?x.id:'');setVal('cl_ret',ret||'');setVal('cl_nome',x?x.nome:'');el('cl_juros').checked=x?!!x.cobraJuros:true;el('cl_taxa').disabled=!el('cl_juros').checked;setVal('cl_taxa',x&&x.taxaMes?n2(x.taxaMes*100):'');setVal('cl_limite',x&&x.limite?n2(x.limite):'');setVal('cl_fator',x&&x.fatorMes?n2(x.fatorMes*100):'');setVal('cl_contato',x?x.contato||'':'');setVal('cl_fone',x?x.fone||'':'');setVal('cl_email',x?x.email||'':'');setVal('cl_obs',x?x.obs||'':'');openModalId('ovCli');setTimeout(()=>{const e=el('cl_nome');if(e&&!(e.closest('.overlay')||document.body).contains(document.activeElement))e.focus()},60)}
 function saveCli(){limpaErro('cl_erro');const id=val('cl_id'),nome=val('cl_nome').trim();if(!nome)return erro('cl_erro','Informe o nome.');
   const base={nome,cobraJuros:el('cl_juros').checked,taxaMes:el('cl_juros').checked?parseNum(val('cl_taxa'))/100:0,limite:r2(parseNum(val('cl_limite')))||null,fatorMes:parseNum(val('cl_fator'))/100||null,contato:val('cl_contato').trim(),fone:val('cl_fone').trim(),email:val('cl_email').trim(),obs:val('cl_obs').trim()};let x;
-  if(id){x=DB.clientes.find(y=>y.id===id);Object.assign(x,base)}else{x={id:uid(),...base,deletedAt:null};DB.clientes.push(x)}
+  let antes=null;if(id){x=DB.clientes.find(y=>y.id===id);antes=x.nome;Object.assign(x,base)}else{x={id:uid(),...base,deletedAt:null};DB.clientes.push(x)}
+  ligaPessoa('clientes',x,base,antes);
   logH(`Cliente ${nome}`);save();closeModal('ovCli');const ret=val('cl_ret');
   if(ret&&el(ret)){el(ret).innerHTML=optCli(x.id);if(ret==='a_cli')antCli()}else render();toast('Cliente salvo')}
 function openInv(id,ret){limpaErro('iv_erro');const x=id?DB.investidores.find(y=>y.id===id):null;el('invTitle').textContent=x?'Editar investidor':'Novo investidor';
@@ -2231,12 +2265,14 @@ function openInv(id,ret){limpaErro('iv_erro');const x=id?DB.investidores.find(y=
   openModalId('ovInv');setTimeout(()=>{const e=el('iv_nome');if(e&&!(e.closest('.overlay')||document.body).contains(document.activeElement))e.focus()},60)}
 function saveInv(){limpaErro('iv_erro');const id=val('iv_id'),nome=val('iv_nome').trim();if(!nome)return erro('iv_erro','Informe o nome.');
   const base={nome,taxaMes:parseNum(val('iv_taxa'))/100,vinculo:val('iv_vinculo').trim(),contato:val('iv_contato').trim(),obs:val('iv_obs').trim()};let x;
-  if(id){x=DB.investidores.find(y=>y.id===id);Object.assign(x,base);alive(DB.captacoes).filter(k=>k.investidorId===id).forEach(k=>k.investidor=nome)}else{x={id:uid(),...base,deletedAt:null};DB.investidores.push(x)}
+  let antes=null;if(id){x=DB.investidores.find(y=>y.id===id);antes=x.nome;Object.assign(x,base);alive(DB.captacoes).filter(k=>k.investidorId===id).forEach(k=>k.investidor=nome)}else{x={id:uid(),...base,deletedAt:null};DB.investidores.push(x)}
+  ligaPessoa('investidores',x,base,antes);
   logH(`Investidor ${nome}`);save();closeModal('ovInv');const ret=val('iv_ret');if(ret&&el(ret)){el(ret).innerHTML=optInv(x.id);if(ret==='k_inv')capInv()}else render();toast('Investidor salvo')}
 function openSac(id,ret){limpaErro('sc_erro');const x=id?DB.sacados.find(y=>y.id===id):null;el('sacTitle').textContent=x?'Editar sacado':'Novo sacado';
   setVal('sc_id',x?x.id:'');setVal('sc_ret',ret||'');setVal('sc_nome',x?x.nome:'');setVal('sc_limite',x&&x.limite?n2(x.limite):'');setVal('sc_obs',x?x.obs||'':'');openModalId('ovSac');setTimeout(()=>{const e=el('sc_nome');if(e&&!(e.closest('.overlay')||document.body).contains(document.activeElement))e.focus()},60)}
 function saveSac(){limpaErro('sc_erro');const id=val('sc_id'),nome=val('sc_nome').trim();if(!nome)return erro('sc_erro','Informe o nome.');let x;
-  const lim=r2(parseNum(val('sc_limite')))||null;if(id){x=DB.sacados.find(y=>y.id===id);Object.assign(x,{nome,limite:lim,obs:val('sc_obs').trim()})}else{x={id:uid(),nome,limite:lim,obs:val('sc_obs').trim(),deletedAt:null};DB.sacados.push(x)}
+  const lim=r2(parseNum(val('sc_limite')))||null;let antes=null;if(id){x=DB.sacados.find(y=>y.id===id);antes=x.nome;Object.assign(x,{nome,limite:lim,obs:val('sc_obs').trim()})}else{x={id:uid(),nome,limite:lim,obs:val('sc_obs').trim(),deletedAt:null};DB.sacados.push(x)}
+  ligaPessoa('sacados',x,{nome},antes);
   logH(`Sacado ${nome}`);save();closeModal('ovSac');const ret=val('sc_ret');if(ret&&el(ret))el(ret).innerHTML=optSac(x.id);else render();toast('Sacado salvo')}
 function openCat(chave){limpaErro('ct_erro');const c=chave?DB.categorias.find(x=>x.chave===chave):null;el('catTitle').textContent=c?'Editar conta':'Nova conta contábil';
   el('ct_fonte').innerHTML='<option value="">os dois recursos</option>'+fontes().map(f=>`<option value="${f.codigo}">só ${f.codigo}</option>`).join('');
@@ -2290,21 +2326,13 @@ function openGen(titulo,corpo,pe,largo){let o=el('ovGen');if(!o){o=document.crea
   o.innerHTML=`<div class="modal ${largo?'wide':''}" style="${largo?'max-width:860px':''}"><div class="modal-head"><h3>${titulo}</h3><button class="modal-x" onclick="closeModal('ovGen')">×</button></div><div class="modal-body">${corpo}</div><div class="modal-foot">${pe||`<button class="btn btn-ghost" onclick="closeModal('ovGen')">Fechar</button>`}</div></div>`;openModalId('ovGen')}
 
 /* ========================= 1. QUADRO E PÁGINA DA OPERAÇÃO ========================= */
-function viewOperacoes(){
-  const ops=alive(DB.operacoes).sort((a,b)=>b.data.localeCompare(a.data));
-  const cardOp=o=>{const T=titsOp(o.id),falta=r2(T.filter(t=>!t.pago).reduce((x,t)=>x+t.valor,0)),venc=T.filter(titVencido).length;return `<div class="kb-card op-card" onclick="abrirOperacao('${o.id}')" style="cursor:pointer"><div class="op-c-h">${chipF(o.fonte)} <b>${esc(nomeCli(o.clienteId))}</b></div>
-    <div class="muted">${fmtBR(o.data)}${o.nf?' · NF '+esc(o.nf):''} · face ${brl(o.bruto)}</div><div class="muted">${falta?'falta '+brl(falta):'tudo recebido'}${venc?` · <b class="neg">${venc} vencido(s)</b>`:''}${(o.documentos||[]).some(d=>d.status==='pendente')?' · <b class="warn">doc. pendente</b>':''}${borderoDe(o)?'':' · <b class="neg">sem borderô</b>'}</div></div>`};
-  const col=(id,lbl,itens,cor)=>`<div class="kb-col"><div class="kb-h"><span class="dot" style="background:${cor}"></span>${lbl}<span class="cnt">${itens.length}</span></div>${itens.join('')||'<div class="muted" style="padding:6px 2px">vazio</div>'}</div>`;
-  const acomp=ops.filter(o=>etapaOp(o)==='acompanhamento'),enc=ops.filter(o=>etapaOp(o)==='encerrada').slice(0,15);
-  return `<div class="acoes"><button class="acao pri" onclick="go('razao','${fonteSel}');openOper()"><b>+ Nova operação</b><span>simulada e fechada no LiveWork: anexe o borderô e o sistema preenche</span></button></div>
-  <div class="kb kb2">${col('acompanhamento','Acompanhamento',acomp.map(cardOp),'var(--s2)')}${col('encerrada','Encerrada',enc.map(cardOp),'var(--pos)')}</div>`;
-}
+/* a lista de operações com filtro fica em estrutura.js */
 function abrirOperacao(id){opCur=id;opAba='titulos';go('operacao','')}
 function opResumo(o){const T=titsOp(o.id),rec=T.filter(t=>t.pago&&!t.perda),perda=T.filter(t=>t.perda);
   const voltou=r2(rec.reduce((x,t)=>x+(t.valorRecebido||0),0)),falta=r2(T.filter(t=>!t.pago).reduce((x,t)=>x+t.valor,0));
   const jurosT=r2(alive(DB.movs).filter(m=>m.tituloId&&T.some(t=>t.id===m.tituloId)&&m.categoria==='recebimento_titulo').reduce((x,m)=>x+(m.resultado||0),0));
   const perdas=r2(perda.reduce((x,t)=>x+t.valor,0));
-  return {T,voltou,falta,jurosT,perdas,resultado:r2(o.desagio+jurosT-perdas)}}
+  return {T,voltou,falta,jurosT,perdas,resultado:r2((o.desagio||0)+jurosT-perdas)}}
 function viewOperacao(){
   const o=alive(DB.operacoes).find(x=>x.id===opCur);if(!o)return vazio('Escolha uma operação no quadro de operações ou na ficha do cliente.');
   const R=opResumo(o),H=hoje(),et=etapaOp(o);
@@ -2321,8 +2349,8 @@ function viewOperacao(){
     hist:`<div class="hist">${(o.historico||[]).slice().reverse().map(h=>`<div class="hist-i"><b>${new Date(h.t).toLocaleString('pt-BR')}</b> · ${esc(({simulacao:'Simulação',analise:'Análise',aprovacao:'Aprovação',liberada:'Liberada',acompanhamento:'Acompanhamento',encerrada:'Encerrada'})[h.etapa]||h.etapa)}${h.quem?' · '+esc(h.quem):''}${h.obs?`<div class="muted">${esc(h.obs)}</div>`:''}</div>`).join('')}
       <div class="acts-row"><input id="op_nota" placeholder="Anotar no histórico"><button class="btn btn-sm" onclick="opNota('${o.id}')">Anotar</button></div></div>`};
   return `<div class="filters"><button class="btn btn-sm btn-ghost" onclick="go('operacoes','')">← Operações</button><span class="right" style="display:flex;gap:6px"><button class="btn btn-sm" onclick="abrirFicha('${o.clienteId}')">Ficha do cliente</button><button class="btn btn-sm" onclick="go('razao','${o.fonte}')">Razão do ${o.fonte}</button></span></div>
-  <div class="panel"><div class="panel-head"><h2>Operação ${esc(o.nf||'')} · ${esc(nomeCli(o.clienteId))}<small>${fmtBR(o.data)} · ${o.direta?'operação direta':'sacado '+esc(nomeSac(o.sacadoId))} · <span class="chip ${et==='encerrada'?'chip-ok':'chip-warn'}">${et==='encerrada'?'encerrada':'em acompanhamento'}</span></small></h2></div>
-    <div class="stats"><div class="stat"><div class="k">Saiu (enviado)</div><div class="v neg">${brl(o.liquido)}</div><div class="sub">face ${brl(o.bruto)}</div></div>
+  <div class="panel"><div class="panel-head"><h2>Operação ${esc(o.nf||'')} · ${esc(nomeCli(o.clienteId))}<small>${fmtBR(o.data)} · ${o.direta?'operação direta':(o.sacadoId?'sacado ':'sacados ')+esc(nomeSac(o.sacadoId)||[...new Set(R.T.map(t=>t.sacado).filter(Boolean))].join(', '))}${o.abertura?' · <span class="chip chip-n">anterior ao sistema</span>':''} · <span class="chip ${et==='encerrada'?'chip-ok':'chip-warn'}">${et==='encerrada'?'encerrada':'em acompanhamento'}</span></small></h2></div>
+    <div class="stats"><div class="stat"><div class="k">Saiu (enviado)</div><div class="v ${o.abertura?'':'neg'}">${o.abertura?'<span class="muted" style="font-size:15px">antes do sistema</span>':brl(o.liquido)}</div><div class="sub">face ${brl(o.bruto)}</div></div>
       <div class="stat"><div class="k">Voltou</div><div class="v pos">${brl(R.voltou)}</div><div class="sub">${R.T.filter(t=>t.pago&&!t.perda).length} de ${R.T.length} título(s)</div></div>
       <div class="stat"><div class="k">Falta</div><div class="v ${R.T.some(titVencido)?'neg':''}">${brl(R.falta)}</div><div class="sub">${R.T.filter(titVencido).length?R.T.filter(titVencido).length+' vencido(s)':'em dia'}</div></div>
       <div class="stat"><div class="k">Resultado</div><div class="v ${R.resultado>=0?'pos':'neg'}">${brl(R.resultado)}</div><div class="sub">deságio ${brl(o.desagio)}${R.jurosT?' + juros '+brl(R.jurosT):''}${R.perdas?' − perdas '+brl(R.perdas):''}</div></div>
@@ -2423,7 +2451,7 @@ function viewFicha(){
       <td class="c">${t.perda?'<span class="chip chip-bad">perda</span>':t.pago?`<span class="chip chip-ok">recebido ${fmtBR(t.recebimento)}${dias(t.vencimento,t.recebimento)>0?' · '+dias(t.vencimento,t.recebimento)+'d atraso':''}</span>`:titVencido(t)?`<span class="chip chip-bad">vencido há ${dias(t.vencimento,H)}d</span>`:'<span class="chip chip-n">a vencer</span>'}</td>
       <td class="c">${t.pago?'':`<button class="btn btn-sm btn-gold" onclick="fonteSel='${t.fonte}';openRec('${t.id}')">Receber</button>`}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted">Nenhum título.</div>'}</div>`;
   const ops=D.O.length?`<div class="panel"><div class="panel-head"><h2>Operações</h2></div><div class="tbl-scroll"><table class="tb auto"><thead><tr><th class="c">Data</th><th>Recurso</th><th>NF</th><th class="num">Face</th><th class="num">Enviado</th><th class="num">Deságio</th><th class="num">Fator</th><th class="num">ROA</th><th class="c">Etapa</th></tr></thead><tbody>
-    ${D.O.slice(0,30).map(o=>`<tr style="cursor:pointer" onclick="abrirOperacao('${o.id}')"><td class="c">${fmtBR(o.data)}</td><td>${chipF(o.fonte)}</td><td>${esc(o.nf||'')}</td><td class="num">${brl(o.bruto)}</td><td class="num">${brl(o.liquido)}</td><td class="num pos">${brl(o.desagio)}</td><td class="num">${o.fator?pctBR(o.fator):'—'}</td><td class="num">${o.roa?pctBR(o.roa):'—'}</td><td class="c">${etapaOp(o)==='encerrada'?'<span class="chip chip-ok">encerrada</span>':'<span class="chip chip-warn">acompanhamento</span>'}</td></tr>`).join('')}</tbody></table></div></div>`:'';
+    ${D.O.slice(0,30).map(o=>`<tr style="cursor:pointer" onclick="abrirOperacao('${o.id}')"><td class="c">${fmtBR(o.data)}</td><td>${chipF(o.fonte)}</td><td>${esc(o.nf||'')}</td><td class="num">${brl(o.bruto)}</td><td class="num">${o.abertura?'<span class="muted">antes do sistema</span>':brl(o.liquido)}</td><td class="num pos">${o.abertura?'':brl(o.desagio)}</td><td class="num">${o.fator?pctBR(o.fator):'—'}</td><td class="num">${o.roa?pctBR(o.roa):'—'}</td><td class="c">${etapaOp(o)==='encerrada'?'<span class="chip chip-ok">encerrada</span>':'<span class="chip chip-warn">acompanhamento</span>'}</td></tr>`).join('')}</tbody></table></div></div>`:'';
   const ants=D.A.length?`<div class="panel"><div class="panel-head"><h2>Antecipações<small>${D.Aab.length} aberta(s); a baixa é pela Correção geral</small></h2><button class="btn btn-sm" onclick="crCli='${c.id}';go('correcao','')">Correção geral</button></div><div class="tbl-scroll"><table class="tb auto"><thead><tr><th class="c">Envio</th><th>Recurso</th><th class="num">Enviado</th><th class="num">Principal aberto</th><th class="num">Juros até hoje</th><th class="c">Situação</th></tr></thead><tbody>
     ${D.A.slice().sort((a,b)=>b.data.localeCompare(a.data)).map(a=>`<tr><td class="c">${fmtBR(a.data)}</td><td>${chipF(a.fonte)}</td><td class="num">${brl(a.valor)}</td><td class="num">${brl(a.principal)}</td><td class="num">${a.status==='quitada'?'—':brl(jurosRef(a,H))}</td><td class="c">${a.status==='quitada'?'<span class="chip chip-ok">quitada</span>':'<span class="chip chip-warn">aberta</span>'}</td></tr>`).join('')}</tbody></table></div></div>`:'';
   const docs=`<div class="panel"><div class="panel-head"><h2>Documentos do cliente<small>contrato social, cadastro, garantias; o arquivo fica no Drive</small></h2><button class="btn btn-sm" onclick="docNovo('cli','${c.id}')">+ Documento</button></div>${docsTabela(c.documentos,'cli',c.id)}</div>`;
@@ -2507,7 +2535,7 @@ function relDados(){if(!relCfg)relCfg=relPadrao();const f=relCfg,M=relMovs(f),H=
     const v=m.resultado;if(m.categoria==='envio_operacao')g.des+=v;else if(m.categoria==='retorno_antecipacao')g.jant+=v;else if(m.categoria==='recebimento_titulo')g.jtit+=v;else if(m.categoria==='perda_titulo')g.perda+=v;else g.outras+=v;g.ids.push(m.id)});
     return Object.values(G).map(g=>({...g,res:r2(g.des+g.jant+g.jtit+g.perda+g.outras)})).sort((a,b)=>b.res-a.res)};
   out.cliente=agr(m=>m.clienteId||null,k=>nomeCli(k)||'—');out.recurso=agr(m=>m.fonte,k=>k);
-  out.prev=alive(DB.operacoes).filter(o=>o.data>=f.de&&o.data<=f.ate&&(!f.fonte||o.fonte===f.fonte)&&(!f.cli||o.clienteId===f.cli)&&(!f.mod||(f.mod==='direta'?o.direta:f.mod==='operacao'&&!o.direta))).map(o=>{const R=opResumo(o),pagos=R.T.filter(t=>t.pago&&!t.perda);
+  out.prev=opsReais().filter(o=>o.data>=f.de&&o.data<=f.ate&&(!f.fonte||o.fonte===f.fonte)&&(!f.cli||o.clienteId===f.cli)&&(!f.mod||(f.mod==='direta'?o.direta:f.mod==='operacao'&&!o.direta))).map(o=>{const R=opResumo(o),pagos=R.T.filter(t=>t.pago&&!t.perda);
     const prazoReal=pagos.length?pagos.reduce((x,t)=>x+dias(o.data,t.recebimento)*t.valor,0)/pagos.reduce((x,t)=>x+t.valor,0):null,enc=etapaOp(o)==='encerrada';
     return {o,prev:r2(o.desagio),real:R.resultado,roaPrev:o.roa,roaReal:enc&&prazoReal>0?R.resultado/o.bruto*30/prazoReal:null,prazoPrev:o.prazoMedio,prazoReal,enc}});
   out.capital=fontes().filter(x=>!f.fonte||x.codigo===f.fonte).map(x=>{const k=composicao(x.codigo),aloc=r2(k.titulos+k.antec+(k.invest||0)),base=aloc+Math.max(0,k.caixa);return {c:x.codigo,caixa:k.caixa,tit:k.titulos,ant:k.antec,empR:k.empRec||0,empP:k.empPag||0,capt:k.capt,aloc,total:k.total,pct:base?aloc/base:0}});
@@ -2578,13 +2606,13 @@ pnlPrioridades=function(D){const F=_pnlPrioBase(D),H=D.H,add=(u,lbl,txt,meta,tab
     else if(p&&p.data===H)add(2,'Promessa para hoje',`${c.nome}: confirmar o pagamento de ${brl(p.valor)}`,brl(p.valor),'ficha','',{cli:c.id});
     if(x&&x.data<=H)add(2,x.data<H?'Ação atrasada':'Ação de hoje',`${c.nome}: ${x.texto||'retomar contato'}${x.data<H?' (era '+fmtBR(x.data)+')':''}`,'','ficha','',{cli:c.id})});
   const ct=cobItens().filter(x=>x.etapa==='contatar');if(ct.length)add(2,'Cobrança a fazer',`${ct.length} cliente(s) com vencido e sem contato na semana: ${ct.slice(0,3).map(x=>x.c.nome).join(', ')}${ct.length>3?'…':''}`,brl(r2(ct.reduce((s,x)=>s+x.venc,0))),'cobranca','');
-  const semB=alive(DB.operacoes).filter(o=>!borderoDe(o));if(semB.length)add(3,'Operação sem borderô',`${semB.length} operação(ões) sem o borderô anexado: ${semB.slice(0,3).map(o=>nomeCli(o.clienteId)+' '+fmtBR(o.data)).join(', ')}${semB.length>3?'…':''}`,'','operacoes','');
+  const semB=opsReais().filter(o=>!borderoDe(o));if(semB.length)add(3,'Operação sem borderô',`${semB.length} operação(ões) sem o borderô anexado: ${semB.slice(0,3).map(o=>nomeCli(o.clienteId)+' '+fmtBR(o.data)).join(', ')}${semB.length>3?'…':''}`,'','operacoes','');
   const docP=alive(DB.operacoes).filter(o=>(o.documentos||[]).some(d=>d.status==='pendente'));if(docP.length)add(1,'Documento pendente',`${docP.length} operação(ões) com documento a receber`,'','operacoes','');
   const rp=rotinasDoDia(H).filter(r=>!rotinaFeita(r,H));if(rp.length)add(1,'Rotina de hoje',rp.map(r=>r.titulo).join(' · '),`${rp.length} pendente(s)`,'rotinas','');
   return F.sort((a,b)=>b.u-a.u)};
 /* resumo da carteira em texto, montado pelas regras (sem IA): para ler de manhã ou colar numa mensagem */
 function resumoCarteira(){const D=pnlDados(),H=D.H,d7=addDias(H,-7),conc=pnlConcentracao(D),top=conc[0];
-  const rec7=alive(DB.titulos).filter(t=>t.pago&&!t.perda&&t.recebimento>=d7),ops7=alive(DB.operacoes).filter(o=>o.data>=d7),ret7=alive(DB.movs).filter(m=>m.categoria==='retorno_antecipacao'&&m.data>=d7);
+  const rec7=alive(DB.titulos).filter(t=>t.pago&&!t.perda&&t.recebimento>=d7),ops7=opsReais().filter(o=>o.data>=d7),ret7=alive(DB.movs).filter(m=>m.categoria==='retorno_antecipacao'&&m.data>=d7);
   const L=[`Posição em ${fmtBR(H)}.`,`Em conta: ${brl(D.caixa)}. Na rua: ${brl(r2(D.tit.reduce((s,t)=>s+t.valor,0)+D.ants.reduce((s,a)=>s+a.principal,0)))} (títulos ${brl(r2(D.tit.reduce((s,t)=>s+t.valor,0)))}, antecipações ${brl(r2(D.ants.reduce((s,a)=>s+a.principal,0)))}).`,
     `Vencido a cobrar: ${brl(D.vencTitV)}${D.vencTit.length?' em '+D.vencTit.length+' título(s)':''}.`,`Últimos 7 dias: ${ops7.length} operação(ões) (${brl(r2(ops7.reduce((s,o)=>s+o.bruto,0)))} de face), ${rec7.length} título(s) recebido(s) (${brl(r2(rec7.reduce((s,t)=>s+(t.valorRecebido||0),0)))}), ${ret7.length} retorno(s) de antecipação (${brl(r2(ret7.reduce((s,m)=>s+m.entrada,0)))}).`];
   if(top)L.push(`Maior exposição: ${top.nome}, ${pctBR(top.pct)} da carteira${top.pct>LIMITE_CONC?' (acima de 25%)':''}.`);
@@ -2642,7 +2670,7 @@ function iaRetrato(){const H=hoje(),d90=addDias(H,-90),d180=addDias(H,-180);
     titulos_abertos:T.filter(t=>!t.pago).map(t=>({id:t.id,recurso:t.fonte,cliente:t.cliente,sacado:t.direta?'(operação direta)':t.sacado,nf:t.nf,parcela:t.parcela||'',vencimento:t.vencimento,valor:t.valor,dias_atraso:t.vencimento<H?dias(t.vencimento,H):0,operacao_id:t.operacaoId||null})),
     titulos_recebidos_90d:T.filter(t=>t.pago&&t.recebimento>=d90).map(t=>({id:t.id,recurso:t.fonte,cliente:t.cliente,nf:t.nf,vencimento:t.vencimento,recebimento:t.recebimento,valor:t.valor,recebido:t.valorRecebido,perda:!!t.perda})),
     antecipacoes_abertas:A.map(a=>{const j=jurosRef(a,H);return {id:a.id,recurso:a.fonte,cliente:a.cliente,envio:a.data,principal:a.principal,taxa_mes:a.taxaMes,juros_hoje:j,total_hoje:r2(a.principal+j),ultimo_retorno:(a.retornos||[]).map(x=>x.data).sort().pop()||null}}),
-    operacoes_180d:alive(DB.operacoes).filter(o=>o.data>=d180).map(o=>({id:o.id,recurso:o.fonte,data:o.data,cliente:nomeCli(o.clienteId),nf:o.nf,face:o.bruto,liquido:o.liquido,desagio:o.desagio,fator_mes:o.fator,prazo_medio:o.prazoMedio,roa:o.roa,etapa:etapaOp(o)})),
+    operacoes_180d:opsReais().filter(o=>o.data>=d180).map(o=>({id:o.id,recurso:o.fonte,data:o.data,cliente:nomeCli(o.clienteId),nf:o.nf,face:o.bruto,liquido:o.liquido,desagio:o.desagio,fator_mes:o.fator,prazo_medio:o.prazoMedio,roa:o.roa,etapa:etapaOp(o)})),
     clientes:alive(DB.clientes).map(c=>{const p=promessaAtiva(c.id),x=proximaAcao(c.id),u=contatosCli(c.id)[0];return {id:c.id,nome:c.nome,limite:c.limite||null,exposicao:expCli(c.id),taxa_antecipacao_mes:c.taxaMes,fator_operacao_mes:c.fatorMes||null,
       promessa:p?{data:p.data,valor:p.valor}:null,proxima_acao:x?{data:x.data,texto:x.texto}:null,ultimo_contato:u?{data:u.data,tipo:u.tipo,resumo:u.resumo}:null}}),
     captacoes:alive(DB.captacoes).filter(k=>k.status!=='quitada').map(k=>({investidor:k.investidor,recurso:k.fonte,saldo:k.saldo,taxa_mes:k.taxaMes})),
@@ -3073,6 +3101,273 @@ async function operBordPronto(eid){
   finally{if(bt){bt.disabled=false;bt.textContent='Rodar operação'}}
 }
 
+
+/* =========================================================================
+   ESTRUTURA (03/11/2026)
+   Menu enxuto: Razão, Carteira de títulos e Antecipações abrem num painel de
+   cartões (LEO, GIRO e Geral) e daí no recurso; Captações com a foto do
+   investidor; Parcelas bancárias e Fechamento no grupo Financeiro; Evolução do
+   capital (foto do montante no começo de cada mês, como um balanço); lista de
+   operações com filtro; cadastro único de pessoas, com código, em que mudar o
+   nome muda no sistema inteiro.
+   ========================================================================= */
+let vista='hub', cadTab='pessoas', evoFonte='GERAL', evoData='';
+let opFiltro={de:'',ate:'',fonte:'',cli:'',sac:'',sit:'',q:''};
+const HUB_TABS=['razao','titulos','antecip','captacoes','parcelas','fechamento'];
+const HUB_GERAL=['razao','titulos','antecip'];
+const fontesCom=tab=>fontes().filter(f=>temModulo(f,tab));
+const CAD_TABS=['cadastro','clientes','sacados','investidores'];
+
+/* ---------- navegação: o mesmo go() decide se abre o painel, o recurso ou o geral ---------- */
+function vistaPara(id,f){
+  if(!HUB_TABS.includes(id))return;
+  if(f==='GERAL'&&HUB_GERAL.includes(id)){vista='geral';return}
+  if(f&&f!=='GERAL'){fonteSel=f;vista='fonte';return}
+  const fs=fontesCom(id);
+  if(!HUB_GERAL.includes(id)&&id!=='fechamento'&&fs.length===1){fonteSel=fs[0].codigo;vista='fonte';return}
+  vista='hub';
+}
+function vistaRecurso(tab,fn){
+  if(vista==='hub')return viewHub(tab);
+  if(vista==='geral'&&tab==='razao')return viewRazaoGeral();
+  return fn();
+}
+function topoRecurso(){
+  if(!HUB_TABS.includes(activeTab)||vista==='hub')return '';
+  const volta=HUB_GERAL.includes(activeTab)||activeTab==='fechamento'||fontesCom(activeTab).length>1;
+  const bt=volta?`<button class="btn btn-sm btn-ghost" onclick="go(activeTab,'')" title="Escolher outro recurso">← recursos</button>`:'';
+  if(vista==='geral')return `${bt}<span class="geral-ic">${svgIc('painel')}</span><b>Geral</b><span class="muted">GIRO + LEO</span>`;
+  const f=fAtual();return `${bt}${logoBanco(f)} ${chipF(f.codigo)} ${esc(f.nome)}`;
+}
+
+/* ---------- painel de cartões ---------- */
+const hcBar=p=>`<div class="hc-bar"><i style="width:${Math.max(0,Math.min(100,Math.round(p*100)))}%"></i></div>`;
+function hubCard(tab,c){
+  const G=c==='GERAL',FS=G?fontes().map(f=>f.codigo):[c],f=G?null:fonte(c),H=hoje();
+  const cab=G?`<div class="hc-h"><span class="hc-ic">${svgIc('painel')}</span><div><div class="hc-n">Geral</div><div class="hc-s">${fontes().map(x=>x.codigo).join(' + ')} juntos</div></div></div>`
+    :`<div class="hc-h">${logoBanco(f,true)}<div><div class="hc-n">${esc(f.nome)}</div><div class="hc-s">${chipF(f.codigo)} ${f.banco?'conta '+esc(f.banco):''}</div></div></div>`;
+  const soma=fn=>r2(FS.reduce((s,x)=>s+fn(x),0));let corpo='',acao='';
+  if(tab==='razao'){const ms=FS.flatMap(x=>movsMes(x,mesSel)),e=r2(ms.reduce((s,m)=>s+m.entrada,0)),sd=r2(ms.reduce((s,m)=>s+m.saida,0));
+    corpo=`<div class="hc-v ${soma(x=>saldoAte(x,'9999-12-31'))<0?'neg':''}">${brl(soma(x=>saldoAte(x,'9999-12-31')))}</div><div class="hc-c">saldo calculado hoje${G?' das contas':''}</div>
+      <div class="hc-l"><span class="pos">↑ ${brl(e)}</span><span class="neg">↓ ${brl(sd)}</span><span class="muted">${ms.length} lanç. em ${mesLabel(mesSel).toLowerCase()}</span></div>
+      <div class="hc-l"><span class="muted">montante</span><b class="goldtxt">${brl(soma(x=>montanteAte(x,'9999-12-31')))}</b></div>`;acao=G?'ver os dois juntos':'abrir o razão'}
+  else if(tab==='titulos'){const T=FS.flatMap(x=>titsF(x)),ab=T.filter(titAberto),vc=ab.filter(titVencido),mk=mesDe(H);
+    const recMes=r2(T.filter(t=>t.pago&&!t.perda&&mesDe(t.recebimento||'')===mk).reduce((s,t)=>s+(t.valorRecebido||0),0)),aVencerMes=r2(ab.filter(t=>mesDe(t.vencimento||'')===mk).reduce((s,t)=>s+t.valor,0));
+    const prox=ab.filter(t=>t.vencimento>=H).sort((a,b)=>a.vencimento.localeCompare(b.vencimento))[0];
+    corpo=`<div class="hc-v">${brl(r2(ab.reduce((s,t)=>s+t.valor,0)))}</div><div class="hc-c">${ab.length} título(s) em aberto</div>${hcBar(recMes+aVencerMes?recMes/(recMes+aVencerMes):0)}
+      <div class="hc-l"><span class="muted">recebido em ${MESES[+mk.slice(5)-1].toLowerCase()}: ${brl(recMes)}</span></div>
+      ${vc.length?`<div class="hc-l"><b class="neg">${vc.length} vencido(s) · ${brl(r2(vc.reduce((s,t)=>s+t.valor,0)))}</b></div>`:''}
+      ${prox?`<div class="hc-l"><span class="muted">próximo: ${fmtBR(prox.vencimento)} · ${esc(prox.direta?prox.cliente:prox.sacado||'')}</span></div>`:''}`;acao=G?'ver a carteira toda':'abrir a carteira'}
+  else if(tab==='antecip'){const A=FS.flatMap(x=>antsF(x)).filter(a=>a.status!=='quitada'),pr=r2(A.reduce((s,a)=>s+a.principal,0)),j=r2(A.reduce((s,a)=>s+jurosRef(a,H),0)),par=A.filter(a=>dias(a.dataBase||a.data,H)>60);
+    corpo=`<div class="hc-v">${brl(r2(pr+j))}</div><div class="hc-c">${A.length} antecipação(ões) aberta(s) · principal + juros até hoje</div>${hcBar(pr+j?pr/(pr+j):0)}
+      <div class="hc-l"><span class="muted">principal ${brl(pr)}</span><span class="muted">juros ${brl(j)}</span></div>
+      ${par.length?`<div class="hc-l"><b class="warn">${par.length} sem retorno há mais de 60 dias</b></div>`:''}`;acao=G?'ver todas':'abrir as antecipações'}
+  else if(tab==='fechamento'){const fe=fech(c,mesSel)||{},ms=movsMes(c,mesSel),sC=r2(saldoAntesMes(c,mesSel)+ms.reduce((s,m)=>s+efCaixa(m),0)),dS=fe.saldoInformado!=null?r2(sC-fe.saldoInformado):null;
+    corpo=`<div class="hc-v">${brl(sC)}</div><div class="hc-c">saldo calculado em ${fmtBR(ultimoDia(mesSel))}</div>
+      <div class="hc-l">${fe.fechado?'<span class="chip chip-ok">mês fechado</span>':'<span class="chip chip-warn">mês aberto</span>'}<span class="muted">${dS==null?'extrato não informado':Math.abs(dS)<.005?'bate com o extrato':'diferença '+brl(dS)}</span></div>`;acao='abrir o fechamento'}
+  return `<div class="hubc ${G?'geral':''}" onclick="go('${tab}','${c}')">${cab}${corpo}<div class="hc-a">${acao} →</div></div>`;
+}
+function viewHub(tab){
+  const fs=tab==='fechamento'?fontes():HUB_GERAL.includes(tab)?fontes():fontesCom(tab);
+  const ordem=fs.slice().sort((a,b)=>(a.codigo==='LEO'?0:1)-(b.codigo==='LEO'?0:1));
+  return `<div class="hubg">${ordem.map(f=>hubCard(tab,f.codigo)).join('')}${HUB_GERAL.includes(tab)?hubCard(tab,'GERAL'):''}</div>`;
+}
+
+/* ---------- razão geral: os dois recursos no mesmo extrato do mês ---------- */
+function viewRazaoGeral(){
+  const FS=fontes().map(f=>f.codigo),ms=FS.flatMap(c=>movsMes(c,mesSel)).sort((a,b)=>a.data.localeCompare(b.data)||(a.seq||0)-(b.seq||0));
+  let saldo=r2(FS.reduce((s,c)=>s+saldoAntesMes(c,mesSel),0)),mont=r2(FS.reduce((s,c)=>s+montanteAntesMes(c,mesSel),0));const ab=saldo,mab=mont;
+  const rows=ms.map(m=>{saldo=r2(saldo+efCaixa(m));mont=r2(mont+efMont(m));
+    return `<tr><td class="c">${fmtBR(m.data)}</td><td class="c">${chipF(m.fonte)}</td><td class="desc"><b>${m.operacaoId?`<a href="#" class="lnk" onclick="abrirOperacao('${m.operacaoId}');return false">${esc(m.descricao)}</a>`:esc(m.descricao)}</b>${m.clienteId?`<div class="muted">${esc(nomeCli(m.clienteId))}</div>`:''}</td><td class="c">${chipCat(m.categoria)}</td>
+      <td class="num">${m.entrada?`<span class="pos">${brl(m.entrada)}</span>`:''}</td><td class="num">${m.saida?`<span class="neg">${brl(m.saida)}</span>`:''}</td><td class="num"><b>${brl(saldo)}</b></td><td class="num goldtxt">${brl(mont)}</td>
+      <td class="c"><button class="iconbtn" title="Abrir no razão do ${m.fonte}" onclick="go('razao','${m.fonte}')">↗</button></td></tr>`}).join('');
+  const tE=r2(ms.reduce((s,m)=>s+m.entrada,0)),tS=r2(ms.reduce((s,m)=>s+m.saida,0));
+  return `<div class="filters"><span class="muted" style="font-size:12px">${fontes().map(f=>logoBanco(f)+' '+chipF(f.codigo)).join(' + ')} · ${mesLabel(mesSel)} · só leitura: para lançar, abra o razão do recurso</span></div>
+  <div class="panel"><div class="tbl-scroll"><table class="razao"><colgroup><col style="width:96px"><col style="width:70px"><col><col style="width:170px"><col style="width:118px"><col style="width:118px"><col style="width:140px"><col style="width:140px"><col style="width:48px"></colgroup>
+    <thead><tr><th class="c">Data</th><th class="c">Recurso</th><th>Descrição</th><th class="c">Conta</th><th class="num">Entrada</th><th class="num">Saída</th><th class="num">Saldo das contas</th><th class="num">Montante total</th><th></th></tr></thead>
+    <tbody><tr class="tr-ab"><td class="c">${fmtBR(mesSel+'-01')}</td><td></td><td class="desc">Saldo anterior</td><td></td><td></td><td></td><td class="num"><b>${brl(ab)}</b></td><td class="num">${brl(mab)}</td><td></td></tr>
+    ${rows||`<tr><td colspan="9">${vazio('Nenhum lançamento em '+mesLabel(mesSel)+'.')}</td></tr>`}
+    <tr class="tr-tot"><td></td><td></td><td class="desc">Total do mês</td><td></td><td class="num pos">${brl(tE)}</td><td class="num neg">${brl(tS)}</td><td class="num">${brl(saldo)}</td><td class="num goldtxt">${brl(mont)}</td><td></td></tr></tbody></table></div></div>`;
+}
+
+/* ---------- captações: cartão por investidor, com foto ---------- */
+function viewCaptacoesCards(){
+  const c=fAtual().codigo,K=capsF(c),invs=[...new Set(K.map(k=>k.investidorId))].map(inv).filter(Boolean);
+  if(!invs.length)return '';
+  return `<div class="hubg">${invs.map(x=>{const p=pes(x.pessoaId)||{nome:x.nome},ks=K.filter(k=>k.investidorId===x.id),ab=ks.filter(k=>k.status!=='quitada');
+    const capt=r2(ks.reduce((s,k)=>s+k.valor,0)),jur=r2(ks.reduce((s,k)=>s+(k.eventos||[]).filter(e=>e.tipo==='juros').reduce((q,e)=>q+e.valor,0),0)),dev=r2(ks.reduce((s,k)=>s+(k.eventos||[]).filter(e=>e.tipo==='devolucao').reduce((q,e)=>q+e.valor,0),0)),deve=r2(ab.reduce((s,k)=>s+k.saldo,0));
+    return `<div class="hubc inv"><div class="hc-h"><label class="av-up" title="Trocar a foto">${avatarPes(p,46)}<input type="file" accept="image/png,image/jpeg,image/webp" hidden onchange="fotoPes('${p.id||''}',this)"></label>
+      <div><div class="hc-n">${esc((p.nome||'').toUpperCase())}</div><div class="hc-s">${codTag(p)} ${ab.length} captação(ões) em aberto${x.taxaMes?' · '+pctBR(x.taxaMes)+' a.m.':''}</div></div></div>
+      <div class="hc-v">${brl(deve)}</div><div class="hc-c">devido hoje · captado ${brl(capt)}</div>${hcBar(capt+jur?dev/(capt+jur):0)}
+      <div class="hc-l"><span class="muted">${capt+jur?Math.round(dev/(capt+jur)*100):0}% devolvido</span><span class="muted">juros reconhecidos ${brl(jur)}</span></div>
+      ${ab[0]?`<div class="hc-a" onclick="openCapEv('${ab[0].id}')" style="cursor:pointer">movimentar →</div>`:''}</div>`}).join('')}</div>`;
+}
+
+/* ---------- evolução do capital: foto do patrimônio de cada recurso numa data ---------- */
+function posicaoEm(c,d){
+  const f=fonte(c);if(!f||d<f.dataAbertura)return null;
+  const caixa=saldoAte(c,d);
+  const titulos=r2(titsF(c).filter(t=>(t.dataEntrada||f.dataAbertura)<=d&&(!t.pago||(t.recebimento||'9999')>d)).reduce((s,t)=>s+t.valor,0));
+  const antec=r2(antsF(c).filter(a=>a.data<=d).reduce((s,a)=>s+a.principal+(a.retornos||[]).filter(r=>r.data>d).reduce((q,r)=>q+(r.principal||0),0),0));
+  const invest=r2(movsF(c).filter(m=>m.data<=d).reduce((s,m)=>s+(m.categoria==='investimento_aplicacao'?m.saida:m.categoria==='investimento_resgate'?-m.entrada:0),0));
+  const capt=r2(capsF(c).filter(k=>k.data<=d).reduce((s,k)=>s+k.saldo-(k.eventos||[]).filter(e=>e.data>d).reduce((q,e)=>q+(e.tipo==='devolucao'?-e.valor:e.valor),0),0));
+  const emp=(lado)=>r2(alive(DB.emprestimos||[]).filter(e=>e[lado]===c&&e.data<=d).reduce((s,e)=>s+e.valor-(e.devolucoes||[]).filter(v=>v.data<=d).reduce((q,v)=>q+v.valor,0),0));
+  const empRec=emp('de'),empPag=emp('para'),terc=terceirosEm(c,d);
+  const ativo=r2(caixa+titulos+antec+invest+empRec),passivo=r2(capt+empPag+terc);
+  return {caixa,titulos,antec,invest,empRec,capt,empPag,terc,ativo,passivo,total:r2(ativo-passivo),evolucao:montanteAte(c,d)};
+}
+function posicaoGeral(d){const P=fontes().map(f=>posicaoEm(f.codigo,d)).filter(Boolean);if(!P.length)return null;
+  const g={};['caixa','titulos','antec','invest','capt','terc','evolucao'].forEach(k=>g[k]=r2(P.reduce((s,p)=>s+p[k],0)));
+  g.empRec=0;g.empPag=0;g.ativo=r2(g.caixa+g.titulos+g.antec+g.invest);g.passivo=r2(g.capt+g.terc);g.total=r2(g.ativo-g.passivo);return g}
+const fluxoEntre=(FS,a,b,campo)=>r2(FS.reduce((s,c)=>s+movsF(c).filter(m=>m.data>a&&m.data<=b).reduce((q,m)=>q+(m[campo]||0),0),0));
+function viewEvolucao(){
+  const G=evoFonte==='GERAL',FS=G?fontes().map(f=>f.codigo):[evoFonte],pos=d=>G?posicaoGeral(d):posicaoEm(evoFonte,d);
+  const ini=fontes().map(f=>f.dataAbertura).sort()[0]||hoje(),H=hoje();
+  const cols=[];for(let mk=addMes(mesDe(ini),1);mk<=mesDe(H);mk=addMes(mk,1))cols.push({d:addDias(mk+'-01',-1),lbl:'01/'+mk.slice(5)+'/'+mk.slice(0,4),sub:'início de '+MESES[+mk.slice(5)-1].toLowerCase().slice(0,3)+'/'+mk.slice(2,4),cur:'início de '+MESES[+mk.slice(5)-1].toLowerCase()});
+  if(!cols.length)cols.push({d:ini,lbl:fmtBR(ini),sub:'abertura',cur:'abertura'});
+  cols.splice(0,Math.max(0,cols.length-12));
+  cols.push({d:H,lbl:fmtBR(H),sub:'hoje',cur:'hoje'});
+  if(evoData&&!cols.some(c=>c.d===evoData))cols.push({d:evoData,lbl:fmtBR(evoData),sub:'data escolhida',cur:'data escolhida',esc:true});
+  cols.sort((a,b)=>a.d.localeCompare(b.d));
+  const P=cols.map(c=>pos(c.d));
+  const lin=(rot,k,cls,neg)=>`<tr class="${cls||''}"><td class="desc">${rot}</td>${P.map(p=>`<td class="num">${p?(neg&&p[k]?`<span class="neg">${brl(-p[k])}</span>`:brl(p[k])):'<span class="muted">—</span>'}</td>`).join('')}</tr>`;
+  const var_=P.map((p,i)=>p&&i&&P[i-1]?r2(p.total-P[i-1].total):null),res=P.map((p,i)=>p&&i&&P[i-1]?fluxoEntre(FS,cols[i-1].d,cols[i].d,'resultado'):null),cap=P.map((p,i)=>p&&i&&P[i-1]?fluxoEntre(FS,cols[i-1].d,cols[i].d,'capital'):null);
+  const linV=(rot,A,cls)=>`<tr class="${cls||''}"><td class="desc">${rot}</td>${A.map(v=>`<td class="num">${v==null?'<span class="muted">—</span>':sinal(v)}</td>`).join('')}</tr>`;
+  const chips=[['GERAL','Geral'],...fontes().map(f=>[f.codigo,f.codigo])].map(([k,l])=>`<button class="tab ${evoFonte===k?'active':''}" onclick="evoFonte='${k}';render()">${k==='GERAL'?l:logoBanco(fonte(k))+' '+chipF(k)}</button>`).join('');
+  const serie=cols.map((c,i)=>({lbl:c.sub==='hoje'?'hoje':c.esc?fmtBR(c.d).slice(0,5):c.sub.replace('início de ',''),v:P[i]?P[i].total:0,dest:c.sub==='hoje'}));
+  const ult=P.filter(Boolean).pop(),pri=P.find(Boolean);
+  const dif=P.some(p=>p&&Math.abs(p.total-p.evolucao)>=.005);
+  return `<div class="tabs">${chips}<span class="right"></span><label class="muted" style="font-size:12px;display:flex;gap:6px;align-items:center">Posição em <input type="date" id="ev_data" value="${evoData}" onchange="evoData=this.value;render()"></label>${evoData?`<button class="btn btn-sm btn-ghost" onclick="evoData='';render()">limpar</button>`:''}</div>
+  <div class="stats"><div class="stat"><div class="k">Montante ${pri?'em '+fmtBR(cols[P.indexOf(pri)].d):''}</div><div class="v">${brl(pri?pri.total:0)}</div><div class="sub">primeira foto</div></div>
+    <div class="stat"><div class="k">Montante hoje</div><div class="v goldtxt">${brl(ult?ult.total:0)}</div><div class="sub">${G?'GIRO + LEO':esc(fonte(evoFonte).nome)}</div></div>
+    <div class="stat"><div class="k">Variação no período</div><div class="v ${ult&&pri&&ult.total-pri.total<0?'neg':'pos'}">${brl(ult&&pri?r2(ult.total-pri.total):0)}</div><div class="sub">resultado ${brl(r2(res.reduce((s,v)=>s+(v||0),0)))} · capital ${brl(r2(cap.reduce((s,v)=>s+(v||0),0)))}</div></div></div>
+  <div class="panel"><div class="panel-head"><h2>Montante no começo de cada mês<small>a foto é tirada no fim do dia anterior; escolha uma data para ver a posição em qualquer dia</small></h2></div>${svgBarras(serie)}</div>
+  <div class="panel"><div class="panel-head"><h2>Balanço do recurso<small>ativo − passivo = montante (patrimônio)${G?'; o empréstimo entre GIRO e LEO se anula no geral':''}</small></h2></div>
+    <div class="tbl-scroll"><table class="tb evo" style="min-width:${260+cols.length*140}px"><thead><tr><th>Posição</th>${cols.map(c=>`<th class="num ${c.esc?'evo-esc':''}">${c.lbl}<div class="muted">${c.sub}</div></th>`).join('')}</tr></thead><tbody>
+      <tr class="evo-sec"><td colspan="${cols.length+1}">Ativo</td></tr>
+      ${lin('Conta corrente','caixa')}${lin('Títulos a receber','titulos')}${lin('Antecipações (principal)','antec')}${P.some(p=>p&&p.invest)?lin('Investimentos','invest'):''}${!G?lin('A receber de outro recurso','empRec'):''}
+      ${lin('<b>Total do ativo</b>','ativo','tr-sub')}
+      <tr class="evo-sec"><td colspan="${cols.length+1}">Passivo</td></tr>
+      ${lin('Captações de terceiros','capt',null,true)}${!G?lin('A devolver a outro recurso','empPag',null,true):''}${P.some(p=>p&&p.terc)?lin('Recursos de terceiros a repassar','terc',null,true):''}
+      ${lin('<b>Total do passivo</b>','passivo','tr-sub',true)}
+      ${lin('<b>Montante (patrimônio)</b>','total','tr-tot')}
+      ${linV('Variação desde a coluna anterior',var_)}${linV('· resultado do período',res,'evo-dt')}${linV('· aportes, retiradas e outros de capital',cap,'evo-dt')}
+      <tr class="evo-dt"><td class="desc">Conferência com o razão</td>${P.map(p=>`<td class="num">${!p?'':Math.abs(p.total-p.evolucao)<.005?'<span class="dif-ok">fecha</span>':`<span class="dif-bad">${brl(r2(p.total-p.evolucao))}</span>`}</td>`).join('')}</tr>
+    </tbody></table></div>
+    ${dif?'<div class="hint" style="margin-top:8px">Coluna que não fecha: há título, antecipação ou captação registrado por fora do razão naquele período.</div>':''}</div>`;
+}
+
+/* ---------- operações: lista com filtro, cada uma com o seu borderô ---------- */
+const opsReais=()=>alive(DB.operacoes).filter(o=>!o.abertura);
+function opFiltra(k,v){opFiltro[k]=v;render()}
+function viewOperacoes(){
+  const F=opFiltro,H=hoje(),todos=alive(DB.operacoes);
+  let L=todos.filter(o=>(!F.de||o.data>=F.de)&&(!F.ate||o.data<=F.ate)&&(!F.fonte||o.fonte===F.fonte)&&(!F.cli||o.clienteId===F.cli)&&(!F.sac||o.sacadoId===F.sac||titsOp(o.id).some(t=>t.sacadoId===F.sac)));
+  if(F.sit==='acompanhamento'||F.sit==='encerrada')L=L.filter(o=>etapaOp(o)===F.sit);else if(F.sit==='sem')L=L.filter(o=>!borderoDe(o));else if(F.sit==='abertura')L=L.filter(o=>o.abertura);else if(F.sit==='vencido')L=L.filter(o=>titsOp(o.id).some(titVencido));
+  if(F.q){const q=normNome(F.q);L=L.filter(o=>{const b=borderoDe(o);return normNome([o.nf,nomeCli(o.clienteId),nomeSac(o.sacadoId),b&&b.numero,b&&b.arquivo.nome,o.obs,...titsOp(o.id).map(t=>(t.nf||'')+' '+(t.sacado||''))].filter(Boolean).join(' ')).includes(q)})}
+  L.sort((a,b)=>b.data.localeCompare(a.data));
+  const sel=(k,arr,lbl)=>`<select onchange="opFiltra('${k}',this.value)"><option value="">${lbl}</option>${arr.map(([v,t])=>`<option value="${v}" ${F[k]===v?'selected':''}>${esc(t)}</option>`).join('')}</select>`;
+  const ordN=a=>alive(a).slice().sort((x,y)=>x.nome.localeCompare(y.nome)).map(x=>[x.id,x.nome]);
+  const rows=L.map(o=>{const T=titsOp(o.id),ab=T.filter(titAberto),vc=T.filter(titVencido),b=borderoDe(o),et=etapaOp(o);
+    const SL=[...new Set(T.map(t=>t.sacado).filter(Boolean))],sacs=o.direta?'<span class="muted">direta · o cliente paga</span>':o.sacadoId?esc(nomeSac(o.sacadoId)):esc(SL.slice(0,2).join(', '))+(SL.length>2?` <span class="muted">+${SL.length-2}</span>`:'');
+    return `<tr class="op-row" onclick="abrirOperacao('${o.id}')"><td class="c">${fmtBR(o.data)}</td><td class="c">${chipF(o.fonte)}</td><td class="desc"><b>${esc(nomeCli(o.clienteId))}</b></td><td class="desc">${sacs}</td><td class="c">${esc((o.nf||'').length>24?o.nf.slice(0,22)+'…':o.nf||'')}${b&&b.numero?`<div class="muted">borderô ${esc(b.numero)}</div>`:''}</td>
+      <td class="c">${T.length}${ab.length?`<div class="muted">${ab.length} em aberto</div>`:''}</td><td class="num">${brl(o.bruto)}</td><td class="num">${o.abertura?'<span class="muted">antes do sistema</span>':brl(o.liquido)}</td>
+      <td class="c">${vc.length?`<span class="chip chip-bad">${vc.length} vencido(s)</span>`:et==='encerrada'?'<span class="chip chip-ok">encerrada</span>':'<span class="chip chip-warn">acompanhamento</span>'}</td>
+      <td class="c" onclick="event.stopPropagation()">${b?`<button class="btn btn-sm" onclick="arqAbrirDoc('op','${o.id}','${b.id}')">📎 abrir</button>`:o.abertura?`<button class="btn btn-sm btn-ghost" onclick="docNovo('op','${o.id}','bordero')" title="Operação feita antes do sistema: anexe o borderô se tiver">anexar</button>`:`<button class="btn btn-sm btn-gold" onclick="docNovo('op','${o.id}','bordero')">anexar</button>`}</td></tr>`}).join('');
+  const lim=Object.values(F).some(Boolean);
+  return `<div class="acoes"><button class="acao pri" onclick="go('razao','${fonteSel}');openOper()"><b>+ Nova operação</b><span>simulada e fechada no LiveWork: anexe o borderô e o sistema preenche</span></button></div>
+  <div class="filters op-filtros"><label>De <input type="date" value="${F.de}" onchange="opFiltra('de',this.value)"></label><label>Até <input type="date" value="${F.ate}" onchange="opFiltra('ate',this.value)"></label>
+    ${sel('fonte',fontes().map(f=>[f.codigo,f.codigo+' · '+f.nome]),'todos os recursos')}${sel('cli',ordN(DB.clientes),'todos os clientes')}${sel('sac',ordN(DB.sacados),'todos os sacados')}
+    ${sel('sit',[['acompanhamento','em acompanhamento'],['vencido','com título vencido'],['encerrada','encerradas'],['sem','sem borderô'],['abertura','da abertura (antes do sistema)']],'todas as situações')}
+    <input placeholder="NF, nº do borderô, nome…" value="${esc(F.q)}" onchange="opFiltra('q',this.value)">${lim?`<button class="btn btn-sm btn-ghost" onclick="opFiltro={de:'',ate:'',fonte:'',cli:'',sac:'',sit:'',q:''};render()">limpar</button>`:''}</div>
+  <div class="panel"><div class="tbl-scroll"><table class="tb" style="min-width:960px"><colgroup><col style="width:92px"><col style="width:80px"><col><col><col style="width:110px"><col style="width:72px"><col style="width:118px"><col style="width:108px"><col style="width:122px"><col style="width:92px"></colgroup>
+    <thead><tr><th class="c">Data</th><th class="c">Recurso</th><th>Cliente</th><th>Sacado</th><th class="c">NF / doc.</th><th class="c">Títulos</th><th class="num">Face</th><th class="num">Enviado</th><th class="c">Situação</th><th class="c">Borderô</th></tr></thead>
+    <tbody>${rows||`<tr><td colspan="10">${vazio(todos.length?'Nenhuma operação com esse filtro.':'Nenhuma operação registrada ainda.')}</td></tr>`}
+    <tr class="tr-tot"><td></td><td></td><td class="desc">${L.length} operação(ões)</td><td></td><td></td><td class="c">${L.reduce((s,o)=>s+titsOp(o.id).length,0)}</td><td class="num">${brl(r2(L.reduce((s,o)=>s+o.bruto,0)))}</td><td class="num">${brl(r2(L.filter(o=>!o.abertura).reduce((s,o)=>s+(o.liquido||0),0)))}</td><td colspan="2"></td></tr></tbody></table></div></div>`;
+}
+
+/* ---------- cadastro único de pessoas ---------- */
+const pes=id=>(DB.pessoas||[]).find(p=>p.id===id);
+const codTag=p=>p&&p.codigo?`<span class="cod" title="Código no cadastro">${esc(p.codigo)}</span>`:'';
+const codDe=x=>codTag(x&&pes(x.pessoaId));
+const iniciais=n=>(n||'?').replace(/[^A-Za-zÀ-ÿ ]/g,' ').trim().split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase()||'?';
+function avatarPes(p,tam){tam=tam||36;return p&&p.foto?`<img class="avatar" src="${p.foto}" alt="" style="width:${tam}px;height:${tam}px">`:`<span class="avatar ini" style="width:${tam}px;height:${tam}px;font-size:${Math.round(tam*.36)}px">${esc(iniciais(p&&p.nome))}</span>`}
+function novaPessoa(d){DB.pessoas=DB.pessoas||[];DB.pessoaSeq=Math.max(DB.pessoaSeq||0,...DB.pessoas.map(p=>parseInt((p.codigo||'').slice(1))||0));DB.pessoaSeq++;
+  const p={id:uid(),codigo:'P'+String(DB.pessoaSeq).padStart(4,'0'),nome:d.nome,documento:d.documento||'',contato:d.contato||'',fone:d.fone||'',email:d.email||'',foto:d.foto||'',obs:d.obs||'',deletedAt:d.deletedAt||null};DB.pessoas.push(p);return p}
+const pessoaPorNome=n=>alive(DB.pessoas||[]).find(p=>normNome(p.nome)===normNome(n));
+const PAPEIS=[['clientes','Cliente'],['sacados','Sacado'],['investidores','Investidor']];
+const papeisDe=pid=>PAPEIS.filter(([k])=>alive(DB[k]).some(x=>x.pessoaId===pid)).map(([k,l])=>({k,l,x:alive(DB[k]).find(x=>x.pessoaId===pid)}));
+/* liga todo cliente, sacado e investidor a uma pessoa; o mesmo nome em dois papéis vira a mesma pessoa (ex.: a empresa que é cliente e também sacado) */
+function garanteEstrutura(){
+  DB.pessoas=DB.pessoas||[];DB.migracoes=DB.migracoes||[];
+  PAPEIS.forEach(([k])=>DB[k].forEach(x=>{if(x.pessoaId&&pes(x.pessoaId))return;let p=x.deletedAt?null:pessoaPorNome(x.nome);
+    if(!p)p=novaPessoa({nome:x.nome,contato:x.contato,fone:x.fone,email:x.email,deletedAt:x.deletedAt||null});else['contato','fone','email'].forEach(c=>{if(!p[c]&&x[c])p[c]=x[c]});x.pessoaId=p.id}));
+  /* todo título pertence a uma operação: os da abertura ganham uma operação "anterior ao sistema" por recurso, cliente e data
+     (no LiveWork é um borderô por cliente no dia, mesmo com vários sacados) */
+  if(!DB.migracoes.includes('titulos-operacao')){const g={};
+    alive(DB.titulos).filter(t=>!t.operacaoId).forEach(t=>{const k=[t.fonte,t.clienteId||'',t.direta?'D':'',t.dataEntrada||''].join('|');(g[k]=g[k]||[]).push(t)});
+    Object.values(g).forEach(T=>{const t=T[0],f=fonte(t.fonte)||{},sacs=[...new Set(T.map(x=>x.sacadoId).filter(Boolean))],nfs=[...new Set(T.map(x=>(x.nf||'').split('/')[0].trim()).filter(Boolean))];
+      const op={id:uid(),fonte:t.fonte,data:t.dataEntrada||f.dataAbertura,clienteId:t.clienteId,sacadoId:t.direta||sacs.length!==1?null:sacs[0],direta:!!t.direta,nf:nfs.join(', ').slice(0,80),
+      bruto:r2(T.reduce((s,x)=>s+x.valor,0)),liquido:null,desagio:null,fator:null,floatDias:null,despesas:0,prazoMedio:null,roa:null,movId:null,abertura:true,
+      obs:'Operação anterior ao sistema: títulos que vieram no levantamento de abertura.',documentos:[],historico:[{t:Date.now(),etapa:'acompanhamento',quem:'',obs:'Criada para ligar os títulos da abertura a uma operação'}],deletedAt:null};
+      DB.operacoes.push(op);T.forEach(x=>x.operacaoId=op.id)});
+    DB.migracoes.push('titulos-operacao')}
+}
+/* um nome muda em um lugar só: a pessoa; daqui ele desce para os papéis e para as cópias nos títulos, antecipações, captações e descrições do razão */
+function renomearPessoa(p,novo,antes){
+  if(!p||!novo)return;p.nome=novo;
+  PAPEIS.forEach(([k])=>DB[k].filter(x=>x.pessoaId===p.id).forEach(x=>{const velho=antes&&antes.x===x?antes.nome:x.nome;x.nome=novo;if(velho&&velho!==novo)propagaNome(k,x.id,velho,novo)}));
+}
+function propagaNome(k,id,velho,novo){
+  const troca=m=>{if(m.descricao&&m.descricao.includes(velho))m.descricao=m.descricao.split(velho).join(novo)};
+  if(k==='clientes'){DB.titulos.filter(t=>t.clienteId===id).forEach(t=>{t.cliente=novo;if(t.direta)t.sacado=novo});DB.antecipacoes.filter(a=>a.clienteId===id).forEach(a=>a.cliente=novo);DB.movs.filter(m=>m.clienteId===id).forEach(troca)}
+  if(k==='sacados'){const T=DB.titulos.filter(t=>t.sacadoId===id);T.forEach(t=>t.sacado=novo);const ids=new Set(T.map(t=>t.id));DB.movs.filter(m=>m.tituloId&&ids.has(m.tituloId)).forEach(troca)}
+  if(k==='investidores'){const K=DB.captacoes.filter(c=>c.investidorId===id);K.forEach(c=>c.investidor=novo);const ids=new Set(K.map(c=>c.id));DB.movs.filter(m=>m.captacaoId&&ids.has(m.captacaoId)).forEach(troca)}
+}
+/* chamado pelos cadastros de cliente, sacado e investidor depois de gravar o papel */
+function ligaPessoa(k,x,dados,antes){
+  let p=x.pessoaId&&pes(x.pessoaId);
+  if(!p){p=(window._pesLiga&&pes(window._pesLiga))||pessoaPorNome(dados.nome)||novaPessoa({nome:dados.nome});x.pessoaId=p.id;window._pesLiga=null;if(p.nome!==dados.nome)x.nome=p.nome}
+  else if(p.nome!==dados.nome)renomearPessoa(p,dados.nome,{x,nome:antes});
+  ['contato','fone','email'].forEach(c=>{if(dados[c]!==undefined&&dados[c]!=='')p[c]=dados[c]});
+}
+function viewCadastroTabs(){
+  const n={pessoas:alive(DB.pessoas||[]).length,clientes:alive(DB.clientes).length,sacados:alive(DB.sacados).length,investidores:alive(DB.investidores).length};
+  const at=activeTab==='cadastro'?'pessoas':activeTab;
+  return `<div class="tabs">${[['pessoas','Todas as pessoas','cadastro'],['clientes','Clientes','clientes'],['sacados','Sacados','sacados'],['investidores','Investidores','investidores']].map(([k,l,t])=>`<button class="tab ${at===k?'active':''}" onclick="go('${t}','')">${l}<span class="cnt">${n[k]}</span></button>`).join('')}</div>`;
+}
+function viewCadastro(){
+  const L=alive(DB.pessoas||[]).sort((a,b)=>a.nome.localeCompare(b.nome));
+  const rows=L.map(p=>{const P=papeisDe(p.id);return `<tr><td class="c">${codTag(p)}</td><td class="desc"><span class="pes-n">${avatarPes(p,28)}<b>${esc(p.nome)}</b></span>${p.obs?`<div class="muted">${esc(p.obs)}</div>`:''}</td><td>${esc(p.documento||'')}</td>
+    <td>${P.map(r=>`<button class="chip chip-n papel" onclick="${r.k==='clientes'?`openCli('${r.x.id}')`:r.k==='sacados'?`openSac('${r.x.id}')`:`openInv('${r.x.id}')`}">${r.l}</button>`).join(' ')||'<span class="muted">sem papel</span>'}</td>
+    <td>${esc([p.contato,p.fone,p.email].filter(Boolean).join(' · '))}</td><td class="c"><button class="iconbtn" title="Editar" onclick="openPes('${p.id}')">✎</button></td></tr>`}).join('');
+  return viewCadastroTabs()+`<div class="panel"><div class="panel-head"><h2>Cadastro único<small>cada pessoa tem um código e aparece uma vez só; mudar o nome aqui muda em títulos, antecipações, captações e no razão</small></h2><button class="btn btn-sm btn-gold" onclick="openPes()">+ Pessoa</button></div>
+    <div class="tbl-scroll"><table class="tb auto"><thead><tr><th class="c">Código</th><th>Nome</th><th>CPF / CNPJ</th><th>Papéis</th><th>Contato</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="6">${vazio('Nenhuma pessoa cadastrada.')}</td></tr>`}</tbody></table></div></div>`;
+}
+function openPes(id){const p=id?pes(id):null;window._pesFoto=undefined;
+  const P=p?papeisDe(p.id):[],tem=k=>P.some(r=>r.k===k);
+  openGen(p?'Pessoa '+esc(p.codigo):'Nova pessoa',`<input type="hidden" id="ps_id" value="${p?p.id:''}">
+    <div class="pes-top"><label class="av-up" title="Escolher foto"><span id="ps_av">${avatarPes(p,64)}</span><input type="file" accept="image/png,image/jpeg,image/webp" hidden onchange="fotoPrevia(this)"></label>
+      <div class="hint">Clique na foto para trocar. ${p&&p.foto?`<a href="#" onclick="window._pesFoto='';el('ps_av').innerHTML=avatarPes({nome:val('ps_nome')},64);return false">remover foto</a>`:''}</div></div>
+    <div class="field"><label>Nome *</label><input id="ps_nome" value="${esc(p?p.nome:'')}"></div>
+    <div class="fgrid"><div class="field"><label>CPF / CNPJ</label><input id="ps_doc" value="${esc(p?p.documento||'':'')}"></div><div class="field"><label>Contato (pessoa)</label><input id="ps_contato" value="${esc(p?p.contato||'':'')}"></div>
+      <div class="field"><label>Telefone</label><input id="ps_fone" value="${esc(p?p.fone||'':'')}"></div><div class="field"><label>E-mail</label><input id="ps_email" value="${esc(p?p.email||'':'')}"></div></div>
+    <div class="field"><label>Observação</label><input id="ps_obs" value="${esc(p?p.obs||'':'')}"></div>
+    ${p?`<div class="field"><label>Papéis</label><div class="papeis">${PAPEIS.map(([k,l])=>tem(k)?`<span class="chip chip-ok">${l}</span>`:`<button class="btn btn-sm" onclick="closeModal('ovGen');window._pesLiga='${p.id}';${k==='clientes'?'openCli()':k==='sacados'?'openSac()':'openInv()'};setTimeout(()=>{setVal('${k==='clientes'?'cl_nome':k==='sacados'?'sc_nome':'iv_nome'}',pes('${p.id}').nome)},70)">+ como ${l.toLowerCase()}</button>`).join(' ')}</div></div>`:''}
+    <div class="erro" id="ps_erro"></div>`,
+    `<button class="btn btn-ghost" onclick="closeModal('ovGen')">Cancelar</button><button class="btn btn-gold" onclick="savePes()">Salvar</button>`)}
+function savePes(){const id=val('ps_id'),nome=val('ps_nome').trim();if(!nome)return erro('ps_erro','Informe o nome.');
+  const outra=pessoaPorNome(nome);if(outra&&outra.id!==id)return erro('ps_erro',`Já existe ${outra.codigo} · ${outra.nome} no cadastro.`);
+  let p=id?pes(id):null;const dados={documento:val('ps_doc').trim(),contato:val('ps_contato').trim(),fone:val('ps_fone').trim(),email:val('ps_email').trim(),obs:val('ps_obs').trim()};
+  if(!p)p=novaPessoa({nome,...dados});else{Object.assign(p,dados);if(p.nome!==nome)renomearPessoa(p,nome)}
+  if(window._pesFoto!==undefined)p.foto=window._pesFoto;window._pesFoto=undefined;
+  DB.clientes.filter(x=>x.pessoaId===p.id).forEach(x=>{x.contato=p.contato;x.fone=p.fone;x.email=p.email});DB.investidores.filter(x=>x.pessoaId===p.id).forEach(x=>{x.contato=p.contato});
+  logH('Cadastro '+p.codigo+' '+p.nome);save();closeModal('ovGen');render();toast('Cadastro salvo')}
+/* foto: reduzida a 160 px no próprio navegador e guardada no cadastro */
+function fotoReduz(f){return new Promise((ok,no)=>{if(!/^image\//.test(f.type))return no(new Error('Use PNG, JPG ou WEBP.'));const r=new FileReader();r.onerror=no;r.onload=()=>{const im=new Image();im.onerror=()=>no(new Error('Não consegui abrir a imagem.'));
+  im.onload=()=>{const T=160,cv=document.createElement('canvas');cv.width=T;cv.height=T;const s=Math.min(im.width,im.height),x=(im.width-s)/2,y=(im.height-s)/2;cv.getContext('2d').drawImage(im,x,y,s,s,0,0,T,T);ok(cv.toDataURL('image/jpeg',.85))};im.src=r.result};r.readAsDataURL(f)})}
+async function fotoPrevia(inp){const f=inp.files[0];if(!f)return;try{window._pesFoto=await fotoReduz(f);el('ps_av').innerHTML=avatarPes({foto:window._pesFoto},64)}catch(e){toast(e.message)}}
+async function fotoPes(pid,inp){const f=inp.files[0],p=pes(pid);if(!f||!p)return;try{p.foto=await fotoReduz(f);logH('Foto de '+p.nome);save();render();toast('Foto salva')}catch(e){toast(e.message)}}
 
 if(typeof MODO_NUVEM==='undefined'||!MODO_NUVEM){load();render();avisoAbertura()}
 /* =========================================================================
