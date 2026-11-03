@@ -513,12 +513,6 @@ a.lnk{color:inherit;text-decoration:none}a.lnk:hover b{color:var(--acc);text-dec
 @media print{.side,.topbar,.filters,.tabs,.btn,.acoes{display:none!important}.shell{display:block}.page{padding:0}.panel{border:0;break-inside:avoid}body{background:#fff;color:#000}}
 
 /* ===== IA ===== */
-.ia-box{border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);background:color-mix(in srgb,var(--acc) 7%,transparent);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:12.5px}
-.ia-h{display:flex;gap:6px;align-items:center;margin-bottom:6px}.ia-h .right{margin-left:auto}.ia-box ul{margin:4px 0 0 18px;padding:0}.ia-box li{margin:3px 0;line-height:1.45}
-.ia-st{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--dim);margin:10px 0 4px}.ia-st.neg{color:var(--neg)}
-.ia-spin{width:12px;height:12px;border-radius:50%;border:2px solid var(--line-f);border-top-color:var(--acc);animation:iagira .8s linear infinite;flex:0 0 12px}@keyframes iagira{to{transform:rotate(360deg)}}
-.ia-resp{margin-top:12px;font-size:13.5px;line-height:1.65;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:12px 14px}
-.ia-itens{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 /* borderô obrigatório na operação */
 .bord-box{border:1px dashed var(--acc);border-radius:10px;padding:10px 12px;margin:0 0 12px;background:var(--panel2)}.bord-box .field{margin:0}
 .bord-ok{font-size:12.5px;color:var(--txt);margin-top:8px;line-height:1.5}.bord-box .neg{font-size:12.5px;margin-top:6px}
@@ -2446,7 +2440,7 @@ function textoCobranca(cliId){const c=cli(cliId),D=demonstrativoDados(cliId),nom
   const p=promessaAtiva(cliId);L.push(p?`Conforme combinamos, fica o pagamento de ${brl(p.valor)} para ${fmtBR(p.data)}. Pode me confirmar?`:venc.length?'Consegue me passar uma previsão de pagamento dos vencidos?':'Qualquer dúvida, estou à disposição.');
   L.push('','Obrigado,',(DB.perfil&&DB.perfil.nome)||'Lidere BPO Financeiro');return L.join('\n')}
 function abrirTexto(cliId){const t=textoCobranca(cliId);openGen('Texto de cobrança · '+esc(nomeCli(cliId)),`<div class="hint" style="margin-bottom:8px">Montado com os números do sistema. Revise antes de enviar.</div><textarea id="tx_cob" rows="14" style="width:100%">${esc(t)}</textarea>`,
-  `<button class="btn btn-ghost" onclick="closeModal('ovGen')">Fechar</button>${typeof IA_ATIVA!=='undefined'&&IA_ATIVA?`<button class="btn" id="tx_ia" onclick="iaMelhorarTexto()">Melhorar com IA</button>`:''}<button class="btn btn-gold" onclick="navigator.clipboard.writeText(val('tx_cob')).then(()=>toast('Texto copiado'))">Copiar</button>`)}
+  `<button class="btn btn-ghost" onclick="closeModal('ovGen')">Fechar</button><button class="btn btn-gold" onclick="navigator.clipboard.writeText(val('tx_cob')).then(()=>toast('Texto copiado'))">Copiar</button>`)}
 function viewFicha(){
   const L=alive(DB.clientes).sort((a,b)=>a.nome.localeCompare(b.nome));if(!L.length)return vazio('Nenhum cliente cadastrado.');
   if(!fichaCli||!L.find(c=>c.id===fichaCli))fichaCli=L[0].id;const c=cli(fichaCli),D=fichaDados(fichaCli),H=hoje(),CT=contatosCli(c.id),pr=promessaAtiva(c.id),px=proximaAcao(c.id);
@@ -2649,75 +2643,13 @@ function buscaRapida(q){const s=q.toLowerCase().normalize('NFD').replace(/[̀-ͯ
   if(resto){const n=x=>(x||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');T=T.filter(t=>resto.split(/\s+/).every(w=>n(t.cliente).includes(w)||n(t.sacado).includes(w)||n(t.nf).includes(w)))}
   return T.sort((a,b)=>a.vencimento.localeCompare(b.vencimento))}
 function painelExtra(){const R=buscaRapida(buscaQ);
-  return (typeof painelIA==='function'?painelIA():'')+`<div class="panel"><div class="panel-head"><h2>Busca rápida<small>ex.: "LEO vence semana", "vencidos GIRO", ou o nome do cliente ou do sacado</small></h2></div>
+  return `<div class="panel"><div class="panel-head"><h2>Busca rápida<small>ex.: "LEO vence semana", "vencidos GIRO", ou o nome do cliente ou do sacado</small></h2></div>
     <div class="acts-row"><input id="bq" value="${esc(buscaQ)}" placeholder="O que você procura?" style="flex:1" onkeydown="if(event.key==='Enter'){buscaQ=this.value;render()}"><button class="btn btn-sm" onclick="buscaQ=val('bq');render()">Buscar</button></div>
     ${buscaQ?(R.length?`<table class="tb auto" style="margin-top:8px"><tbody>${R.slice(0,20).map(t=>`<tr><td>${chipF(t.fonte)}</td><td><a href="#" class="lnk" onclick="abrirFicha('${t.clienteId}');return false">${esc(t.cliente||'')}</a></td><td>${esc(t.direta?'direta':t.sacado||'')}</td><td>NF ${esc(t.nf||'')}</td><td class="c">${fmtBR(t.vencimento)}</td><td class="num">${brl(t.valor)}</td><td class="c">${t.operacaoId?`<button class="btn btn-sm" onclick="abrirOperacao('${t.operacaoId}')">Operação</button>`:''}</td></tr>`).join('')}</tbody></table><div class="muted">${R.length} título(s) · ${brl(r2(R.reduce((s,t)=>s+t.valor,0)))}</div>`:'<div class="muted" style="margin-top:8px">Nada encontrado.</div>'):''}</div>
   <div class="panel"><div class="panel-head"><h2>Resumo da carteira<small>montado com os números do sistema</small></h2><button class="btn btn-sm" onclick="navigator.clipboard.writeText(resumoCarteira()).then(()=>toast('Resumo copiado'))">Copiar</button></div><div class="resumo-txt">${esc(resumoCarteira())}</div></div>`}
 
 /* toda tela passa a ter as estruturas novas, mesmo num banco antigo ou recém-restaurado */
 const _renderBase=render;render=function(){if(DB)garanteModulos();_renderBase()};
-
-/* =========================================================================
-   IA (Claude, pela Edge Function ia-lidere do Supabase)
-   A chave da Anthropic fica no servidor; esta página só manda o pedido com o
-   login de quem está usando. Funciona na versão da nuvem. Na versão local os
-   botões aparecem, mas avisam que a IA precisa do login.
-   ========================================================================= */
-let iaResp=null;
-/* Desligada em 03/11/2026: o Leonardo não quer custo com a API da Anthropic. O código fica pronto; para ligar,
-   cadastrar ANTHROPIC_API_KEY nos segredos do Supabase e trocar IA_ATIVA para true. */
-let IA_ATIVA=false;
-const IA_PRECO={entrada:4/1e6,saida:20/1e6};   // Claude Opus 5.5, US$ por token
-const iaNuvem=()=>typeof MODO_NUVEM!=='undefined'&&MODO_NUVEM&&typeof sb!=='undefined'&&!!sb;
-async function iaChamar(corpo){
-  if(!iaNuvem())throw new Error('A IA funciona na versão da nuvem (lidere-bpo.github.io/recursos-lidere), com o seu login.');
-  const {data,error}=await sb.functions.invoke('ia-lidere',{body:corpo});
-  if(error){let m=error.message;try{const j=await error.context.json();if(j&&j.erro)m=j.erro}catch(_){}throw new Error(m)}
-  if(data&&data.erro)throw new Error(data.erro);
-  iaRegistraUso(corpo.acao,data&&data.uso);return data}
-function iaRegistraUso(acao,u){if(!u)return;DB.iaUso=DB.iaUso||[];const usd=Math.round(((u.entrada||0)*IA_PRECO.entrada+(u.saida||0)*IA_PRECO.saida)*10000)/10000;
-  DB.iaUso.push({t:Date.now(),acao,entrada:u.entrada||0,saida:u.saida||0,usd,quem:quemSou()});if(DB.iaUso.length>300)DB.iaUso.shift();save()}
-const iaUsoMes=()=>{const mk=mesDe(hoje()),L=(DB.iaUso||[]).filter(x=>mesDe(new Date(x.t).toISOString().slice(0,10))===mk);return {n:L.length,usd:L.reduce((s,x)=>s+x.usd,0)}};
-const usd=v=>'US$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-function iaStatus(id,msg,erro){const e=el(id);if(e){e.innerHTML=msg?`<div class="ia-st ${erro?'neg':''}">${erro?'':'<span class="ia-spin"></span>'}${esc(msg)}</div>`:''}}
-
-/* ---------- casar nomes com o cadastro (o bordero.js também usa) ---------- */
-const normNome=s=>(s||'').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\b(LTDA|S\/?A|SA|ME|EPP|EIRELI|EM RECUPERACAO JUDICIAL)\b|[.,\-\/()]/g,' ').replace(/\s+/g,' ').trim();
-function acharPorNome(L,nome){const n=normNome(nome);if(!n)return null;
-  return L.find(x=>normNome(x.nome)===n)||L.find(x=>{const m=normNome(x.nome);return m&&(m.includes(n)||n.includes(m))})||null}
-/* ---------- 1. perguntar ao sistema ---------- */
-function iaRetrato(){const H=hoje(),d90=addDias(H,-90),d180=addDias(H,-180);
-  const T=alive(DB.titulos),A=alive(DB.antecipacoes).filter(a=>a.status!=='quitada');
-  const res={};alive(DB.movs).filter(m=>m.resultado&&m.data>=addDias(H,-190)).forEach(m=>{const k=m.fonte+' '+mesDe(m.data);res[k]=r2((res[k]||0)+m.resultado)});
-  return {hoje:H,
-    recursos:fontes().map(f=>{const k=composicao(f.codigo);return {codigo:f.codigo,nome:f.nome,banco:f.banco,caixa:k.caixa,titulos:k.titulos,antecipacoes:k.antec,captacoes:k.capt,a_receber_de_outro_recurso:k.empRec||0,a_devolver_a_outro_recurso:k.empPag||0,montante:k.total}}),
-    titulos_abertos:T.filter(t=>!t.pago).map(t=>({id:t.id,recurso:t.fonte,cliente:t.cliente,sacado:t.direta?'(operação direta)':t.sacado,nf:t.nf,parcela:t.parcela||'',vencimento:t.vencimento,valor:t.valor,dias_atraso:t.vencimento<H?dias(t.vencimento,H):0,operacao_id:t.operacaoId||null})),
-    titulos_recebidos_90d:T.filter(t=>t.pago&&t.recebimento>=d90).map(t=>({id:t.id,recurso:t.fonte,cliente:t.cliente,nf:t.nf,vencimento:t.vencimento,recebimento:t.recebimento,valor:t.valor,recebido:t.valorRecebido,perda:!!t.perda})),
-    antecipacoes_abertas:A.map(a=>{const j=jurosRef(a,H);return {id:a.id,recurso:a.fonte,cliente:a.cliente,envio:a.data,principal:a.principal,taxa_mes:a.taxaMes,juros_hoje:j,total_hoje:r2(a.principal+j),ultimo_retorno:(a.retornos||[]).map(x=>x.data).sort().pop()||null}}),
-    operacoes_180d:opsReais().filter(o=>o.data>=d180).map(o=>({id:o.id,recurso:o.fonte,data:o.data,cliente:nomeCli(o.clienteId),nf:o.nf,face:o.bruto,liquido:o.liquido,desagio:o.desagio,fator_mes:o.fator,prazo_medio:o.prazoMedio,roa:o.roa,etapa:etapaOp(o)})),
-    clientes:alive(DB.clientes).map(c=>{const p=promessaAtiva(c.id),x=proximaAcao(c.id),u=contatosCli(c.id)[0];return {id:c.id,nome:c.nome,limite:c.limite||null,exposicao:expCli(c.id),taxa_antecipacao_mes:c.taxaMes,fator_operacao_mes:c.fatorMes||null,
-      promessa:p?{data:p.data,valor:p.valor}:null,proxima_acao:x?{data:x.data,texto:x.texto}:null,ultimo_contato:u?{data:u.data,tipo:u.tipo,resumo:u.resumo}:null}}),
-    captacoes:alive(DB.captacoes).filter(k=>k.status!=='quitada').map(k=>({investidor:k.investidor,recurso:k.fonte,saldo:k.saldo,taxa_mes:k.taxaMes})),
-    emprestimos_entre_recursos:empsVivos().filter(e=>e.saldo>0).map(e=>({de:e.de,para:e.para,saldo:e.saldo,desde:e.data})),
-    parcelas_banco_90d:fontes().flatMap(f=>ctrsF(f.codigo).flatMap(k=>resumoContrato(k).cr.linhas.filter(l=>!l.pago&&l.venc<=addDias(H,90)).map(l=>({recurso:f.codigo,contrato:k.numero,vencimento:l.venc,valor:l.parcela})))),
-    resultado_mensal:res}}
-async function iaPergunta(){const p=(el('ia_q')||{}).value||'';if(!p.trim())return toast('Escreva a pergunta');iaResp={pergunta:p,carregando:true};render();
-  try{const r=await iaChamar({acao:'pergunta',pergunta:p,retrato:iaRetrato()});iaResp={pergunta:p,resposta:r.resposta,itens:r.itens||[],usd:r.uso?((r.uso.entrada||0)*IA_PRECO.entrada+(r.uso.saida||0)*IA_PRECO.saida):null}}
-  catch(err){iaResp={pergunta:p,erro:err.message}}render()}
-function iaAbrirItem(tipo,id){if(tipo==='cliente')return abrirFicha(id);if(tipo==='operacao')return abrirOperacao(id);
-  if(tipo==='titulo'){const t=DB.titulos.find(x=>x.id===id);if(!t)return toast('Título não encontrado');return t.operacaoId?abrirOperacao(t.operacaoId):abrirFicha(t.clienteId)}
-  if(tipo==='antecipacao'){const a=DB.antecipacoes.find(x=>x.id===id);if(!a)return toast('Antecipação não encontrada');crCli=a.clienteId;return go('correcao','')}}
-function painelIA(){if(!IA_ATIVA)return '';const R=iaResp,U=iaUsoMes();
-  return `<div class="panel"><div class="panel-head"><h2>Pergunte ao sistema · IA<small>responde com os dados do sistema; ex.: "quais operações do LEO vencem nesta semana?", "quais clientes estão com vencido há mais de 30 dias?"${U.n?` · ${U.n} uso(s) no mês, aprox. ${usd(U.usd)}`:''}</small></h2></div>
-    <div class="acts-row"><textarea id="ia_q" rows="2" style="flex:1" placeholder="Pergunte em português, como para um analista" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();iaPergunta()}">${esc(R&&R.pergunta||'')}</textarea><button class="btn btn-gold" onclick="iaPergunta()" ${R&&R.carregando?'disabled':''}>${R&&R.carregando?'Pensando…':'Perguntar'}</button></div>
-    ${R&&R.carregando?'<div class="ia-st"><span class="ia-spin"></span>Consultando os dados. Leva de 10 a 40 segundos.</div>':''}
-    ${R&&R.erro?`<div class="ia-st neg">${esc(R.erro)}</div>`:''}
-    ${R&&R.resposta?`<div class="ia-resp">${esc(R.resposta).replace(/\n/g,'<br>')}</div>${R.itens.length?`<div class="ia-itens">${R.itens.map(x=>`<button class="btn btn-sm" onclick="iaAbrirItem('${esc(x.tipo)}','${esc(x.id)}')">${esc(x.rotulo)}</button>`).join('')}</div>`:''}<div class="muted" style="margin-top:6px">Resposta gerada por IA a partir dos dados de hoje: confira os números antes de decidir.${R.usd!=null?' Custo aprox. '+usd(R.usd)+'.':''}</div>`:''}</div>`}
-
-/* ---------- 2. texto de cobrança melhorado ---------- */
-async function iaMelhorarTexto(){const b=el('tx_ia'),t=val('tx_cob');if(b){b.disabled=true;b.textContent='Reescrevendo…'}
-  try{const r=await iaChamar({acao:'texto',texto:t});setVal('tx_cob',r.texto);toast('Texto reescrito: revise antes de enviar')}
-  catch(err){toast(err.message)}finally{if(b){b.disabled=false;b.textContent='Melhorar com IA'}}}
 
 /* Leitor de texto de PDF sem biblioteca externa (vem do Finanças Pessoais): descompacta os streams com
    DecompressionStream, aplica o /ToUnicode de cada fonte e remonta as linhas pela posição do texto.
@@ -2998,6 +2930,11 @@ async function arqAbrir(a){if(!a)return;const w=window.open('about:blank','_blan
     if(w&&!w.closed)w.location.href=u;else{const x=document.createElement('a');x.href=u;x.download=a.nome;x.click()}setTimeout(()=>URL.revokeObjectURL(u),120000)}
   catch(e){if(w)w.close();toast(e.message)}}
 function arqAbrirDoc(tipo,id,did){const d=docsDe(tipo,id).find(x=>x.id===did);if(d)arqAbrir(d.arquivo)}
+
+/* ---------- casar nomes com o cadastro (borderô e cadastro único); sem IA, por regra ---------- */
+const normNome=s=>(s||'').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\b(LTDA|S\/?A|SA|ME|EPP|EIRELI|EM RECUPERACAO JUDICIAL)\b|[.,\-\/()]/g,' ').replace(/\s+/g,' ').trim();
+function acharPorNome(L,nome){const n=normNome(nome);if(!n)return null;
+  return L.find(x=>normNome(x.nome)===n)||L.find(x=>{const m=normNome(x.nome);return m&&(m.includes(n)||n.includes(m))})||null}
 
 /* ---------- qual documento é o borderô ---------- */
 const ehBordero=d=>!!(d&&d.arquivo&&(d.tipo==='bordero'||/border/i.test(d.nome||'')));
