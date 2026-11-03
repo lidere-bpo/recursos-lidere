@@ -521,6 +521,10 @@ a.lnk{color:inherit;text-decoration:none}a.lnk:hover b{color:var(--acc);text-dec
 .ia-spin{width:12px;height:12px;border-radius:50%;border:2px solid var(--line-f);border-top-color:var(--acc);animation:iagira .8s linear infinite;flex:0 0 12px}@keyframes iagira{to{transform:rotate(360deg)}}
 .ia-resp{margin-top:12px;font-size:13.5px;line-height:1.65;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:12px 14px}
 .ia-itens{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+/* borderô obrigatório na operação */
+.bord-box{border:1px dashed var(--acc);border-radius:10px;padding:10px 12px;margin:0 0 12px;background:var(--panel2)}.bord-box .field{margin:0}
+.bord-ok{font-size:12.5px;color:var(--txt);margin-top:8px;line-height:1.5}.bord-box .neg{font-size:12.5px;margin-top:6px}
+.bord-av{margin:6px 0 0 18px;padding:0;font-size:12px;color:var(--warn)}.bord-av li{margin:3px 0;line-height:1.45}
 
 /* ---------- Específico deste app ---------- */
 .fonte-chip{font-size:9.5px;font-weight:800;letter-spacing:.6px;padding:2px 7px;border-radius:4px;display:inline-block;vertical-align:middle}
@@ -630,7 +634,8 @@ a.lnk{color:inherit;text-decoration:none}a.lnk:hover b{color:var(--acc);text-dec
 <div class="overlay" id="ovOper"><div class="modal wide" style="max-width:760px">
   <div class="modal-head"><h3>Nova operação de títulos</h3><button class="modal-x" onclick="closeModal('ovOper')">×</button></div>
   <div class="modal-body">
-    <input type="hidden" id="o_fonte"><input type="hidden" id="o_forca"><div class="fx" id="o_fx"></div>
+    <input type="hidden" id="o_fonte"><input type="hidden" id="o_forca"><input type="hidden" id="o_dup"><div class="fx" id="o_fx"></div>
+    <div class="bord-box"><div class="field"><label>Borderô da operação *</label><input type="file" id="o_bord" accept=".pdf,application/pdf,image/png,image/jpeg,image/webp" onchange="operBordEscolhe(this)"><div class="hint">Obrigatório: a operação só é registrada com o borderô anexado, que fica guardado no sistema. O PDF do LiveWork preenche os campos abaixo.</div></div><div id="o_bordInfo"></div></div>
     <div class="fgrid">
       <div class="field"><label>Data do envio *</label><input type="date" id="o_data" onchange="operGera()"></div>
       <div class="field"><label>Saldo na conta hoje</label><input id="o_saldo" disabled></div>
@@ -655,7 +660,7 @@ a.lnk{color:inherit;text-decoration:none}a.lnk:hover b{color:var(--acc);text-dec
     <div class="conta" id="o_memo"></div>
     <div class="erro" id="o_erro"></div>
   </div>
-  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('ovOper')">Cancelar</button><button class="btn btn-gold" onclick="saveOper()">Rodar operação</button></div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('ovOper')">Cancelar</button><button class="btn btn-gold" id="o_ok" onclick="saveOper()">Rodar operação</button></div>
 </div></div>
 
 <!-- Antecipação -->
@@ -1938,7 +1943,7 @@ function delMov(id){const m=DB.movs.find(x=>x.id===id);if(!m)return;if(mesFechad
 function openOper(){
   limpaErro('o_erro');fixaFonte('o_fonte','o_fx',fonteSel);setVal('o_saldo',n2(saldoAte(fonteSel,'9999-12-31')));el('o_cli').innerHTML=optCli();el('o_sac').innerHTML=optSac();
   el('o_direta').checked=false;el('o_wrapSac').style.display='flex';setVal('o_forca','');setVal('o_fator','');setVal('o_float','2');setVal('o_desp','');el('o_liq').dataset.manual='';setVal('o_data',dataPadrao());setVal('o_nf','');setVal('o_bruto','');setVal('o_liq','');setVal('o_desagio','');setVal('o_n','1');setVal('o_v1',addDias(dataPadrao(),30));setVal('o_int','30');setVal('o_obs','');
-  operGera();openModalId('ovOper');
+  window._simConv=null;if(typeof operBordReset==='function')operBordReset();operGera();openModalId('ovOper');
 }
 /* Calculadora da operação, no mesmo critério do LiveWork: prazo de cada título = dias corridos até o vencimento
    (vencimento no fim de semana passa para a segunda) + float; deságio = valor × fator × prazo ÷ 30;
@@ -1975,7 +1980,7 @@ function operGera(){
   for(let i=0;i<n;i++){const v=i===n-1?r2(b-acc):base;acc=r2(acc+v);rows.push(`<tr><td>${i+1}/${n}</td><td><input type="date" class="o_pv" value="${v1?addDias(v1,i*it):''}"></td><td class="num"><input class="o_pval" value="${n2(v)}"></td></tr>`)}
   el('o_parcelas').innerHTML=rows.join('');operCalc();
 }
-function saveOper(){
+async function saveOper(){
   limpaErro('o_erro');const f=val('o_fonte'),data=val('o_data'),cliId=val('o_cli'),direta=el('o_direta').checked,sacId=direta?null:val('o_sac'),b=r2(parseNum(val('o_bruto'))),l=r2(parseNum(val('o_liq')));
   if(!cliId)return erro('o_erro','Escolha o cliente (use + para cadastrar).');if(!direta&&!sacId)return erro('o_erro','Escolha o sacado, ou marque "operação direta" se o próprio cliente paga.');if(!(b>0&&l>0))return erro('o_erro','Informe o bruto e o enviado.');if(l>b)return erro('o_erro','O enviado não pode passar do bruto.');
   if(!podeLancar(f,data,'o_erro'))return;
@@ -1984,11 +1989,14 @@ function saveOper(){
   const pv=[...document.querySelectorAll('.o_pv')].map(x=>x.value),pval=[...document.querySelectorAll('.o_pval')].map(x=>r2(parseNum(x.value)));
   if(pv.some(x=>!x))return erro('o_erro','Informe o vencimento de cada título.');
   if(Math.abs(pval.reduce((s,v)=>s+v,0)-b)>.005)return erro('o_erro',`Os títulos somam ${brl(pval.reduce((s,v)=>s+v,0))}, e o bruto é ${brl(b)}.`);
+  const B=await operBordPronto('o_erro');if(!B)return;
   const nf=val('o_nf').trim(),cn=nomeCli(cliId),sn=direta?cn:nomeSac(sacId);
   const C=operCalcFator();
   const op={id:uid(),fonte:f,data,clienteId:cliId,sacadoId:sacId,direta,nf,bruto:b,liquido:l,desagio:r2(b-l),fator:C&&C.fat?C.fat:null,floatDias:C?C.fl:null,despesas:C?C.desp:0,prazoMedio:C?C.prazoMedio:null,roa:C&&C.prazoMedio>0?r2(((b-l)/b)*30/C.prazoMedio*10000)/10000:null,movId:null,obs:val('o_obs').trim(),deletedAt:null};
   const m={id:uid(),fonte:f,data,descricao:`OPERAÇÃO ${cn}${nf?' NF '+nf:''}`,categoria:'envio_operacao',clienteId:cliId,entrada:0,saida:l,resultado:r2(b-l),capital:0,obs:direta?`${pv.length} título(s) · operação direta, o cliente paga`:`${pv.length} título(s) de ${sn}`,operacaoId:op.id,origem:'operação',deletedAt:null};
   op.movId=m.id;DB.operacoes.push(op);DB.movs.push(m);if(typeof aposOperacao==='function')aposOperacao(op);
+  op.documentos=op.documentos||[];if(B.doc)op.documentos.unshift(B.doc);op.borderoId=(B.doc||B.sd).id;window._bordOp=null;
+  op.historico=op.historico||[];op.historico.push({t:Date.now(),etapa:'acompanhamento',quem:quemSou(),obs:'Borderô anexado: '+(B.doc||B.sd).arquivo.nome});
   pv.forEach((v,i)=>DB.titulos.push({id:uid(),fonte:f,operacaoId:op.id,clienteId:cliId,sacadoId:sacId,direta,dataEntrada:data,sacado:sn,cliente:cn,nf,parcela:`${i+1}/${pv.length}`,valor:pval[i],vencimento:v,pago:false,recebimento:null,valorRecebido:0,obs:'',deletedAt:null}));
   logH(`Operação ${cn} ${nf} em ${f}`);save();closeModal('ovOper');render();toast('Operação registrada');
 }
@@ -2311,8 +2319,8 @@ function viewSimulador(){
   if(!simCur)simCur=simNovo();const s=simCur;
   const linhas=simParcHTML(s);
   return `<div class="sim-wrap"><div class="panel"><div class="panel-head"><h2>${s.id?'Simulação salva':'Nova simulação'}<small>${s.id?'etapa: '+(ETAPAS_SIM.find(e=>e[0]===s.etapa)||[0,s.etapa])[1]:'preencha e veja o efeito no caixa e no retorno antes de operar'}</small></h2>
-      ${typeof IA_ATIVA!=='undefined'&&IA_ATIVA?`<button class="btn btn-sm btn-gold" onclick="lerBordero()" title="Envie o PDF ou a foto do borderô: a IA preenche a simulação">Ler borderô com IA</button>`:''}<button class="btn btn-sm" onclick="simCur=null;render()">+ Nova</button></div>
-    <div id="sm_ia"></div>${typeof simIAPainel==='function'?simIAPainel(s):''}
+      ${typeof IA_ATIVA!=='undefined'&&IA_ATIVA?`<button class="btn btn-sm btn-gold" onclick="lerBordero()" title="Envie o PDF ou a foto do borderô: a IA preenche a simulação">Ler borderô com IA</button>`:''}<input type="file" id="sm_bord" accept=".pdf,application/pdf" hidden onchange="simBordEscolhe(this)"><button class="btn btn-sm btn-gold" onclick="el('sm_bord').click()" title="PDF do borderô do LiveWork: preenche a simulação e fica anexado">Ler borderô (PDF)</button><button class="btn btn-sm" onclick="simCur=null;render()">+ Nova</button></div>
+    <div id="sm_ia"></div>${typeof simIAPainel==='function'?simIAPainel(s):''}${simBordLinha(s)}
     <div class="fgrid">
       <div class="field"><label>Recurso</label><select id="sm_fonte" onchange="simAtualiza()">${fontes().map(f=>`<option value="${f.codigo}" ${s.fonte===f.codigo?'selected':''}>${f.codigo} · ${esc(f.nome)}</option>`).join('')}</select></div>
       <div class="field"><label>Data da operação</label><input type="date" id="sm_data" value="${s.data}" onchange="simAtualiza()"></div>
@@ -2364,7 +2372,8 @@ function simConverter(id){if(!id){simLe();if(!simCalc(simCur))return erro('sm_er
   if(s.clienteId)setVal('o_cli',s.clienteId);if(s.direta){el('o_direta').checked=true;el('o_wrapSac').style.display='none'}else if(s.sacadoId)setVal('o_sac',s.sacadoId);
   setVal('o_data',s.data);setVal('o_nf',s.nf);setVal('o_bruto',n2(simCalc(s).bruto));setVal('o_n',String(s.parcelas.length));setVal('o_v1',s.parcelas[0].venc);setVal('o_int',String(s.intervalo));operGera();
   document.querySelectorAll('.o_pv').forEach((x,i)=>x.value=s.parcelas[i].venc);document.querySelectorAll('.o_pval').forEach((x,i)=>x.value=n2(s.parcelas[i].valor));
-  setVal('o_fator',n2(s.fator*100));setVal('o_float',String(s.float));setVal('o_desp',s.despesas?n2(s.despesas):'');el('o_liq').dataset.manual='';operCalc();setVal('o_obs',s.obs||'');window._simConv=s.id}
+  setVal('o_fator',n2(s.fator*100));setVal('o_float',String(s.float));setVal('o_desp',s.despesas?n2(s.despesas):'');el('o_liq').dataset.manual='';
+  if(s.bordero&&s.bordero.liquido!=null){setVal('o_liq',n2(s.bordero.liquido));el('o_liq').dataset.manual='1'}operCalc();setVal('o_obs',s.obs||'');window._simConv=s.id;if(typeof operBordInfo==='function')operBordInfo()}
 function simEtapa(id,etapa){const s=DB.simulacoes.find(x=>x.id===id);if(!s)return;s.etapa=etapa;s.historico.push({t:Date.now(),etapa,quem:quemSou(),obs:''});
   if(etapa==='descartada')s.deletedAt=Date.now();save();render();toast(etapa==='descartada'?'Simulação descartada':'Etapa: '+(ETAPAS_SIM.find(e=>e[0]===etapa)||[0,etapa])[1])}
 
@@ -2375,7 +2384,7 @@ function viewOperacoes(){
     <div class="muted">${C?brl(C.bruto)+' · '+pctBR(s.fator)+' · líquido '+brl(C.liquido):'incompleta'}</div><div class="muted">${fmtBR(s.data)}${s.nf?' · NF '+esc(s.nf):''}</div>
     <div class="op-c-a"><button class="btn btn-sm" onclick="abrirSimulador('${s.id}')">Abrir</button>${prox?`<button class="btn btn-sm" onclick="simEtapa('${s.id}','${prox}')">→ ${ETAPAS_SIM.find(e=>e[0]===prox)[1]}</button>`:`<button class="btn btn-sm btn-gold" onclick="simConverter('${s.id}')">Liberar</button>`}<button class="iconbtn del" title="Descartar" onclick="simEtapa('${s.id}','descartada')">✕</button></div></div>`};
   const cardOp=o=>{const T=titsOp(o.id),falta=r2(T.filter(t=>!t.pago).reduce((x,t)=>x+t.valor,0)),venc=T.filter(titVencido).length;return `<div class="kb-card op-card" onclick="abrirOperacao('${o.id}')" style="cursor:pointer"><div class="op-c-h">${chipF(o.fonte)} <b>${esc(nomeCli(o.clienteId))}</b></div>
-    <div class="muted">${fmtBR(o.data)}${o.nf?' · NF '+esc(o.nf):''} · face ${brl(o.bruto)}</div><div class="muted">${falta?'falta '+brl(falta):'tudo recebido'}${venc?` · <b class="neg">${venc} vencido(s)</b>`:''}${(o.documentos||[]).some(d=>d.status==='pendente')?' · <b class="warn">doc. pendente</b>':''}</div></div>`};
+    <div class="muted">${fmtBR(o.data)}${o.nf?' · NF '+esc(o.nf):''} · face ${brl(o.bruto)}</div><div class="muted">${falta?'falta '+brl(falta):'tudo recebido'}${venc?` · <b class="neg">${venc} vencido(s)</b>`:''}${(o.documentos||[]).some(d=>d.status==='pendente')?' · <b class="warn">doc. pendente</b>':''}${borderoDe(o)?'':' · <b class="neg">sem borderô</b>'}</div></div>`};
   const col=(id,lbl,itens,cor)=>`<div class="kb-col"><div class="kb-h"><span class="dot" style="background:${cor}"></span>${lbl}<span class="cnt">${itens.length}</span></div>${itens.join('')||'<div class="muted" style="padding:6px 2px">vazio</div>'}</div>`;
   const acomp=ops.filter(o=>etapaOp(o)==='acompanhamento'),enc=ops.filter(o=>etapaOp(o)==='encerrada').slice(0,15);
   return `<div class="acoes"><button class="acao pri" onclick="abrirSimulador()"><b>+ Nova simulação</b><span>valor, prazo e taxa: veja caixa e retorno antes de operar</span></button><button class="acao" onclick="go('razao','${fonteSel}');openOper()"><b>+ Operação direta no razão</b><span>quando já está fechada e liberada</span></button></div>
@@ -2400,7 +2409,7 @@ function viewOperacao(){
       <td class="c">${t.perda?'<span class="chip chip-bad">perda</span>':t.pago?`<span class="chip chip-ok">recebido ${fmtBR(t.recebimento)} · ${brl(t.valorRecebido)}</span>`:titVencido(t)?`<span class="chip chip-bad">vencido há ${dias(t.vencimento,H)}d</span>`:'<span class="chip chip-n">a vencer</span>'}</td>
       <td class="c">${t.pago?'':`<button class="btn btn-sm btn-gold" onclick="fonteSel='${t.fonte}';openRec('${t.id}')">Receber</button>`}</td></tr>`).join('')||'<tr><td colspan="6" class="muted">Sem títulos.</td></tr>'}</tbody></table>`,
     movs:`<table class="tb auto"><thead><tr><th class="c">Data</th><th>Descrição</th><th class="num">Entrada</th><th class="num">Saída</th><th class="num">Resultado</th></tr></thead><tbody>${movs.map(m=>`<tr><td class="c">${fmtBR(m.data)}</td><td>${esc(m.descricao)}</td><td class="num pos">${m.entrada?brl(m.entrada):''}</td><td class="num neg">${m.saida?brl(m.saida):''}</td><td class="num">${m.resultado?brl(m.resultado):''}</td></tr>`).join('')}</tbody></table>`,
-    docs:`<div class="acts-row" style="margin-bottom:10px"><button class="btn btn-sm btn-gold" onclick="docNovo('op','${o.id}')">+ Documento</button><span class="muted">Contrato, borderô, notas, comprovantes: registre o nome e o link (Drive, e-mail) e marque o que falta.</span></div>${docsTabela(o.documentos,'op',o.id)}`,
+    docs:`<div class="acts-row" style="margin-bottom:10px"><button class="btn btn-sm btn-gold" onclick="docNovo('op','${o.id}')">+ Documento</button><span class="muted">Contrato, borderô, notas, comprovantes: anexe o arquivo, que fica guardado no sistema, ou registre o link. Arquivo anexado não se exclui.</span></div>${docsTabela(o.documentos,'op',o.id)}`,
     hist:`<div class="hist">${(o.historico||[]).slice().reverse().map(h=>`<div class="hist-i"><b>${new Date(h.t).toLocaleString('pt-BR')}</b> · ${esc(({simulacao:'Simulação',analise:'Análise',aprovacao:'Aprovação',liberada:'Liberada',acompanhamento:'Acompanhamento',encerrada:'Encerrada'})[h.etapa]||h.etapa)}${h.quem?' · '+esc(h.quem):''}${h.obs?`<div class="muted">${esc(h.obs)}</div>`:''}</div>`).join('')}
       <div class="acts-row"><input id="op_nota" placeholder="Anotar no histórico"><button class="btn btn-sm" onclick="opNota('${o.id}')">Anotar</button></div></div>`};
   return `<div class="filters"><button class="btn btn-sm btn-ghost" onclick="go('operacoes','')">← Operações</button><span class="right" style="display:flex;gap:6px"><button class="btn btn-sm" onclick="abrirFicha('${o.clienteId}')">Ficha do cliente</button><button class="btn btn-sm" onclick="go('razao','${o.fonte}')">Razão do ${o.fonte}</button></span></div>
@@ -2410,21 +2419,28 @@ function viewOperacao(){
       <div class="stat"><div class="k">Falta</div><div class="v ${R.T.some(titVencido)?'neg':''}">${brl(R.falta)}</div><div class="sub">${R.T.filter(titVencido).length?R.T.filter(titVencido).length+' vencido(s)':'em dia'}</div></div>
       <div class="stat"><div class="k">Resultado</div><div class="v ${R.resultado>=0?'pos':'neg'}">${brl(R.resultado)}</div><div class="sub">deságio ${brl(o.desagio)}${R.jurosT?' + juros '+brl(R.jurosT):''}${R.perdas?' − perdas '+brl(R.perdas):''}</div></div>
       <div class="stat"><div class="k">Condições</div><div class="v" style="font-size:16px">${o.fator?pctBR(o.fator)+' a.m.':'—'}</div><div class="sub">${o.prazoMedio?'prazo '+String(o.prazoMedio).replace('.',',')+'d · ':''}${o.roa?'ROA '+pctBR(o.roa):''}${o.despesas?' · despesas '+brl(o.despesas):''}</div></div></div>
-    <div class="sim-linha"><span>Capital utilizado</span><b>${part}</b></div></div>
+    <div class="sim-linha"><span>Capital utilizado</span><b>${part}</b></div>
+    <div class="sim-linha"><span>Borderô</span>${(()=>{const b=borderoDe(o);return b?`<b>📎 ${esc(b.arquivo.nome)} <button class="btn btn-sm" onclick="arqAbrirDoc('op','${o.id}','${b.id}')">abrir</button></b><span class="muted">anexado em ${new Date(b.arquivo.em).toLocaleString('pt-BR')}${b.arquivo.quem?' por '+esc(b.arquivo.quem):''}</span>`:`<b class="neg">não anexado</b><button class="btn btn-sm btn-gold" onclick="docNovo('op','${o.id}','bordero')">Anexar borderô</button>`})()}</div></div>
   <div class="tabs">${abas.map(([k,l,n])=>`<button class="tab ${opAba===k?'active':''}" onclick="opAba='${k}';render()">${l}${n?`<span class="cnt">${n}</span>`:''}</button>`).join('')}</div>
   <div class="panel"><div class="tbl-scroll" style="padding-top:12px">${corpo[opAba]||''}</div></div>`;
 }
 function opNota(id){const o=DB.operacoes.find(x=>x.id===id),t=val('op_nota').trim();if(!t)return;o.historico.push({t:Date.now(),etapa:etapaOp(o),quem:quemSou(),obs:t});save();render()}
-/* documentos: só registro (nome, link, situação); o arquivo continua no Drive ou no e-mail */
-function docsTabela(L,tipo,id){L=L||[];return L.length?`<table class="tb auto"><thead><tr><th>Documento</th><th>Link</th><th class="c">Situação</th><th></th></tr></thead><tbody>${L.map(d=>`<tr><td>${esc(d.nome)}${d.obs?`<div class="muted">${esc(d.obs)}</div>`:''}</td><td>${d.url?`<a href="${esc(d.url)}" target="_blank" rel="noopener">abrir</a>`:'<span class="muted">sem link</span>'}</td>
-  <td class="c"><button class="chip ${d.status==='ok'?'chip-ok':'chip-warn'}" style="border:0;cursor:pointer" onclick="docStatus('${tipo}','${id}','${d.id}')">${d.status==='ok'?'recebido':'pendente'}</button></td><td class="c"><button class="iconbtn del" onclick="docDel('${tipo}','${id}','${d.id}')">🗑</button></td></tr>`).join('')}</tbody></table>`:'<div class="muted">Nenhum documento registrado.</div>'}
+/* documentos: arquivo guardado no sistema (bordero.js) ou só o registro com link; arquivo anexado não se exclui */
+function docsTabela(L,tipo,id){L=L||[];return L.length?`<table class="tb auto"><thead><tr><th>Documento</th><th>Link</th><th class="c">Situação</th><th></th></tr></thead><tbody>${L.map(d=>`<tr><td>${esc(d.nome)}${d.obs?`<div class="muted">${esc(d.obs)}</div>`:''}</td><td>${d.arquivo?`<button class="btn btn-sm" onclick="arqAbrirDoc('${tipo}','${id}','${d.id}')">abrir arquivo</button><div class="muted">${esc(d.arquivo.nome)} · ${arqTam(d.arquivo.tamanho)}${d.arquivo.quem?' · '+esc(d.arquivo.quem):''}</div>`:d.url?`<a href="${esc(d.url)}" target="_blank" rel="noopener">abrir</a>`:'<span class="muted">sem link</span>'}</td>
+  <td class="c"><button class="chip ${d.status==='ok'?'chip-ok':'chip-warn'}" style="border:0;cursor:pointer" onclick="docStatus('${tipo}','${id}','${d.id}')">${d.status==='ok'?'recebido':'pendente'}</button></td><td class="c">${d.arquivo?'<span class="muted" title="Arquivo anexado fica registrado e não se exclui. Anexe a versão nova se precisar.">🔒</span>':`<button class="iconbtn del" onclick="docDel('${tipo}','${id}','${d.id}')">🗑</button>`}</td></tr>`).join('')}</tbody></table>`:'<div class="muted">Nenhum documento registrado.</div>'}
 const docsDe=(tipo,id)=>{const x=tipo==='op'?DB.operacoes.find(o=>o.id===id):DB.clientes.find(c=>c.id===id);x.documentos=x.documentos||[];return x.documentos};
-function docNovo(tipo,id){openGen('Novo documento',`<div class="field"><label>Nome</label><input id="dc_nome" placeholder="Ex.: Borderô assinado"></div><div class="field"><label>Link (Drive, e-mail)</label><input id="dc_url" placeholder="https://"></div>
+function docNovo(tipo,id,kind){const bd=kind==='bordero';openGen(bd?'Anexar borderô':'Novo documento',`<div class="field"><label>Arquivo${bd?' *':''}</label><input type="file" id="dc_arq" accept="${bd?'.pdf,application/pdf,image/png,image/jpeg,image/webp':'.pdf,.png,.jpg,.jpeg,.webp,.xls,.xlsx,.doc,.docx'}"><div class="hint">Fica guardado no sistema, até 15 MB.</div></div>
+  <div class="field"><label>Nome</label><input id="dc_nome" value="${bd?'Borderô':''}" placeholder="Ex.: Contrato assinado"></div>${bd?'':`<div class="field"><label>Link (Drive, e-mail), se não anexar o arquivo</label><input id="dc_url" placeholder="https://"></div>`}
   <div class="field"><label>Situação</label><select id="dc_st"><option value="pendente">pendente</option><option value="ok">recebido</option></select></div><div class="field"><label>Observação</label><input id="dc_obs"></div><div class="erro" id="dc_erro"></div>`,
-  `<button class="btn btn-ghost" onclick="closeModal('ovGen')">Cancelar</button><button class="btn btn-gold" onclick="docSalvar('${tipo}','${id}')">Salvar</button>`)}
-function docSalvar(tipo,id){const nome=val('dc_nome').trim();if(!nome)return erro('dc_erro','Informe o nome.');docsDe(tipo,id).push({id:uid(),nome,url:val('dc_url').trim(),status:val('dc_st'),obs:val('dc_obs').trim(),em:hoje()});save();closeModal('ovGen');render()}
+  `<button class="btn btn-ghost" onclick="closeModal('ovGen')">Cancelar</button><button class="btn btn-gold" id="dc_ok" onclick="docSalvar('${tipo}','${id}','${kind||''}')">Salvar</button>`)}
+async function docSalvar(tipo,id,kind){const f=el('dc_arq').files[0],nome=val('dc_nome').trim()||(f?f.name.replace(/\.[^.]+$/,''):'');
+  if(kind==='bordero'&&!f)return erro('dc_erro','Escolha o arquivo do borderô.');if(!nome)return erro('dc_erro','Informe o nome ou escolha o arquivo.');
+  let arquivo=null;if(f){const b=el('dc_ok');b.disabled=true;b.textContent='Guardando…';try{arquivo=await arqGuardar(f,tipo==='op'?'operacoes':'clientes')}catch(e){b.disabled=false;b.textContent='Salvar';return erro('dc_erro',e.message)}}
+  docsDe(tipo,id).push({id:uid(),tipo:kind||null,nome,url:el('dc_url')?val('dc_url').trim():'',status:arquivo?'ok':val('dc_st'),obs:val('dc_obs').trim(),em:hoje(),arquivo});
+  if(tipo==='op'&&arquivo){const o=DB.operacoes.find(x=>x.id===id);(o.historico=o.historico||[]).push({t:Date.now(),etapa:etapaOp(o),quem:quemSou(),obs:(kind==='bordero'?'Borderô':'Documento')+' anexado: '+arquivo.nome})}
+  save();closeModal('ovGen');render();toast(arquivo?'Arquivo guardado':'Documento registrado')}
 function docStatus(tipo,id,did){const d=docsDe(tipo,id).find(x=>x.id===did);d.status=d.status==='ok'?'pendente':'ok';save();render()}
-function docDel(tipo,id,did){const L=docsDe(tipo,id);L.splice(L.findIndex(x=>x.id===did),1);save();render()}
+function docDel(tipo,id,did){const L=docsDe(tipo,id);if((L.find(x=>x.id===did)||{}).arquivo)return toast('Arquivo anexado fica registrado e não se exclui');L.splice(L.findIndex(x=>x.id===did),1);save();render()}
 
 /* ========================= 3. FICHA DO CLIENTE (relacionamento) ========================= */
 const contatosCli=id=>alive(DB.contatos||[]).filter(c=>c.clienteId===id).sort((a,b)=>b.data.localeCompare(a.data)||b.t-a.t);
@@ -2654,6 +2670,7 @@ pnlPrioridades=function(D){const F=_pnlPrioBase(D),H=D.H,add=(u,lbl,txt,meta,tab
     else if(p&&p.data===H)add(2,'Promessa para hoje',`${c.nome}: confirmar o pagamento de ${brl(p.valor)}`,brl(p.valor),'ficha','',{cli:c.id});
     if(x&&x.data<=H)add(2,x.data<H?'Ação atrasada':'Ação de hoje',`${c.nome}: ${x.texto||'retomar contato'}${x.data<H?' (era '+fmtBR(x.data)+')':''}`,'','ficha','',{cli:c.id})});
   const ct=cobItens().filter(x=>x.etapa==='contatar');if(ct.length)add(2,'Cobrança a fazer',`${ct.length} cliente(s) com vencido e sem contato na semana: ${ct.slice(0,3).map(x=>x.c.nome).join(', ')}${ct.length>3?'…':''}`,brl(r2(ct.reduce((s,x)=>s+x.venc,0))),'cobranca','');
+  const semB=alive(DB.operacoes).filter(o=>!borderoDe(o));if(semB.length)add(3,'Operação sem borderô',`${semB.length} operação(ões) sem o borderô anexado: ${semB.slice(0,3).map(o=>nomeCli(o.clienteId)+' '+fmtBR(o.data)).join(', ')}${semB.length>3?'…':''}`,'','operacoes','');
   const docP=alive(DB.operacoes).filter(o=>(o.documentos||[]).some(d=>d.status==='pendente'));if(docP.length)add(1,'Documento pendente',`${docP.length} operação(ões) com documento a receber`,'','operacoes','');
   const sp=alive(DB.simulacoes).filter(s=>['analise','aprovacao'].includes(s.etapa));if(sp.length)add(1,'Operação para decidir',`${sp.length} simulação(ões) em análise ou aprovação`,'','operacoes','');
   const rp=rotinasDoDia(H).filter(r=>!rotinaFeita(r,H));if(rp.length)add(1,'Rotina de hoje',rp.map(r=>r.titulo).join(' · '),`${rp.length} pendente(s)`,'rotinas','');
@@ -2737,7 +2754,7 @@ function aplicarBordero(d,arquivo,u){
   simCur=s;if(activeTab!=='simulador')go('simulador','');else render();toast('Borderô lido: confira os campos marcados')}
 function simIAPainel(s){if(!s.ia)return '';const C=simCalc(s),dif=C&&s.ia.liquidoDoc!=null?r2(s.ia.liquidoDoc-C.liquido):null,L=[...s.ia.avisos,...s.ia.incertos];
   if(dif!=null&&Math.abs(dif)>.01)L.unshift(`O líquido do borderô (${brl(s.ia.liquidoDoc)}) difere do calculado (${brl(C.liquido)}) em ${brl(dif)}: confira fator, float e despesas.`);
-  return `<div class="ia-box"><div class="ia-h"><b>Lido pela IA</b> · ${esc(s.ia.arquivo||'')}${s.ia.usd!=null?` · custo aprox. ${usd(s.ia.usd)}`:''}<button class="iconbtn right" title="Fechar" onclick="delete simCur.ia;render()">×</button></div>
+  return `<div class="ia-box"><div class="ia-h"><b>${s.ia.usd!=null?'Lido pela IA':'Lido do borderô'}</b> · ${esc(s.ia.arquivo||'')}${s.ia.usd!=null?` · custo aprox. ${usd(s.ia.usd)}`:''}<button class="iconbtn right" title="Fechar" onclick="delete simCur.ia;render()">×</button></div>
     ${L.length?`<ul>${L.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<div class="muted">Tudo legível e os totais batem. Confira mesmo assim antes de salvar.</div>'}</div>`}
 
 /* ---------- 2. perguntar ao sistema ---------- */
@@ -2774,6 +2791,427 @@ function painelIA(){if(!IA_ATIVA)return '';const R=iaResp,U=iaUsoMes();
 async function iaMelhorarTexto(){const b=el('tx_ia'),t=val('tx_cob');if(b){b.disabled=true;b.textContent='Reescrevendo…'}
   try{const r=await iaChamar({acao:'texto',texto:t});setVal('tx_cob',r.texto);toast('Texto reescrito: revise antes de enviar')}
   catch(err){toast(err.message)}finally{if(b){b.disabled=false;b.textContent='Melhorar com IA'}}}
+
+/* Leitor de texto de PDF sem biblioteca externa (vem do Finanças Pessoais): descompacta os streams com
+   DecompressionStream, aplica o /ToUnicode de cada fonte e remonta as linhas pela posição do texto.
+   Serve para PDF gerado por sistema; foto ou digitalização não têm texto para ler. */
+
+/* Lê pedaço a pedaço: o PDFsharp (usado pelo LiveWork) grava o stream sem o fechamento do zlib,
+   e o navegador acusa "truncado" depois de já ter entregue o conteúdo inteiro. */
+async function inflate(u8){
+  for(const fmt of ['deflate','deflate-raw']){
+    const ds=new DecompressionStream(fmt),w=ds.writable.getWriter();
+    w.write(u8).catch(()=>{}); w.close().catch(()=>{});
+    const rd=ds.readable.getReader(),partes=[];let tot=0;
+    try{for(;;){const {value,done}=await rd.read(); if(done)break; partes.push(value); tot+=value.length}}catch(_){}
+    if(tot){const out=new Uint8Array(tot);let o=0;partes.forEach(p=>{out.set(p,o);o+=p.length});return out}
+  }
+  return null;
+}
+const bin2str=u8=>{let s='',C=8192;for(let i=0;i<u8.length;i+=C)s+=String.fromCharCode.apply(null,u8.subarray(i,i+C));return s};
+const hex2str=h=>{h=h.replace(/\s/g,'');let o='';for(let i=0;i+3<h.length+1;i+=4)o+=String.fromCharCode(parseInt(h.substr(i,4),16));return o};
+
+function pdfObjs(raw){
+  const objs={},re=/(\d+)\s+(\d+)\s+obj\b/g,st=[];let m;
+  while((m=re.exec(raw)))st.push({num:+m[1],pos:m.index,after:re.lastIndex});
+  for(let i=0;i<st.length;i++){
+    const a=st[i],fim=i+1<st.length?st[i+1].pos:raw.length,body=raw.slice(a.after,fim);
+    const si=body.indexOf('stream');
+    let dict=body,data=null;
+    if(si>=0){
+      dict=body.slice(0,si);
+      let ds=si+6; if(body[ds]==='\r')ds++; if(body[ds]==='\n')ds++;
+      const lm=dict.match(/\/Length\s+(\d+)(?!\s+\d+\s+R)/); let de=-1;
+      if(lm){const L=+lm[1]; if(/^\s*endstream/.test(body.substr(ds+L,14)))de=ds+L}
+      if(de<0){de=body.indexOf('endstream',ds); if(de<0)de=body.length}
+      data=[a.after+ds,a.after+de];
+    }
+    objs[a.num]={dict,data};
+  }
+  return objs;
+}
+function a85decode(u8){
+  let s=bin2str(u8).replace(/\s/g,'');
+  if(s.startsWith('<~'))s=s.slice(2);
+  const e=s.indexOf('~>'); if(e>=0)s=s.slice(0,e);
+  const out=[];let i=0;
+  while(i<s.length){
+    if(s[i]==='z'){out.push(0,0,0,0);i++;continue}
+    let ch=s.substr(i,5);i+=5;const n=ch.length;
+    while(ch.length<5)ch+='u';
+    let v=0;for(let k=0;k<5;k++)v=v*85+(ch.charCodeAt(k)-33);
+    const b=[(v>>>24)&255,(v>>>16)&255,(v>>>8)&255,v&255];
+    for(let k=0;k<n-1;k++)out.push(b[k]);
+  }
+  return new Uint8Array(out);
+}
+function hexdecode(u8){
+  const s=bin2str(u8).replace(/[^0-9A-Fa-f>]/g,'');const out=[];
+  for(let i=0;i<s.length&&s[i]!=='>';i+=2)out.push(parseInt((s.substr(i,2)+'0').slice(0,2),16));
+  return new Uint8Array(out);
+}
+async function pdfStream(objs,bytes,num){
+  const o=objs[num]; if(!o||!o.data)return null;
+  let u8=bytes.subarray(o.data[0],o.data[1]);
+  const fm=o.dict.match(/\/Filter\s*(\[[^\]]*\]|\/[A-Za-z0-9]+)/);
+  if(fm){
+    const filtros=(fm[1].match(/\/[A-Za-z0-9]+/g)||[]);
+    for(const f of filtros){
+      if(f==='/ASCII85Decode')u8=a85decode(u8);
+      else if(f==='/ASCIIHexDecode')u8=hexdecode(u8);
+      else if(f==='/FlateDecode'){u8=await inflate(u8); if(!u8)return null}
+      else return null;   /* filtro que não sei tratar (imagem, LZW…) */
+    }
+  }
+  return u8;
+}
+function parseCMap(txt){
+  const map={}; let m,r;
+  r=/beginbfchar([\s\S]*?)endbfchar/g;
+  while((m=r.exec(txt))){
+    const pr=m[1].match(/<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>/g)||[];
+    pr.forEach(x=>{const g=/<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>/.exec(x);map[parseInt(g[1],16)]=hex2str(g[2])});
+  }
+  r=/beginbfrange([\s\S]*?)endbfrange/g;
+  while((m=r.exec(txt))){
+    const body=m[1];
+    let rr=/<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*(?:<([0-9A-Fa-f]+)>|\[([\s\S]*?)\])/g,g;
+    while((g=rr.exec(body))){
+      const lo=parseInt(g[1],16),hi=parseInt(g[2],16);
+      if(g[3]!==undefined){const base=parseInt(g[3],16);
+        for(let c=lo;c<=hi&&c-lo<65535;c++)map[c]=String.fromCharCode(base+(c-lo))}
+      else{const its=(g[4].match(/<([0-9A-Fa-f]+)>/g)||[]);
+        its.forEach((it,k)=>{map[lo+k]=hex2str(it.slice(1,-1))})}
+    }
+  }
+  return map;
+}
+async function pdfFontes(objs,bytes){
+  const fontes={};
+  for(const n in objs){
+    const d=objs[n].dict;
+    if(!/\/Type\s*\/Font/.test(d))continue;
+    const tu=d.match(/\/ToUnicode\s+(\d+)\s+\d+\s+R/);
+    const two=/\/Subtype\s*\/Type0/.test(d)||/Identity-[HV]/.test(d);
+    let cmap=null;
+    if(tu){const u8=await pdfStream(objs,bytes,+tu[1]); if(u8)cmap=parseCMap(bin2str(u8))}
+    fontes['obj'+n]={cmap,two};
+  }
+  const nomes={};
+  for(const n in objs){
+    const d=objs[n].dict; let m,r=/\/Font\s*<<([\s\S]*?)>>/g;
+    while((m=r.exec(d))){
+      let g,rr=/\/([A-Za-z0-9#._\-+]+)\s+(\d+)\s+\d+\s+R/g;
+      while((g=rr.exec(m[1])))nomes['/'+g[1]]=fontes['obj'+g[2]]||null;
+    }
+    const ref=d.match(/\/Font\s+(\d+)\s+\d+\s+R/);
+    if(ref&&objs[ref[1]]){let g,rr=/\/([A-Za-z0-9#._\-+]+)\s+(\d+)\s+\d+\s+R/g;
+      while((g=rr.exec(objs[ref[1]].dict)))nomes['/'+g[1]]=fontes['obj'+g[2]]||null}
+  }
+  return nomes;
+}
+function tokenize(t){
+  const out=[];let i=0,n=t.length;
+  const ws=c=>c===' '||c==='\n'||c==='\r'||c==='\t'||c==='\f'||c==='\0';
+  while(i<n){
+    const c=t[i];
+    if(ws(c)){i++;continue}
+    if(c==='%'){while(i<n&&t[i]!=='\n')i++;continue}
+    if(c==='('){
+      let d=1,j=i+1,s='';
+      while(j<n&&d>0){
+        const ch=t[j];
+        if(ch==='\\'){
+          const e=t[j+1];
+          if(e==='n')s+='\n';else if(e==='r')s+='\r';else if(e==='t')s+='\t';else if(e==='b')s+='\b';else if(e==='f')s+='\f';
+          else if(e>='0'&&e<='7'){let o=e,k=j+2;while(k<n&&t[k]>='0'&&t[k]<='7'&&o.length<3){o+=t[k];k++}s+=String.fromCharCode(parseInt(o,8));j=k-2}
+          else if(e==='\n'){}else s+=e;
+          j+=2;continue;
+        }
+        if(ch==='(')d++; else if(ch===')'){d--;if(!d){j++;break}}
+        s+=ch;j++;
+      }
+      out.push({t:'s',v:s});i=j;continue;
+    }
+    if(c==='<'&&t[i+1]==='<'){out.push({t:'o',v:'<<'});i+=2;continue}
+    if(c==='>'&&t[i+1]==='>'){out.push({t:'o',v:'>>'});i+=2;continue}
+    if(c==='<'){const j=t.indexOf('>',i);const h=t.slice(i+1,j<0?n:j);out.push({t:'h',v:h});i=(j<0?n:j+1);continue}
+    if(c==='['||c===']'){out.push({t:'o',v:c});i++;continue}
+    if(c==='/'){let j=i+1;while(j<n&&!ws(t[j])&&!'/[]<>(){}%'.includes(t[j]))j++;out.push({t:'n',v:t.slice(i,j)});i=j;continue}
+    if(/[-+.\d]/.test(c)){let j=i;while(j<n&&/[-+.\d]/.test(t[j]))j++;out.push({t:'#',v:parseFloat(t.slice(i,j))||0});i=j;continue}
+    let j=i;while(j<n&&!ws(t[j])&&!'/[]<>(){}%'.includes(t[j]))j++;
+    if(j===i)j++;
+    out.push({t:'o',v:t.slice(i,j)});i=j;
+  }
+  return out;
+}
+const WIN={0x80:'€',0x82:'‚',0x84:'„',0x85:'…',0x91:'‘',0x92:'’',0x93:'“',0x94:'”',0x95:'•',0x96:'–',0x97:'—'};
+function decodeStr(tok,f){
+  const bytes=tok.t==='h'?(()=>{const h=tok.v.replace(/\s/g,'');const a=[];for(let i=0;i<h.length;i+=2)a.push(parseInt(h.substr(i,2).padEnd(2,'0'),16));return a})()
+                        :tok.v.split('').map(c=>c.charCodeAt(0));
+  const cm=f&&f.cmap, two=f&&(f.two||(cm&&Object.keys(cm).some(k=>+k>255)));
+  let out='';
+  if(cm&&two){for(let i=0;i<bytes.length;i+=2){const c=(bytes[i]<<8)|(bytes[i+1]||0);out+=cm[c]!==undefined?cm[c]:''}}
+  else if(cm){for(const b of bytes)out+=cm[b]!==undefined?cm[b]:String.fromCharCode(b)}
+  else for(const b of bytes)out+=WIN[b]||String.fromCharCode(b);
+  return out;
+}
+function extrairRuns(txt,fontes,pag){
+  const runs=[];let lx=0,ly=0,leading=0,f=null,st=[];
+  const toks=tokenize(txt);
+  for(const tk of toks){
+    if(tk.t!=='o'||tk.v==='<<'||tk.v==='>>'||tk.v==='['||tk.v===']'){st.push(tk);if(st.length>40)st.shift();continue}
+    const op=tk.v,num=k=>{const a=st[st.length-k];return a&&a.t==='#'?a.v:0};
+    const push=str=>{if(str&&str.trim())runs.push({p:pag,y:ly,x:lx,s:str})};
+    if(op==='BT'){lx=0;ly=0}
+    else if(op==='Tf'){const nm=st.filter(a=>a.t==='n').pop();f=nm?fontes[nm.v]||null:f}
+    else if(op==='Td'){lx+=num(2);ly+=num(1)}
+    else if(op==='TD'){leading=-num(1);lx+=num(2);ly+=num(1)}
+    else if(op==='Tm'){lx=num(2);ly=num(1)}
+    else if(op==='TL'){leading=num(1)}
+    else if(op==='T*'){ly-=leading}
+    else if(op==='Tj'||op==="'"||op==='"'){
+      if(op!=='Tj')ly-=leading;
+      const a=st[st.length-1]; if(a&&(a.t==='s'||a.t==='h'))push(decodeStr(a,f));
+    }
+    else if(op==='TJ'){
+      let k=st.length-1,arr=[];
+      while(k>=0&&!(st[k].t==='o'&&st[k].v==='[')){arr.unshift(st[k]);k--}
+      let s='';
+      for(const it of arr){
+        if(it.t==='s'||it.t==='h')s+=decodeStr(it,f);
+        else if(it.t==='#'&&it.v<-170)s+=' ';
+      }
+      push(s);
+    }
+    st=[];
+  }
+  return runs;
+}
+function runsParaLinhas(runs){
+  const byKey={};
+  runs.forEach(r=>{const k=r.p+'|'+Math.round(r.y/2.2);(byKey[k]=byKey[k]||[]).push(r)});
+  return Object.keys(byKey).map(k=>{
+    const g=byKey[k].sort((a,b)=>a.x-b.x);
+    return {p:g[0].p,y:g[0].y,txt:g.map(r=>r.s).join(' ').replace(/\s+/g,' ').trim()};
+  }).filter(l=>l.txt).sort((a,b)=>a.p-b.p||b.y-a.y).map(l=>l.txt);
+}
+async function pdfParaTexto(arrayBuffer){
+  const bytes=new Uint8Array(arrayBuffer), raw=bin2str(bytes);
+  if(raw.slice(0,5)!=='%PDF-')throw new Error('Não parece um PDF.');
+  const objs=pdfObjs(raw);
+  const fontes=await pdfFontes(objs,bytes);
+  const pags=[];
+  for(const n in objs){
+    const d=objs[n].dict;
+    if(!/\/Type\s*\/Page[^s]/.test(d)&&!/\/Type\s*\/Page\s*>>/.test(d)&&!/\/Type\s*\/Page\s*\//.test(d))continue;
+    const c=d.match(/\/Contents\s+(\d+)\s+\d+\s+R/);
+    const arr=d.match(/\/Contents\s*\[([^\]]*)\]/);
+    const refs=[];
+    if(c)refs.push(+c[1]);
+    if(arr){let g,rr=/(\d+)\s+\d+\s+R/g;while((g=rr.exec(arr[1])))refs.push(+g[1])}
+    if(refs.length)pags.push({n:+n,refs});
+  }
+  pags.sort((a,b)=>a.n-b.n);
+  let alvo=pags;
+  if(!alvo.length){ /* fallback: todo stream que pareça conteúdo */
+    alvo=[{n:0,refs:Object.keys(objs).map(Number)}];
+  }
+  let runs=[],pi=0;
+  for(const pg of alvo){
+    for(const r of pg.refs){
+      const u8=await pdfStream(objs,bytes,r); if(!u8)continue;
+      const t=bin2str(u8);
+      if(!/(TJ|Tj)\b/.test(t))continue;
+      runs=runs.concat(extrairRuns(t,fontes,pi));
+    }
+    pi++;
+  }
+  const linhas=runsParaLinhas(runs);
+  return {linhas,texto:linhas.join('\n'),paginas:alvo.length};
+}
+
+/* ---------- Leitura de valores e datas em texto livre ---------- */
+const RE_MOEDA=/(?:R\$\s*)?-?\d{1,3}(?:\.\d{3})+,\d{2}-?|(?:R\$\s*)?-?\d+,\d{2}-?/g;
+const RE_DATA=/\b(\d{2})[\/.\-](\d{2})(?:[\/.\-](\d{2,4}))?\b/;
+
+/* =========================================================================
+   BORDERÔ OBRIGATÓRIO (03/11/2026)
+   Toda operação de títulos só é registrada com o borderô anexado. O arquivo
+   fica guardado no sistema: na nuvem, no bucket privado "recursos-docs" do
+   Supabase, que aceita incluir e ler mas não apagar nem trocar; na versão
+   local, no IndexedDB deste navegador. O registro guarda nome, tamanho,
+   quem anexou e o SHA-256, que acusa o mesmo arquivo em duas operações.
+   O PDF do LiveWork é lido de graça (pdftexto.js) e preenche a operação.
+   ========================================================================= */
+const ARQ_BUCKET='recursos-docs', ARQ_MAX=15*1024*1024;
+const arqNuvem=()=>typeof MODO_NUVEM!=='undefined'&&MODO_NUVEM&&typeof sb!=='undefined'&&!!sb;
+async function arqHash(buf){const h=await crypto.subtle.digest('SHA-256',buf);return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+const arqTam=n=>n>=1048576?(n/1048576).toLocaleString('pt-BR',{maximumFractionDigits:1})+' MB':Math.max(1,Math.round(n/1024))+' KB';
+const arqMime=f=>f.type||({pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',xls:'application/vnd.ms-excel',
+  xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'})[(f.name.split('.').pop()||'').toLowerCase()]||'application/octet-stream';
+function idbArq(){return new Promise((ok,no)=>{const r=indexedDB.open('recursos-lidere-arquivos',1);r.onupgradeneeded=()=>r.result.createObjectStore('arq');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
+async function idbPut(k,blob){const db=await idbArq();return new Promise((ok,no)=>{const tx=db.transaction('arq','readwrite');tx.objectStore('arq').put(blob,k);tx.oncomplete=()=>ok();tx.onerror=()=>no(tx.error)})}
+async function idbGet(k){const db=await idbArq();return new Promise((ok,no)=>{const q=db.transaction('arq').objectStore('arq').get(k);q.onsuccess=()=>ok(q.result||null);q.onerror=()=>no(q.error)})}
+async function arqGuardar(f,pasta,sha){
+  if(f.size>ARQ_MAX)throw new Error('Arquivo acima de 15 MB.');
+  const buf=await f.arrayBuffer(),mime=arqMime(f);sha=sha||await arqHash(buf);
+  const limpo=f.name.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w.\-]+/g,'_').slice(-80);
+  const path=`${pasta}/${hoje().slice(0,7)}/${uid()}_${limpo}`,blob=new Blob([buf],{type:mime}),nuvem=arqNuvem();
+  if(nuvem){const {error}=await sb.storage.from(ARQ_BUCKET).upload(path,blob,{contentType:mime,upsert:false});if(error)throw new Error('Não consegui guardar o arquivo: '+error.message)}
+  else await idbPut(path,blob);
+  return {path,nome:f.name,tamanho:f.size,mime,sha256:sha,onde:nuvem?'nuvem':'local',em:new Date().toISOString(),quem:quemSou()};
+}
+async function arqBaixar(a){
+  if(a.onde==='nuvem'){if(!arqNuvem())throw new Error('Arquivo guardado na nuvem: abra pela versão online, com o seu login.');
+    const {data,error}=await sb.storage.from(ARQ_BUCKET).download(a.path);if(error)throw new Error('Não consegui baixar o arquivo: '+error.message);return data}
+  const b=await idbGet(a.path);if(!b)throw new Error('Este arquivo foi anexado em outro navegador da versão local e não está neste computador.');return b}
+async function arqAbrir(a){if(!a)return;const w=window.open('about:blank','_blank');
+  try{const u=URL.createObjectURL(await arqBaixar(a));
+    if(w&&!w.closed)w.location.href=u;else{const x=document.createElement('a');x.href=u;x.download=a.nome;x.click()}setTimeout(()=>URL.revokeObjectURL(u),120000)}
+  catch(e){if(w)w.close();toast(e.message)}}
+function arqAbrirDoc(tipo,id,did){const d=docsDe(tipo,id).find(x=>x.id===did);if(d)arqAbrir(d.arquivo)}
+
+/* ---------- qual documento é o borderô ---------- */
+const ehBordero=d=>!!(d&&d.arquivo&&(d.tipo==='bordero'||/border/i.test(d.nome||'')));
+const borderoDe=o=>(o&&o.documentos||[]).find(ehBordero)||null;
+const bordDaSim=id=>{const s=id&&(DB.simulacoes||[]).find(x=>x.id===id);return s?(s.documentos||[]).find(ehBordero)||null:null};
+function bordDuplicado(sha){if(!sha)return null;return alive(DB.operacoes).find(o=>(o.documentos||[]).some(d=>d.arquivo&&d.arquivo.sha256===sha))||null}
+const bordDoc=(a,d)=>({id:uid(),tipo:'bordero',nome:'Borderô'+(d&&d.numero?' nº '+d.numero:''),url:'',status:'ok',obs:d&&d.sistema?'Lido do PDF do '+d.sistema:'',em:hoje(),arquivo:a,numero:d&&d.numero||null,liquidoDoc:d&&d.valor_liquido!=null?d.valor_liquido:null});
+
+/* ---------- leitura do borderô do LiveWork ----------
+   Linhas que o pdftexto.js remonta (formato do LiveWork, nomes trocados):
+     Londrina, 21 de setembro de 2026 · Contratante: EMPRESA CEDENTE LTDA
+     Borderô anexo ao Termo Aditivo n º 1.234 ...
+     Emitente/Sacado Número Doc. Vencimento Valor de Face Ad-Valorem IOF Deságio Valor Compra
+     EMPRESA SACADA S.A DUP - 100/001 15/10/2026 21.384,00 0,00 0,00 997,92 20.386,08
+     Total: 5 106.920,00 0,00 0,00 7.520,04 99.399,96 · Total de Despesas 40,00 · Líquido a Pagar da Operação: R$ 99.349,96
+   Devolve o mesmo formato que a IA devolveria, para o simulador e a operação usarem igual. */
+const BR_MES={JANEIRO:1,FEVEREIRO:2,MARCO:3,ABRIL:4,MAIO:5,JUNHO:6,JULHO:7,AGOSTO:8,SETEMBRO:9,OUTUBRO:10,NOVEMBRO:11,DEZEMBRO:12};
+const semAcento=s=>(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'');
+const numBR=s=>parseFloat(String(s).replace(/[R$\s.]/g,'').replace(',','.'))||0;
+const isoDe=(d,m,a)=>`${a}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+const RE_VAL=/-?\d{1,3}(?:\.\d{3})*,\d{2}(?!\d)/g, RE_DIA=/\b(\d{2})\/(\d{2})\/(\d{4})\b/;
+const RE_DOC=/\b((?:DUP|DM|NFE?|NF-E|CH|CHQ|CHEQUE|NP|CCB|BOL|BOLETO|CTE|CT-E|DS|FAT)\s*[-–]?\s*[\w\/.\-]+)\s*$/i;
+function borderoDoTexto(linhas){
+  const L=(linhas||[]).map(x=>String(x).trim()).filter(Boolean),U=L.map(x=>semAcento(x).toUpperCase());
+  if(!U.some(x=>/BORDER/.test(x)))return null;
+  const inc=[],d={cliente_nome:null,cliente_cnpj:null,data_operacao:null,fator_mensal_pct:null,float_dias:null,despesas:null,valor_face_total:null,valor_liquido:null,
+    titulos:[],incertos:inc,observacoes:null,numero:null,emissor:null,sistema:U.some(x=>/LIVEWORK/.test(x))?'LiveWork':null};
+  const i0=U.findIndex(x=>/^(CONTRATANTE|CEDENTE|CLIENTE)\s*:/.test(x));if(i0>=0)d.cliente_nome=L[i0].slice(L[i0].indexOf(':')+1).trim()||null;
+  const ib=U.findIndex(x=>/^BORDER/.test(x));if(ib>0)d.emissor=L[ib-1];
+  for(const x of U){const m=/BORDERO ANEXO AO TERMO.*?N\s*[º°O]?\s*(\d[\d.]*)/.exec(x)||/VALORPGTOOPERACAO\s*-\s*(\d+)/.exec(x);if(m){d.numero=m[1].replace(/\./g,'');break}}
+  for(const x of U){let m=/^[A-Z .'\-]{3,40},\s*(\d{2})\/(\d{2})\/(\d{4})$/.exec(x);if(m){d.data_operacao=isoDe(m[1],m[2],m[3]);break}
+    m=/^[A-Z .'\-]{3,40},\s*(\d{1,2})\s+DE\s+([A-Z]+)\s+DE\s+(\d{4})$/.exec(x);if(m&&BR_MES[m[2]]){d.data_operacao=isoDe(m[1],BR_MES[m[2]],m[3]);break}}
+  if(!d.data_operacao)for(const x of U){const m=/(?:FEIRA|SABADO|DOMINGO),\s*(\d{1,2})\s+([A-Z]+),\s*(\d{4})/.exec(x);if(m&&BR_MES[m[2]]){d.data_operacao=isoDe(m[1],BR_MES[m[2]],m[3]);inc.push({campo:'data',motivo:'Data tirada do rodapé do borderô.'});break}}
+  const ih=U.findIndex(x=>/VENCIMENTO/.test(x)&&/FACE/.test(x)),comAdv=ih>=0&&/AD-?VALOREM/.test(U[ih]),comIof=ih>=0&&/IOF/.test(U[ih]);
+  for(let i=ih+1;i<U.length;i++){
+    if(/^TOTAL/.test(U[i]))break;
+    const md=RE_DIA.exec(L[i]);if(!md)continue;
+    const antes=L[i].slice(0,md.index).trim(),vals=(L[i].slice(md.index+md[0].length).match(RE_VAL)||[]).map(numBR);
+    if(vals.length<(ih>=0?2:3))continue;
+    const mdoc=RE_DOC.exec(antes),n=vals.length,extra=n>=5;
+    d.titulos.push({numero:mdoc?mdoc[1].replace(/\s+/g,' '):null,sacado:(mdoc?antes.slice(0,mdoc.index):antes).trim()||null,sacado_cnpj:null,vencimento:isoDe(md[1],md[2],md[3]),
+      valor:vals[0],desagio:n>=3?vals[n-2]:null,adval:comAdv&&extra?vals[1]:0,iof:comIof&&extra?vals[comAdv?2:1]:0,compra:vals[n-1]});
+  }
+  const it=U.findIndex(x=>/^TOTAL\s*:/.test(x));if(it>=0){const v=(L[it].match(RE_VAL)||[]).map(numBR);if(v.length)d.valor_face_total=v[0]}
+  const il=U.findIndex(x=>/LIQUIDO A PAGAR/.test(x));if(il>=0){const v=(L[il].match(RE_VAL)||(L[il+1]||'').match(RE_VAL)||[]).map(numBR);if(v.length)d.valor_liquido=v[v.length-1]}
+  const despDoc=r2(U.reduce((s,x,i)=>/^TOTAL DE DESPESAS/.test(x)?s+((L[i].match(RE_VAL)||[]).map(numBR).pop()||0):s,0));
+  const T=d.titulos,face=r2(T.reduce((s,t)=>s+t.valor,0)),desag=r2(T.reduce((s,t)=>s+(t.desagio||0),0)),adv=r2(T.reduce((s,t)=>s+t.adval+t.iof,0));
+  if(!T.length)inc.push({campo:'títulos',motivo:'Não achei as linhas dos títulos: preencha à mão.'});
+  if(d.valor_face_total!=null&&T.length&&Math.abs(face-d.valor_face_total)>.01)inc.push({campo:'títulos',motivo:`Os títulos lidos somam ${brl(face)} e o total do borderô é ${brl(d.valor_face_total)}: falta alguma linha.`});
+  if(d.valor_liquido!=null&&T.length){d.despesas=r2(face-desag-d.valor_liquido);
+    if(despDoc&&Math.abs(d.despesas-adv-despDoc)>.01)inc.push({campo:'despesas',motivo:`Face − deságio − líquido dá ${brl(d.despesas)} e o borderô lista ${brl(despDoc)} de despesas.`})}
+  else{d.despesas=r2(despDoc+adv);if(d.valor_liquido==null)inc.push({campo:'líquido',motivo:'Líquido a pagar não encontrado.'})}
+  if(adv)d.observacoes=`Inclui ${brl(adv)} de ad valorem e IOF nas despesas.`;
+  if(!d.cliente_nome)inc.push({campo:'cliente',motivo:'Contratante (cedente) não encontrado.'});
+  if(!d.data_operacao)inc.push({campo:'data',motivo:'Data da operação não encontrada.'});
+  /* fator e float: o LiveWork não imprime; saem do deságio de cada título, no mesmo critério da calculadora
+     (deságio = valor × fator × (dias até o vencimento útil + float) ÷ 30) */
+  const P=d.data_operacao?T.filter(t=>t.valor>0&&t.desagio>0).map(t=>({x:Math.max(0,dias(d.data_operacao,diaUtil(t.vencimento))),y:t.desagio/t.valor*30,v:t.valor,g:t.desagio})):[];
+  if(P.length){
+    const c=d.cliente_nome?acharPorNome(alive(DB.clientes),d.cliente_nome):null;let f=null,fl=null;
+    if(new Set(P.map(p=>p.x)).size>=2){const mx=P.reduce((s,p)=>s+p.x,0)/P.length,my=P.reduce((s,p)=>s+p.y,0)/P.length;
+      const a=P.reduce((s,p)=>s+(p.x-mx)*(p.y-my),0)/P.reduce((s,p)=>s+(p.x-mx)**2,0);
+      if(a>0){f=Math.round(a*10000)/10000;fl=Math.round((my-f*mx)/f)}}
+    if((f==null||fl<0||fl>15)&&c&&c.fatorMes){const z=P.reduce((s,p)=>s+p.y/c.fatorMes-p.x,0)/P.length;if(z>-.2&&z<15.2&&Math.abs(z-Math.round(z))<.15){f=c.fatorMes;fl=Math.round(z)}}
+    if(f==null||fl<0||fl>15){fl=2;f=Math.round(P.reduce((s,p)=>s+p.g,0)*30/P.reduce((s,p)=>s+p.v*(p.x+fl),0)*10000)/10000}
+    d.fator_mensal_pct=Math.round(f*1e6)/1e4;d.float_dias=fl;
+    const sim=r2(P.reduce((s,p)=>s+p.v*f*(p.x+fl)/30,0));
+    inc.push({campo:'fator',motivo:`Fator ${pctBR(f)} a.m. e float de ${fl} dia(s) deduzidos do deságio${Math.abs(sim-desag)>.01?`; pelo cálculo do sistema o deságio daria ${brl(sim)}, e o borderô cobra ${brl(desag)} (diferença de ${brl(r2(desag-sim))})`:''}. O valor enviado fica o do borderô.`});
+  }
+  return d;
+}
+async function bordLer(f){
+  if(f.size>ARQ_MAX)throw new Error('Arquivo acima de 15 MB.');
+  const buf=await f.arrayBuffer(),sha=await arqHash(buf);let dados=null;
+  if(arqMime(f)==='application/pdf'){try{dados=borderoDoTexto((await pdfParaTexto(buf)).linhas)}catch(_){dados=null}}
+  return {sha,dados};
+}
+/* NF da operação: "DUP 879" quando as parcelas são do mesmo documento, senão a lista */
+function bordNF(d){const N=[...new Set((d.titulos||[]).map(t=>(t.numero||'').replace(/\s*-\s*/,' ').trim()).filter(Boolean))];if(!N.length)return d.numero?'Borderô '+d.numero:'';
+  const base=[...new Set(N.map(x=>x.split('/')[0]))];return (base.length===1?base[0]:N.join(', ')).slice(0,80)}
+
+/* ---------- na janela da operação ---------- */
+function operBordReset(){window._bordOp=null;const i=el('o_bord');if(i)i.value='';setVal('o_dup','');operBordInfo()}
+async function operBordEscolhe(inp){
+  const f=inp.files[0];window._bordOp=null;setVal('o_dup','');limpaErro('o_erro');if(!f)return operBordInfo();
+  el('o_bordInfo').innerHTML='<div class="muted">Lendo o borderô…</div>';
+  try{const r=await bordLer(f);window._bordOp={file:f,sha:r.sha,dados:r.dados,avisos:r.dados?operDoBordero(r.dados):[]};operBordInfo()}
+  catch(e){inp.value='';el('o_bordInfo').innerHTML=`<div class="neg">${esc(e.message)}</div>`}
+}
+function operDoBordero(d){
+  const av=(d.incertos||[]).map(x=>x.motivo),T=(d.titulos||[]).filter(t=>t.vencimento&&t.valor>0);
+  const c=acharPorNome(alive(DB.clientes),d.cliente_nome);if(c){setVal('o_cli',c.id);if(!d.fator_mensal_pct&&c.fatorMes)setVal('o_fator',n2(c.fatorMes*100))}
+  else if(d.cliente_nome)av.unshift(`Cliente "${d.cliente_nome}" não está cadastrado: cadastre no + e escolha na lista.`);
+  const sacs=[...new Set(T.map(t=>t.sacado).filter(Boolean))];
+  if(sacs.length===1){const x=acharPorNome(alive(DB.sacados),sacs[0]);el('o_direta').checked=false;el('o_wrapSac').style.display='flex';
+    if(x)setVal('o_sac',x.id);else av.unshift(`Sacado "${sacs[0]}" não está cadastrado: cadastre no + e escolha na lista.`)}
+  else if(sacs.length>1)av.unshift(`O borderô tem ${sacs.length} sacados (${sacs.slice(0,3).join(', ')}${sacs.length>3?'…':''}); a operação aceita um. Lance uma operação por sacado, com o mesmo borderô.`);
+  if(d.data_operacao)setVal('o_data',d.data_operacao);
+  setVal('o_nf',bordNF(d));
+  if(T.length){setVal('o_bruto',n2(r2(T.reduce((s,t)=>s+t.valor,0))));setVal('o_n',String(T.length));setVal('o_v1',T[0].vencimento);
+    if(T.length>1){const it=dias(T[0].vencimento,T[1].vencimento);if(it>0)setVal('o_int',String(it))}operGera();
+    document.querySelectorAll('.o_pv').forEach((x,i)=>{if(T[i])x.value=T[i].vencimento});document.querySelectorAll('.o_pval').forEach((x,i)=>{if(T[i])x.value=n2(T[i].valor)})}
+  if(d.fator_mensal_pct!=null)setVal('o_fator',n2(d.fator_mensal_pct));if(d.float_dias!=null)setVal('o_float',String(d.float_dias));setVal('o_desp',d.despesas?n2(d.despesas):'');
+  el('o_liq').dataset.manual='';
+  if(d.valor_liquido!=null){setVal('o_liq',n2(d.valor_liquido));el('o_liq').dataset.manual='1'}
+  if(d.numero&&!val('o_obs'))setVal('o_obs',`Borderô ${d.sistema?d.sistema+' ':''}nº ${d.numero}`);
+  operCalc();return av;
+}
+function operBordInfo(){
+  const box=el('o_bordInfo');if(!box)return;const b=window._bordOp,sd=bordDaSim(window._simConv);
+  if(!b&&!sd){box.innerHTML='';return}
+  if(!b){box.innerHTML=`<div class="bord-ok">📎 Borderô da simulação: <b>${esc(sd.arquivo.nome)}</b> · já guardado</div>`;return}
+  const d=b.dados,dup=bordDuplicado(b.sha),T=d?(d.titulos||[]):[];
+  box.innerHTML=`<div class="bord-ok">📎 <b>${esc(b.file.name)}</b> · ${arqTam(b.file.size)}${d?` · lido: ${T.length} título(s), face ${brl(r2(T.reduce((s,t)=>s+t.valor,0)))}${d.valor_liquido!=null?', líquido '+brl(d.valor_liquido):''}`:' · anexado sem leitura automática (não é PDF de borderô do LiveWork)'}</div>`
+    +(dup?`<div class="neg">Este mesmo arquivo já está na operação de ${fmtBR(dup.data)} (${esc(nomeCli(dup.clienteId))}).</div>`:'')
+    +(b.avisos&&b.avisos.length?`<ul class="bord-av">${b.avisos.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'');
+}
+/* chamado pelo saveOper depois das conferências: garante o borderô e guarda o arquivo antes de gravar a operação */
+async function operBordPronto(eid){
+  const b=window._bordOp,sd=bordDaSim(window._simConv);
+  if(!b&&!sd){erro(eid,'Anexe o borderô da operação (PDF ou imagem). Sem borderô a operação não é registrada.');return null}
+  if(!b)return {doc:null,sd};
+  const dup=bordDuplicado(b.sha);
+  if(dup&&val('o_dup')!=='1'){setVal('o_dup','1');erro(eid,`Este borderô já está anexado à operação de ${fmtBR(dup.data)} (${nomeCli(dup.clienteId)}). Clique em Rodar operação de novo para registrar mesmo assim.`);return null}
+  const bt=el('o_ok');if(bt){bt.disabled=true;bt.textContent='Guardando o borderô…'}
+  try{return {doc:bordDoc(await arqGuardar(b.file,'operacoes',b.sha),b.dados),sd}}
+  catch(e){erro(eid,e.message);return null}
+  finally{if(bt){bt.disabled=false;bt.textContent='Rodar operação'}}
+}
+
+/* ---------- no simulador: ler o PDF de graça e já deixar o arquivo anexado ---------- */
+async function simBordEscolhe(inp){
+  const f=inp.files[0];inp.value='';if(!f)return;
+  try{iaStatus('sm_ia','Lendo o borderô…');const r=await bordLer(f);
+    if(!r.dados){iaStatus('sm_ia','');return toast('Não reconheci um borderô do LiveWork neste arquivo. Anexe direto na operação.')}
+    aplicarBordero(r.dados,f.name,null);simCur.nf=bordNF(r.dados);simCur.bordero={numero:r.dados.numero,liquido:r.dados.valor_liquido};
+    simCur.documentos=[bordDoc(await arqGuardar(f,'simulacoes',r.sha),r.dados)];render()}
+  catch(e){iaStatus('sm_ia',e.message,true)}
+}
+function simBordLinha(s){const b=(s.documentos||[]).find(ehBordero);
+  return b?`<div class="sim-linha"><span>Borderô anexado</span><b>📎 ${esc(b.arquivo.nome)} <button class="btn btn-sm" onclick="arqAbrir(simCur.documentos.find(x=>x.id==='${b.id}').arquivo)">abrir</button></b></div>`:''}
 
 if(typeof MODO_NUVEM==='undefined'||!MODO_NUVEM){load();render();avisoAbertura()}
 /* =========================================================================
