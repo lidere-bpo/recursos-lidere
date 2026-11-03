@@ -1,3 +1,5 @@
 # Recursos Lidere
 
-Capital de giro e recurso próprio da Lidere BPO Financeiro. Página publicada em GitHub Pages; os dados vivem no Supabase, atrás de login. O arquivo não contém dados.
+O sistema mudou para o servidor da Lidere: https://recursos.liderebpo.com.br
+
+Esta página só redireciona para o endereço novo.
