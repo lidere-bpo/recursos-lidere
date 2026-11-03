@@ -936,7 +936,6 @@ a.lnk{color:inherit;text-decoration:none}a.lnk:hover b{color:var(--acc);text-dec
     <p><b>Dados tratados de quem acessa:</b> apenas o seu <b>e-mail</b> (login e identificação). Não coletamos CPF, telefone ou dados sensíveis dos usuários da equipe.</p>
     <p><b>Base legal (LGPD):</b> legítimo interesse do controlador na gestão do trabalho e seu consentimento no cadastro.</p>
     <p><b>Armazenamento:</b> nesta versão, só neste navegador (nada sai da máquina). Na versão em nuvem, banco de dados no Brasil (Supabase, região São Paulo), com acesso restrito por autenticação e regras de segurança por linha (RLS).</p>
-    <p><b>Inteligência artificial:</b> na versão em nuvem, quando você usa a IA (ler borderô, perguntar ao sistema, melhorar texto), o arquivo ou o retrato dos dados necessários é enviado à Anthropic, nos Estados Unidos, só para gerar a resposta. A chave fica no servidor da Lidere, e só usuários aprovados conseguem usar.</p>
     <p><b>Seus direitos:</b> acessar, corrigir e <b>excluir</b> seus dados, e revogar o consentimento a qualquer momento. Use "Baixar backup" para exportar e o botão abaixo para excluir sua conta.</p>
     <p><b>Contato do encarregado:</b> adm@liderebpo.com.br</p>
   </div>
@@ -2312,7 +2311,7 @@ function viewSimulador(){
   if(!simCur)simCur=simNovo();const s=simCur;
   const linhas=simParcHTML(s);
   return `<div class="sim-wrap"><div class="panel"><div class="panel-head"><h2>${s.id?'Simulação salva':'Nova simulação'}<small>${s.id?'etapa: '+(ETAPAS_SIM.find(e=>e[0]===s.etapa)||[0,s.etapa])[1]:'preencha e veja o efeito no caixa e no retorno antes de operar'}</small></h2>
-      <button class="btn btn-sm btn-gold" onclick="lerBordero()" title="Envie o PDF ou a foto do borderô: a IA preenche a simulação">Ler borderô com IA</button><button class="btn btn-sm" onclick="simCur=null;render()">+ Nova</button></div>
+      ${typeof IA_ATIVA!=='undefined'&&IA_ATIVA?`<button class="btn btn-sm btn-gold" onclick="lerBordero()" title="Envie o PDF ou a foto do borderô: a IA preenche a simulação">Ler borderô com IA</button>`:''}<button class="btn btn-sm" onclick="simCur=null;render()">+ Nova</button></div>
     <div id="sm_ia"></div>${typeof simIAPainel==='function'?simIAPainel(s):''}
     <div class="fgrid">
       <div class="field"><label>Recurso</label><select id="sm_fonte" onchange="simAtualiza()">${fontes().map(f=>`<option value="${f.codigo}" ${s.fonte===f.codigo?'selected':''}>${f.codigo} · ${esc(f.nome)}</option>`).join('')}</select></div>
@@ -2471,7 +2470,7 @@ function textoCobranca(cliId){const c=cli(cliId),D=demonstrativoDados(cliId),nom
   const p=promessaAtiva(cliId);L.push(p?`Conforme combinamos, fica o pagamento de ${brl(p.valor)} para ${fmtBR(p.data)}. Pode me confirmar?`:venc.length?'Consegue me passar uma previsão de pagamento dos vencidos?':'Qualquer dúvida, estou à disposição.');
   L.push('','Obrigado,',(DB.perfil&&DB.perfil.nome)||'Lidere BPO Financeiro');return L.join('\n')}
 function abrirTexto(cliId){const t=textoCobranca(cliId);openGen('Texto de cobrança · '+esc(nomeCli(cliId)),`<div class="hint" style="margin-bottom:8px">Montado com os números do sistema. Revise antes de enviar.</div><textarea id="tx_cob" rows="14" style="width:100%">${esc(t)}</textarea>`,
-  `<button class="btn btn-ghost" onclick="closeModal('ovGen')">Fechar</button><button class="btn" id="tx_ia" onclick="iaMelhorarTexto()">Melhorar com IA</button><button class="btn btn-gold" onclick="navigator.clipboard.writeText(val('tx_cob')).then(()=>toast('Texto copiado'))">Copiar</button>`)}
+  `<button class="btn btn-ghost" onclick="closeModal('ovGen')">Fechar</button>${typeof IA_ATIVA!=='undefined'&&IA_ATIVA?`<button class="btn" id="tx_ia" onclick="iaMelhorarTexto()">Melhorar com IA</button>`:''}<button class="btn btn-gold" onclick="navigator.clipboard.writeText(val('tx_cob')).then(()=>toast('Texto copiado'))">Copiar</button>`)}
 function viewFicha(){
   const L=alive(DB.clientes).sort((a,b)=>a.nome.localeCompare(b.nome));if(!L.length)return vazio('Nenhum cliente cadastrado.');
   if(!fichaCli||!L.find(c=>c.id===fichaCli))fichaCli=L[0].id;const c=cli(fichaCli),D=fichaDados(fichaCli),H=hoje(),CT=contatosCli(c.id),pr=promessaAtiva(c.id),px=proximaAcao(c.id);
@@ -2689,6 +2688,9 @@ const _renderBase=render;render=function(){if(DB)garanteModulos();_renderBase()}
    botões aparecem, mas avisam que a IA precisa do login.
    ========================================================================= */
 let iaResp=null;
+/* Desligada em 03/11/2026: o Leonardo não quer custo com a API da Anthropic. O código fica pronto; para ligar,
+   cadastrar ANTHROPIC_API_KEY nos segredos do Supabase e trocar IA_ATIVA para true. */
+let IA_ATIVA=false;
 const IA_PRECO={entrada:4/1e6,saida:20/1e6};   // Claude Opus 5.5, US$ por token
 const iaNuvem=()=>typeof MODO_NUVEM!=='undefined'&&MODO_NUVEM&&typeof sb!=='undefined'&&!!sb;
 async function iaChamar(corpo){
@@ -2761,7 +2763,7 @@ async function iaPergunta(){const p=(el('ia_q')||{}).value||'';if(!p.trim())retu
 function iaAbrirItem(tipo,id){if(tipo==='cliente')return abrirFicha(id);if(tipo==='operacao')return abrirOperacao(id);
   if(tipo==='titulo'){const t=DB.titulos.find(x=>x.id===id);if(!t)return toast('Título não encontrado');return t.operacaoId?abrirOperacao(t.operacaoId):abrirFicha(t.clienteId)}
   if(tipo==='antecipacao'){const a=DB.antecipacoes.find(x=>x.id===id);if(!a)return toast('Antecipação não encontrada');crCli=a.clienteId;return go('correcao','')}}
-function painelIA(){const R=iaResp,U=iaUsoMes();
+function painelIA(){if(!IA_ATIVA)return '';const R=iaResp,U=iaUsoMes();
   return `<div class="panel"><div class="panel-head"><h2>Pergunte ao sistema · IA<small>responde com os dados do sistema; ex.: "quais operações do LEO vencem nesta semana?", "quais clientes estão com vencido há mais de 30 dias?"${U.n?` · ${U.n} uso(s) no mês, aprox. ${usd(U.usd)}`:''}</small></h2></div>
     <div class="acts-row"><textarea id="ia_q" rows="2" style="flex:1" placeholder="Pergunte em português, como para um analista" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();iaPergunta()}">${esc(R&&R.pergunta||'')}</textarea><button class="btn btn-gold" onclick="iaPergunta()" ${R&&R.carregando?'disabled':''}>${R&&R.carregando?'Pensando…':'Perguntar'}</button></div>
     ${R&&R.carregando?'<div class="ia-st"><span class="ia-spin"></span>Consultando os dados. Leva de 10 a 40 segundos.</div>':''}
